@@ -533,6 +533,7 @@ function buildSeedFor(rooms) {
 
 /* ---------------- ícones ---------------- */
 const IC = {
+  bag: '<path d="M5 8h14l-1 12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/>',
   gift: '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/>',
   pot: '<path d="M4 11h16v6a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3z"/><path d="M2 11h2M20 11h2M9 8c0-1.2 1-1.6 1-2.8M13 8c0-1.2 1-1.6 1-2.8"/>',
   bed: '<path d="M3 5v14M3 14h18M21 19v-6a3 3 0 0 0-3-3h-7v4"/><circle cx="7" cy="11" r="2"/>',
@@ -1377,7 +1378,7 @@ function itemForm(it, defaults = {}) {
     </div>
     <div class="seg" id="fStatus" role="group" aria-label="Situação">
       <button type="button" data-v="0" aria-pressed="${!v.comprado}">Falta</button>
-      <button type="button" data-v="1" aria-pressed="${!!v.comprado && !v.presente}">Compramos</button>
+      <button type="button" data-v="1" aria-pressed="${!!v.comprado && !v.presente}">${ic("bag", 16, 2)} Compramos</button>
       <button type="button" data-v="2" aria-pressed="${isGift(v)}">${ic("gift", 16, 2)} Presente</button>
     </div>
     <div id="fOk" class="${v.comprado ? "" : "hidden"}" style="display:flex;flex-direction:column;gap:14px">
@@ -1441,7 +1442,7 @@ async function openPurchaseSheet(id) {
       <div style="min-width:0"><b style="display:block;font-size:17px">${esc(it.nome)}</b><span style="font-size:13px;color:var(--muted)">${esc(r.nome)}${it.topico ? " · " + esc(it.topico) : ""}</span></div>
     </div>
     <div class="seg" id="pKind" role="group" aria-label="Como chegou">
-      <button type="button" data-v="0" aria-pressed="${!gift}">Compramos</button>
+      <button type="button" data-v="0" aria-pressed="${!gift}">${ic("bag", 16, 2)} Compramos</button>
       <button type="button" data-v="1" aria-pressed="${gift}">${ic("gift", 16, 2)} Foi presente</button>
     </div>
     <div class="field ${gift ? "" : "hidden"}" id="pGiftWrap"><label for="pDe">Quem deu</label><input class="input" id="pDe" list="giversDl" placeholder="Ex.: Tia Ana, padrinhos…" value="${esc(it.presenteDe || "")}" autocomplete="off" autocapitalize="words">${giversList()}</div>
