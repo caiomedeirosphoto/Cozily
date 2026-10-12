@@ -1,0 +1,1334 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cozily</title>
+<meta name="description" content="Tudo do nosso ap, item por item.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Cozily">
+<meta name="theme-color" content="#F3F2EE" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1110" media="(prefers-color-scheme: dark)">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap">
+<style>
+:root{
+  --bg:#F3F2EE; --card:#FFFFFF; --ink:#17181A; --ink2:#2C2E2A; --muted:#5E625C; --faint:#8A8E87;
+  --line:#E4E2DC; --soft:#ECEAE4; --field:#FFFFFF; --overlay:rgba(23,24,26,.45);
+  --accent:#2E6A4F; --accent-ink:#FFFFFF; --accent-text:#2E6A4F; --accent-soft:#DCEBE2;
+  --deep:#1F4A37; --deep-ink:#FFFFFF; --deep-muted:#C7E3D2; --ring:#9FD8B5; --key:#F2C48D;
+  --amber:#9A5516; --amber-soft:#F6E7D6; --amber-ink:#7A3F0E; --amber-deep:#3D2208;
+  --blue:#2D5A8A; --blue-soft:#DCE6F2; --blue-ink:#24507D;
+  --purple:#5B4A86; --purple-soft:#E7E1F1; --purple-ink:#4E3F78;
+  --danger:#B23A2E;
+  --shadow:0 1px 2px rgba(23,24,26,.04), 0 6px 20px rgba(23,24,26,.05);
+  --r-lg:24px; --r-md:18px; --r-sm:14px;
+  --top:env(safe-area-inset-top,0px); --bottom:env(safe-area-inset-bottom,0px);
+  --ease:cubic-bezier(.22,1,.36,1);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0F1110; --card:#1A1C1A; --ink:#EDEDEA; --ink2:#D9DAD5; --muted:#A3A79F; --faint:#7D817A;
+    --line:#2A2D2A; --soft:#272A27; --field:#141614; --overlay:rgba(0,0,0,.6);
+    --accent:#2F7A55; --accent-ink:#FFFFFF; --accent-text:#8FD1AC; --accent-soft:#1E3A2C;
+    --deep:#16382A; --deep-muted:#A9D5BC;
+    --amber:#E0A262; --amber-soft:#3A2A19; --amber-ink:#F0C08E; --amber-deep:#F6DDBF;
+    --blue:#7EA9D6; --blue-soft:#1C2C3D; --blue-ink:#A9C8EA;
+    --purple:#AE9CDB; --purple-soft:#2A2440; --purple-ink:#C9BCEB;
+    --danger:#F08A7E;
+    --shadow:none;
+    color-scheme:dark;
+  }
+}
+/* cômodos */
+.c-green{--tint:#DCEBE2;--tone:#2E6A4F}
+.c-lilac{--tint:#E7E1F1;--tone:#5B4A86}
+.c-blue{--tint:#DCE6F2;--tone:#2D5A8A}
+.c-rose{--tint:#F3DEDB;--tone:#8A3E36}
+.c-teal{--tint:#D8ECEC;--tone:#23706F}
+.c-sand{--tint:#F1E9D8;--tone:#7A5B22}
+.c-grey{--tint:#E6E6E3;--tone:#4B4F4A}
+.c-ochre{--tint:#EEE5D2;--tone:#6B5527}
+@media (prefers-color-scheme: dark){
+  .c-green{--tint:#1E3A2C;--tone:#8FD1AC}
+  .c-lilac{--tint:#2A2440;--tone:#C3B5EA}
+  .c-blue{--tint:#1C2C3D;--tone:#9CC2EA}
+  .c-rose{--tint:#3A2220;--tone:#EBA79E}
+  .c-teal{--tint:#163433;--tone:#86D1CF}
+  .c-sand{--tint:#33291A;--tone:#E1C38A}
+  .c-grey{--tint:#2A2C2A;--tone:#C4C7C0}
+  .c-ochre{--tint:#312A1B;--tone:#D9C08E}
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Figtree,system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.4;-webkit-font-smoothing:antialiased;overscroll-behavior-y:none}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;touch-action:manipulation;border:0;background:none;padding:0}
+a{color:var(--accent-text);text-decoration:none}
+img{display:block}
+.h-display{font-family:Sora,Figtree,sans-serif;letter-spacing:-.02em}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+#app{max-width:520px;margin:0 auto;min-height:100vh;min-height:100dvh;position:relative}
+.page{padding:calc(var(--top) + 14px) 20px calc(var(--bottom) + 112px);display:flex;flex-direction:column;gap:18px}
+.page.no-tabs{padding-bottom:calc(var(--bottom) + 40px)}
+.enter-fade{animation:fadeUp .38s var(--ease) both}
+.enter-push{animation:pushIn .42s var(--ease) both}
+.enter-pop{animation:popIn .42s var(--ease) both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes pushIn{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:none}}
+@keyframes popIn{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:none}}
+.stagger>*{animation:rise .5s var(--ease) both;animation-delay:calc(var(--i,0) * 32ms)}
+@keyframes rise{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+
+/* topo */
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:44px}
+.hello{display:flex;flex-direction:column;gap:2px}
+.hello small{font-size:14px;color:var(--muted);font-weight:500}
+.hello h1{margin:0;font-size:30px;font-weight:700;line-height:1.1}
+.icon-btn{width:44px;height:44px;border-radius:50%;background:var(--card);color:var(--ink);display:inline-flex;align-items:center;justify-content:center;flex:none;box-shadow:var(--shadow);transition:transform .15s}
+.icon-btn:active{transform:scale(.92)}
+.icon-btn.solid{background:var(--accent);color:var(--accent-ink)}
+.row-gap{display:flex;gap:8px}
+
+/* hero */
+.hero{background:var(--deep);border-radius:26px;padding:20px;color:#fff;display:flex;flex-direction:column;gap:16px}
+.hero-top{display:flex;align-items:center;gap:20px}
+.ring{position:relative;width:108px;height:108px;flex:none}
+.ring svg{width:108px;height:108px;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:10}
+.ring .track{stroke:rgba(255,255,255,.16)}
+.ring .arc{stroke:var(--ring);stroke-linecap:round;transition:stroke-dashoffset 1.1s var(--ease)}
+.ring-label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-label b{font-family:Sora,Figtree,system-ui,sans-serif;font-size:27px;line-height:1}
+.ring-label span{font-size:12px;color:var(--deep-muted);margin-top:3px}
+.kv{display:flex;flex-direction:column;gap:2px}
+.kv small{font-size:11px;color:var(--deep-muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.kv b{font-family:Sora,Figtree,system-ui,sans-serif;font-size:20px;font-weight:600}
+.keys{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px;border-top:1px solid rgba(255,255,255,.12);padding-top:12px}
+.keys span:first-child{display:flex;align-items:center;gap:7px;font-weight:600}
+.keys span:last-child{color:var(--deep-muted)}
+
+/* etapa card */
+.next{background:var(--amber-soft);border-radius:22px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;color:var(--amber-deep)}
+.next .eyebrow{display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--amber-ink);text-transform:uppercase;letter-spacing:.08em}
+.next b{font-family:Sora,Figtree,system-ui,sans-serif;font-size:19px}
+.next p{margin:0;font-size:13px;color:var(--amber-ink)}
+.bar{height:6px;border-radius:3px;background:var(--soft);overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:3px;background:var(--tone,var(--accent));width:0;transition:width .9s var(--ease)}
+.next .bar{background:rgba(154,85,22,.18)}
+.next .bar>i{background:var(--amber)}
+
+.sec-h{display:flex;justify-content:space-between;align-items:baseline;margin-top:2px}
+.sec-h h2{margin:0;font-family:Sora,Figtree,system-ui,sans-serif;font-size:18px;font-weight:600}
+.sec-h span,.sec-h a{font-size:13px;color:var(--muted);font-weight:600}
+.sec-h a{color:var(--accent-text)}
+
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.room-card{background:var(--card);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:10px;color:var(--ink);box-shadow:var(--shadow);transition:transform .18s var(--ease)}
+.room-card:active{transform:scale(.97)}
+.room-card .top{display:flex;justify-content:space-between;align-items:flex-start}
+.room-card .count{font-size:13px;font-weight:600;color:var(--muted)}
+.room-card .name{font-weight:700;font-size:16px}
+.tile{width:40px;height:40px;border-radius:12px;background:var(--tint);color:var(--tone);display:inline-flex;align-items:center;justify-content:center;flex:none}
+.tile.lg{width:56px;height:56px;border-radius:18px}
+
+.list{background:var(--card);border-radius:20px;box-shadow:var(--shadow);overflow:hidden}
+.list-link{display:flex;align-items:center;gap:12px;padding:14px;color:var(--ink)}
+.list-link+.list-link{border-top:1px solid var(--soft)}
+.list-link .grow{flex:1;font-weight:700}
+.list-link .count{font-size:13px;color:var(--muted);font-weight:600}
+
+/* cômodo */
+.room-hero{display:flex;flex-direction:column;gap:14px}
+.room-hero .t{display:flex;align-items:center;gap:14px}
+.room-hero h1{margin:0;font-size:28px;font-weight:700;line-height:1.15}
+.room-hero p{margin:2px 0 0;color:var(--muted);font-size:14px}
+.room-hero .bar{height:8px;border-radius:4px}
+.seg{display:flex;background:var(--soft);border-radius:14px;padding:4px}
+.seg button{flex:1;min-height:38px;border-radius:11px;font-size:14px;font-weight:700;color:var(--muted);transition:background .2s,color .2s}
+.seg button[aria-pressed=true]{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.chips{display:flex;gap:8px;overflow-x:auto;margin:0 -20px;padding:2px 20px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;min-height:40px;padding:0 14px;border-radius:20px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px;transition:background .2s,color .2s,border-color .2s}
+.chip small{font-size:12px;opacity:.7}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.group{display:flex;flex-direction:column;gap:8px}
+.group-h{display:flex;justify-content:space-between;align-items:baseline;padding:0 4px}
+.group-h h3{margin:0;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.group-h span{font-size:13px;color:var(--muted);font-weight:600}
+.items{background:var(--card);border-radius:20px;padding:4px 0;box-shadow:var(--shadow)}
+.item{display:flex;align-items:center;gap:6px;padding:6px 6px 6px 14px;position:relative}
+.item+.item::before{content:"";position:absolute;left:72px;right:0;top:0;border-top:1px solid var(--soft)}
+.item-main{flex:1;min-width:0;display:flex;align-items:center;gap:12px;color:var(--ink);padding:4px 0}
+.thumb{width:46px;height:46px;border-radius:14px;flex:none;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--accent-soft);color:var(--accent-text)}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.thumb.empty{background:transparent;border:1.5px dashed var(--line);color:var(--faint)}
+.item-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.item-name{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item.done .item-name{color:var(--muted)}
+.meta{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);min-width:0;white-space:nowrap}
+.meta .dot{width:8px;height:8px;border-radius:50%;background:var(--tone);flex:none}
+.meta .room{font-weight:700;color:var(--tone)}
+.pill{font-size:11.5px;font-weight:700;border-radius:8px;padding:2px 7px;white-space:nowrap}
+.e1{color:var(--amber-ink);background:var(--amber-soft)}
+.e2{color:var(--blue-ink);background:var(--blue-soft)}
+.e3{color:var(--purple-ink);background:var(--purple-soft)}
+.chk{width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex:none}
+.chk span{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;color:#fff;transition:background .2s,border-color .2s}
+.item.done .chk span{background:var(--accent);border-color:var(--accent)}
+.chk svg{opacity:0;transform:scale(.5);transition:opacity .2s,transform .25s var(--ease)}
+.item.done .chk svg{opacity:1;transform:none}
+.pop .chk span{animation:chkPop .45s var(--ease)}
+@keyframes chkPop{0%{transform:scale(.7)}55%{transform:scale(1.18)}100%{transform:scale(1)}}
+.empty-state{text-align:center;color:var(--muted);padding:34px 20px;font-size:15px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.empty-state b{color:var(--ink);font-size:16px}
+
+/* detalhe */
+.photo-wrap{position:relative;margin:calc(-1 * (var(--top) + 14px)) -20px 0;height:calc(var(--top) + 330px);background:var(--accent-soft)}
+.photos{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;height:100%;scrollbar-width:none}
+.photos::-webkit-scrollbar{display:none}
+.photos img{flex:none;width:100%;height:100%;object-fit:cover;scroll-snap-align:center}
+.photo-empty{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--accent-text);padding-top:var(--top)}
+.photo-empty button{display:flex;align-items:center;gap:8px;background:var(--card);color:var(--ink);min-height:44px;padding:0 18px;border-radius:22px;font-weight:700;font-size:15px}
+.float-bar{position:absolute;left:20px;right:20px;top:calc(var(--top) + 12px);display:flex;justify-content:space-between}
+.dots{position:absolute;bottom:42px;left:0;right:0;display:flex;justify-content:center;gap:6px}
+.dots i{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.6);transition:width .25s}
+.dots i.on{width:18px;background:#fff}
+.sheet-card{margin:-28px -20px 0;background:var(--bg);border-radius:28px 28px 0 0;position:relative;padding:22px 20px 0;display:flex;flex-direction:column;gap:18px}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.pills .pill{font-size:12px;padding:5px 10px;border-radius:10px}
+.pill.room{background:var(--tint);color:var(--tone)}
+.detail-title{margin:0;font-size:26px;font-weight:700;line-height:1.2}
+.status-btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:54px;border-radius:16px;font-weight:700;font-size:16px;background:var(--accent);color:var(--accent-ink);transition:transform .15s,background .25s}
+.status-btn:active{transform:scale(.98)}
+.status-btn.is-done{background:var(--accent-soft);color:var(--accent-text)}
+.price{background:var(--card);border-radius:20px;padding:16px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;box-shadow:var(--shadow)}
+.price small{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.price b{font-family:Sora,Figtree,system-ui,sans-serif;font-size:30px;font-weight:700;letter-spacing:-.02em;display:block}
+.price .side{display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-size:13px;color:var(--muted);text-align:right}
+.price .save{font-weight:700;color:var(--accent-text)}
+.info{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.info div{border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:5px;min-width:0}
+.info small{font-size:12px;color:var(--muted);font-weight:600}
+.info b{font-size:15px;overflow-wrap:anywhere}
+.notes small{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.notes p{margin:6px 0 0;font-size:15px;line-height:1.5;color:var(--ink2);white-space:pre-wrap}
+.btn{min-height:52px;border-radius:16px;font-size:15px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 18px;transition:transform .15s}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:var(--card);border:1px solid var(--line);color:var(--ink)}
+.btn.danger{color:var(--danger);background:transparent}
+.btn.block{width:100%}
+.btn[disabled]{opacity:.6}
+
+/* ordem */
+.stage{width:100%;text-align:left;border:2px solid transparent;background:var(--card);border-radius:20px;padding:14px 16px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow);transition:border-color .2s,background .2s}
+.stage .num{width:40px;height:40px;border-radius:12px;color:#fff;font-family:Sora,Figtree,system-ui,sans-serif;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}
+.stage .body{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.stage .body span{display:flex;justify-content:space-between;gap:8px}
+.stage .body b{font-size:16px}
+.stage .bar{display:block}
+.stage .body small{font-size:13px;font-weight:700;color:var(--muted)}
+.s1 .num,.s1 .bar>i{background:var(--amber)} .s1[aria-pressed=true]{border-color:var(--amber);background:var(--amber-soft)}
+.s2 .num,.s2 .bar>i{background:var(--blue)} .s2[aria-pressed=true]{border-color:var(--blue);background:var(--blue-soft)}
+.s3 .num,.s3 .bar>i{background:var(--purple)} .s3[aria-pressed=true]{border-color:var(--purple);background:var(--purple-soft)}
+@media (prefers-color-scheme: dark){.stage .num{color:#141614}}
+.tip{background:var(--card);border-radius:18px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;box-shadow:var(--shadow)}
+.tip .tile{width:32px;height:32px;border-radius:10px;background:var(--amber-soft);color:var(--amber)}
+.tip p{margin:0;font-size:14px;line-height:1.45;color:var(--ink2)}
+
+/* gastos */
+.card{background:var(--card);border-radius:22px;padding:16px 18px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow)}
+.card h2{margin:0;font-size:15px;font-weight:700}
+.total small{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.total .big{font-family:Sora,Figtree,system-ui,sans-serif;font-size:32px;font-weight:700;letter-spacing:-.02em;display:block}
+.split{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);border-top:1px solid var(--soft);padding-top:10px}
+.split b{color:var(--ink)}
+.months{display:flex;align-items:flex-end;justify-content:center;gap:10px;height:150px;overflow-x:auto;scrollbar-width:none}
+.months::-webkit-scrollbar{display:none}
+.mbar{flex:1 0 38px;max-width:64px;height:150px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px}
+.mbar i{display:block;width:100%;border-radius:8px;background:var(--accent-soft);transition:height .8s var(--ease),background .2s;min-height:6px}
+.mbar[aria-pressed=true] i{background:var(--accent)}
+.mbar span{font-size:12px;font-weight:600;color:var(--muted)}
+.hrow{display:flex;flex-direction:column;gap:5px}
+.hrow div:first-child{display:flex;justify-content:space-between;font-size:13px}
+.hrow div:first-child span:first-child{font-weight:600}
+.buy{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:6px 0;border-top:1px solid var(--soft)}
+.buy span:last-child{font-weight:700;white-space:nowrap}
+
+/* busca */
+.search{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:16px;padding:0 14px;min-height:50px;box-shadow:var(--shadow)}
+.search input{flex:1;border:0;background:transparent;outline:none;font-size:16px;min-height:48px}
+
+/* tab bar */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:center;pointer-events:none;transition:transform .35s var(--ease)}
+.tabbar.hide{transform:translateY(130%)}
+.tabbar nav{pointer-events:auto;width:100%;max-width:520px;background:color-mix(in srgb,var(--card) 88%,transparent);-webkit-backdrop-filter:saturate(1.6) blur(18px);backdrop-filter:saturate(1.6) blur(18px);border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:flex-start;padding:8px 6px calc(var(--bottom) + 8px)}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;width:64px;min-height:46px;font-size:11px;font-weight:600;color:var(--faint);padding-top:2px}
+.tab[aria-current=page]{color:var(--accent-text);font-weight:700}
+.fab{width:58px;height:58px;border-radius:20px;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;margin-top:-24px;box-shadow:0 10px 22px rgba(46,106,79,.35);transition:transform .2s var(--ease)}
+.fab:active{transform:scale(.9) rotate(45deg)}
+
+/* folha (sheet) */
+.overlay{position:fixed;inset:0;z-index:50;background:var(--overlay);display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .25s both}
+.overlay.closing{animation:fadeOut .25s both}
+@keyframes fadeIn{from{opacity:0}}
+@keyframes fadeOut{to{opacity:0}}
+.sheet{width:100%;max-width:520px;max-height:calc(100dvh - var(--top) - 24px);background:var(--card);border-radius:28px 28px 0 0;display:flex;flex-direction:column;animation:sheetUp .48s var(--ease) both;touch-action:pan-y}
+.overlay.closing .sheet{animation:sheetDown .3s ease-in both}
+@keyframes sheetUp{from{transform:translateY(100%)}}
+@keyframes sheetDown{to{transform:translateY(100%)}}
+.sheet-head{padding:10px 20px 6px;display:flex;flex-direction:column;gap:8px;flex:none}
+.grab{align-self:center;width:40px;height:5px;border-radius:3px;background:var(--line)}
+.sheet-bar{display:flex;justify-content:space-between;align-items:center}
+.sheet-bar h2{margin:0;font-family:Sora,Figtree,system-ui,sans-serif;font-size:18px;font-weight:700}
+.sheet-bar button{min-height:44px;font-size:15px;font-weight:600;color:var(--muted);padding:0 2px}
+.sheet-bar button.save{color:var(--accent-text);font-weight:700}
+.sheet-body{overflow-y:auto;padding:8px 20px calc(var(--bottom) + 24px);display:flex;flex-direction:column;gap:14px;-webkit-overflow-scrolling:touch}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field label,.field .lbl{font-size:13px;font-weight:600;color:var(--muted)}
+.input{height:50px;border-radius:14px;border:1px solid var(--line);background:var(--field);padding:0 14px;font-size:16px;width:100%;outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
+textarea.input{height:auto;min-height:84px;padding:12px 14px;resize:vertical}
+select.input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238A8E87' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+.input:focus{border-color:var(--accent)}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.stage-pick{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.stage-pick button{min-height:52px;border-radius:14px;border:1.5px solid var(--line);background:var(--field);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:11px;font-weight:700;color:var(--ink2)}
+.stage-pick button b{font-family:Sora,Figtree,system-ui,sans-serif;font-size:15px}
+.stage-pick button[aria-pressed=true].p1{border-color:var(--amber);background:var(--amber-soft);color:var(--amber-ink)}
+.stage-pick button[aria-pressed=true].p2{border-color:var(--blue);background:var(--blue-soft);color:var(--blue-ink)}
+.stage-pick button[aria-pressed=true].p3{border-color:var(--purple);background:var(--purple-soft);color:var(--purple-ink)}
+.stage-pick button[aria-pressed=true].p0{border-color:var(--muted);background:var(--soft);color:var(--ink)}
+.photo-row{display:flex;gap:10px}
+.ph{width:92px;height:92px;border-radius:18px;overflow:hidden;position:relative;flex:none;background:var(--soft)}
+.ph img{width:100%;height:100%;object-fit:cover}
+.ph .rm{position:absolute;top:5px;right:5px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;display:flex;align-items:center;justify-content:center}
+.ph-add{width:92px;height:92px;border-radius:18px;border:1.5px dashed var(--line);background:var(--field);color:var(--accent-text);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:700;flex:none}
+.hidden{display:none!important}
+.err{color:var(--danger);font-size:13px;font-weight:600;min-height:18px}
+
+/* login */
+.login{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;background:var(--deep)}
+.login .brand{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:calc(var(--top) + 40px) 20px 30px;color:#fff;text-align:center}
+.login .brand .logo{width:96px;height:96px;border-radius:26px;background:#F3F2EE;display:flex;align-items:center;justify-content:center;animation:rise .7s var(--ease) both}
+.login .brand h1{margin:0;font-family:Sora,Figtree,system-ui,sans-serif;font-size:40px;font-weight:700;letter-spacing:-.03em}
+.login .brand p{margin:0;color:var(--deep-muted)}
+.login form{background:var(--card);border-radius:30px 30px 0 0;padding:28px 20px calc(var(--bottom) + 30px);display:flex;flex-direction:column;gap:14px;animation:sheetUp .6s var(--ease) both}
+.login form h2{margin:0;font-family:Sora,Figtree,system-ui,sans-serif;font-size:22px}
+.link-btn{align-self:center;min-height:44px;font-size:14px;font-weight:600;color:var(--accent-text)}
+
+/* toast + avisos */
+.toast{position:fixed;left:50%;bottom:calc(var(--bottom) + 104px);transform:translateX(-50%);z-index:80;background:var(--ink);color:var(--bg);border-radius:16px;padding:12px 14px 12px 16px;display:flex;align-items:center;gap:14px;font-size:14px;font-weight:600;max-width:calc(100% - 32px);box-shadow:0 10px 30px rgba(0,0,0,.25);animation:toastIn .35s var(--ease) both}
+.toast button{color:var(--ring);font-weight:700;min-height:32px}
+@media (prefers-color-scheme: dark){.toast button{color:var(--accent)}}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,16px)}}
+.demo{align-self:flex-start;font-size:12px;font-weight:700;color:var(--amber-ink);background:var(--amber-soft);border-radius:10px;padding:5px 10px}
+.loading{min-height:100vh;display:flex;align-items:center;justify-content:center}
+.spinner{width:28px;height:28px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--accent);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0ms!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<div id="app"><div class="loading"><div class="spinner" role="status" aria-label="Carregando"></div></div></div>
+<div class="tabbar hide" id="tabbar"></div>
+<input type="file" id="filepick" accept="image/*" class="sr" aria-hidden="true" tabindex="-1">
+
+<script type="module">
+/* ===================================================================
+   COZILY — configuração
+   Cole aqui as chaves do seu projeto Firebase
+   (Console do Firebase › Configurações do projeto › Seus apps › Web).
+   Enquanto estiver "COLE_AQUI", o app roda em MODO DEMONSTRAÇÃO
+   (dados salvos só neste aparelho, sem login de verdade).
+   =================================================================== */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCzFZMZafyL1Yl8bcZs7CK3SmVprt2X5H0",
+  authDomain: "cozily-bae7b.firebaseapp.com",
+  projectId: "cozily-bae7b",
+  storageBucket: "cozily-bae7b.firebasestorage.app",
+  messagingSenderId: "292997163165",
+  appId: "1:292997163165:web:45d8d307a91ef32e154c74"
+};
+const CASA_ID = "nosso-ap";              // todos os dados ficam em casas/nosso-ap
+const ENTREGA_PADRAO = "2028-12";         // mês previsto das chaves (dá pra mudar em Ajustes)
+const NOMES_PADRAO = "Caio e Mirielly";
+
+const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
+
+/* ---------------- cômodos ---------------- */
+const ROOMS = [
+  { id: "cozinha",     nome: "Cozinha",          icon: "pot",    cor: "c-green" },
+  { id: "quarto",      nome: "Quarto",           icon: "bed",    cor: "c-lilac" },
+  { id: "sala-estar",  nome: "Sala de estar",    icon: "sofa",   cor: "c-blue" },
+  { id: "sala-jantar", nome: "Sala de jantar",   icon: "dining", cor: "c-rose" },
+  { id: "banheiro",    nome: "Banheiro",         icon: "bath",   cor: "c-teal" },
+  { id: "lavanderia",  nome: "Lavanderia",       icon: "washer", cor: "c-sand" },
+  { id: "escritorio",  nome: "Escritório",       icon: "laptop", cor: "c-grey" },
+  { id: "hall",        nome: "Hall / Entrada",   icon: "door",   cor: "c-ochre" },
+  { id: "limpeza",     nome: "Limpeza geral",    icon: "broom",  cor: "c-grey", casaToda: true },
+  { id: "organizacao", nome: "Organização geral",icon: "box",    cor: "c-grey", casaToda: true }
+];
+const ROOM = Object.fromEntries(ROOMS.map(r => [r.id, r]));
+const ETAPAS = {
+  1: { nome: "Para conseguir morar", curto: "Morar" },
+  2: { nome: "Para deixar funcional", curto: "Funcional" },
+  3: { nome: "Para deixar bonita", curto: "Bonita" }
+};
+
+/* ---------------- lista inicial (das notas "Casa") ----------------
+   "+" no começo = já comprado · "#1/#2/#3" no fim = etapa da mudança */
+const SEED = [
+  ["cozinha", "Eletrodomésticos", ["Geladeira#1","Cooktop#1","Forno","Micro-ondas#2","+Air fryer#2","+Liquidificador#2","+Batedeira","+Sanduicheira","+Cafeteira","+Chaleira elétrica","Mixer","Torradeira","+Processador","Purificador de água"]],
+  ["cozinha", "Panelas e formas", ["+Jogo de panelas 5pcs#1","+Frigideira pequena 2pcs#1","Frigideira grande","Panela de pressão","Panela pequena","Panela média","Panela grande","Leiteira","Forma retangular","+Forma redonda para bolo","Forma redonda","Assadeira","Forma para pizza","Travessa de vidro","Refratários"]],
+  ["cozinha", "Utensílios", ["+Conjunto de facas#1","Tábua de corte#1","Colher de pau","+Colher de silicone 2pcs","+Pincel culinário","+Cortador de pizza","+Cortador de queijo","Espátula","+Concha","+Escumadeira de silicone","Escumadeira inox","Pegador de massa","Pegador de alimentos","+Fouet","Abridor de latas","Abridor de garrafas","Saca-rolhas","Descascador","Ralador","+Peneira","Escorredor de macarrão","Funil","Espremedor de alho","Espremedor de limão","Medidores","Tesoura de cozinha","Pinça culinária","+Conjunto de churrasco","+Pratos para churrasco"]],
+  ["cozinha", "Louças", ["+Pratos rasos#1","+Pratos fundos#1","+Pratos de sobremesa","Bowls","+Copos#1","+Taças","+Canecas","+Xícaras de café","+Pires","Jarra","Garrafa de água"]],
+  ["cozinha", "Talheres", ["+Garfos#1","+Facas#1","+Colheres#1","+Colheres de sobremesa","Colheres de café","Talheres para servir"]],
+  ["cozinha", "Armazenamento", ["Potes herméticos#2","Potes de vidro","+Potes plásticos#2","Potes para temperos","Porta-talheres","Organizador de gaveta","Porta-papel-toalha","Porta-detergente","Porta-esponja","Potes para mantimentos"]],
+  ["cozinha", "Limpeza", ["Lixeira#1","Sacos de lixo","Esponjas","Panos de prato","Panos de limpeza","Escorredor de louça","Rodo de pia","Balde"]],
+  ["cozinha", "Extras", ["Descanso de panela","Descanso de colher","Avental","Luva térmica","Pegador de panela","Toalha de mesa","Jogo americano","Guardanapos de tecido","Papel-alumínio","Filme plástico","Papel-manteiga","Sacos tipo zip","Papel-toalha"]],
+  ["quarto", "Móveis", ["+Cama#1","+Colchão#1","Guarda-roupa","Criado-mudo","Cômoda","Penteadeira","Sapateira"]],
+  ["quarto", "Roupa de cama", ["Lençóis com elástico#1","Lençóis sem elástico","Fronhas#1","Capas para travesseiro","+Edredom#1","Cobertor","+Manta","Colcha","Protetores de travesseiro"]],
+  ["quarto", "Travesseiros", ["Travesseiros para dormir#1","Travesseiros decorativos","Almofadas"]],
+  ["quarto", "Organização", ["Cabides","Organizadores de gaveta","Colmeias","Caixas organizadoras","Cestos","Organizador de sapatos","Porta-joias"]],
+  ["quarto", "Decoração", ["Cortina#2","Tapete","Espelho","Abajur#3","Luminária","Quadros","Manta decorativa"]],
+  ["sala-estar", "Móveis e organização", ["Sofá#1","Rack/painel para TV","Mesa de centro#3","Mesa lateral","Estante/prateleira","Aparador#3","Puff ou banquinho"]],
+  ["sala-estar", "Têxteis e decoração", ["Tapete#3","Cortina#2","Almofadas#3","Manta para sofá#3","Capas de almofada","Quadros#3","Espelho","Vasos#3","Plantas#3","Objetos decorativos#3","Porta-retratos"]],
+  ["sala-estar", "Eletrônicos", ["Televisão","Controle remoto/baterias","Roteador Wi-Fi","Extensão","Filtro de linha","Lâmpadas"]],
+  ["sala-jantar", "", ["Mesa de jantar#1","Cadeiras#1","Aparador","Buffet","Toalha de mesa","Jogo americano","Porta-guardanapos","Travessas","Jarra","+Taças","Centro de mesa"]],
+  ["banheiro", "Toalhas", ["Toalhas de banho#1","Toalhas de rosto#1","Toalhas de piso","Toalhas de mão"]],
+  ["banheiro", "Organização", ["Porta-sabonete","Porta-escovas","Porta-pasta de dentes","Dispenser de sabonete líquido","Porta-shampoo","Cesto para roupas sujas","Organizadores","Lixeira","Escova sanitária#1"]],
+  ["banheiro", "Acessórios", ["Chuveiro#1","Tapete de banheiro#2","Cortina de banheiro, se necessário","Espelho#2","Ganchos","Suporte para toalhas","Porta-papel higiênico#1"]],
+  ["lavanderia", "Equipamentos", ["Máquina de lavar#1","Secadora","Ferro de passar#2","Tábua de passar#2","Varal#1","Pregadores"]],
+  ["lavanderia", "Limpeza", ["Baldes","Bacias","Rodo","Vassoura","Pá de lixo","Mop","Esfregão","Panos de chão","Escova de limpeza","Luvas","Esponjas","Escova para roupas"]],
+  ["lavanderia", "Organização", ["Cesto de roupas sujas","Cesto para roupas limpas","Organizador de produtos","Varal de chão","Cabides"]],
+  ["escritorio", "", ["Escrivaninha","Cadeira","+Estante","Gaveteiro","+Luminária","Organizadores","+Porta-canetas","+Cadernos","+Canetas","+Post-its","+Grampeador","+Tesoura","+Fita adesiva","+Extensão","+Filtro de linha","+Carregadores"]],
+  ["hall", "", ["Capacho","Sapateira","Cabideiro","Aparador","Espelho","Bandeja para chaves","Porta-cartas","Ganchos","Cesto para bolsas"]],
+  ["limpeza", "", ["Vassoura#1","Pá","Rodo#1","Mop","Baldes#1","Bacias","Panos de chão","Panos de microfibra","Flanelas","Esponjas","Escovas","Luvas","Sacos de lixo","Lixeira para cada ambiente","Aspirador de pó#2","Organizadores","Produtos de limpeza#1"]],
+  ["organizacao", "", ["+Caixas organizadoras#2","Cestos","+Organizadores de gaveta#2","Organizadores de armário#2","Etiquetas","Cabides","Prateleiras","Caixas para objetos pequenos"]]
+];
+
+/* ---------------- ícones ---------------- */
+const IC = {
+  pot: '<path d="M4 11h16v6a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3z"/><path d="M2 11h2M20 11h2M9 8c0-1.2 1-1.6 1-2.8M13 8c0-1.2 1-1.6 1-2.8"/>',
+  bed: '<path d="M3 5v14M3 14h18M21 19v-6a3 3 0 0 0-3-3h-7v4"/><circle cx="7" cy="11" r="2"/>',
+  sofa: '<path d="M4 11V8a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v3"/><path d="M2 13a2 2 0 0 1 4 0v2h12v-2a2 2 0 0 1 4 0v4a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/><path d="M5 18v2M19 18v2"/>',
+  dining: '<path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M17 3c-2 1.5-2.5 6 0 8v10"/>',
+  bath: '<path d="M3 12h18v3a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5z"/><path d="M6 12V6a2 2 0 0 1 4 0M7 20l-1 2M17 20l1 2"/>',
+  washer: '<rect x="4" y="3" width="16" height="18" rx="3"/><circle cx="12" cy="13" r="4"/><path d="M8 7h.01M11 7h.01"/>',
+  laptop: '<rect x="5" y="5" width="14" height="10" rx="1.5"/><path d="M3 19h18"/>',
+  door: '<path d="M6 21V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v17M4 21h16"/><circle cx="14.5" cy="12" r="1"/>',
+  broom: '<path d="M20 3l-7.5 7.5M10 9l5 5-2.5 7L3 11.5z"/>',
+  box: '<path d="M3 8h18v12H3zM3 8l2-4h14l2 4M9 12h6"/>',
+  home: '<path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/>',
+  flag: '<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
+  chart: '<path d="M5 20V11M12 20V5M19 20v-7"/>',
+  search: '<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  back: '<path d="M15 5l-7 7 7 7"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  camera: '<path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.2"/>',
+  image: '<rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="M21 16l-5-5-8 8"/>',
+  edit: '<path d="M4 20h4L19 9l-4-4L4 16z"/>',
+  gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  key: '<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l2 2M15 8l2 2"/>',
+  bulb: '<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>',
+  x: '<path d="M6 6l12 12M18 6L6 18"/>',
+  link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>'
+};
+const ic = (n, s = 22, w = 1.8) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
+const LOGO = (s = 60, house = "#1F4A37", tick = "#2E6A4F") => `<svg width="${s}" height="${s}" viewBox="0 0 64 64" fill="none" aria-hidden="true"><path d="M10 29 32 11l22 18v22a3 3 0 0 1-3 3H13a3 3 0 0 1-3-3z" stroke="${house}" stroke-width="4.5" stroke-linejoin="round"/><path d="M22 36.5l7 7 13.5-14" stroke="${tick}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="48" cy="17" r="4.5" fill="#D9A15F"/></svg>`;
+
+/* ---------------- utilidades ---------------- */
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const slug = s => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "x";
+const BRL = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 0, maximumFractionDigits: 2 });
+const BRL2 = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const money = v => (v || v === 0) && !isNaN(v) ? (Number.isInteger(v) ? BRL : BRL2).format(v).replace(/\u00a0/g, " ") : "";
+const parseMoney = s => {
+  if (s === null || s === undefined) return null;
+  let t = String(s).replace(/[^\d,.-]/g, "").trim();
+  if (!t) return null;
+  if (t.includes(",")) t = t.replace(/\./g, "").replace(",", ".");
+  else if ((t.match(/\./g) || []).length > 1 || /\.\d{3}$/.test(t)) t = t.replace(/\./g, "");
+  const n = parseFloat(t);
+  return isNaN(n) ? null : Math.round(n * 100) / 100;
+};
+const moneyInput = v => (v || v === 0) ? String(v.toFixed(2)).replace(".", ",") : "";
+const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+const MESES_LONGOS = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+const fmtDate = d => { if (!d) return ""; const [y, m, dd] = d.split("-").map(Number); return `${dd} ${MESES[m - 1]} ${y}`; };
+const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+const plural = (n, s, p) => `${n} ${n === 1 ? s : p}`;
+
+function buildSeed() {
+  const out = [], used = new Set();
+  let ordem = 0;
+  for (const [comodo, topico, list] of SEED) {
+    for (let raw of list) {
+      const comprado = raw.startsWith("+");
+      if (comprado) raw = raw.slice(1);
+      let etapa = 0;
+      const m = raw.match(/#(\d)$/);
+      if (m) { etapa = +m[1]; raw = raw.slice(0, -2); }
+      let id = `${comodo}--${slug(topico || "geral")}--${slug(raw)}`;
+      while (used.has(id)) id += "-2";
+      used.add(id);
+      out.push({ id, nome: raw, comodo, topico, comprado, etapa, ordem: ordem++, criadoEm: Date.now() });
+    }
+  }
+  return out;
+}
+
+/* ---------------- fotos: compressão no aparelho ---------------- */
+function loadImage(file) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); res(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error("Não deu pra abrir essa imagem")); };
+    img.src = url;
+  });
+}
+function toJpeg(img, max, q) {
+  const r = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  const w = Math.round(img.naturalWidth * r), h = Math.round(img.naturalHeight * r);
+  const c = document.createElement("canvas"); c.width = w; c.height = h;
+  c.getContext("2d").drawImage(img, 0, 0, w, h);
+  return c.toDataURL("image/jpeg", q);
+}
+async function processPhoto(file) {
+  const img = await loadImage(file);
+  let full = toJpeg(img, 1280, 0.72);
+  if (full.length > 700000) full = toJpeg(img, 1000, 0.62);   // Firestore aceita até ~1 MB por documento
+  return full;
+}
+async function thumbFrom(dataUrl) {
+  const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = dataUrl; });
+  const s = 160, c = document.createElement("canvas"); c.width = s; c.height = s;
+  const k = Math.max(s / img.naturalWidth, s / img.naturalHeight);
+  const w = img.naturalWidth * k, h = img.naturalHeight * k;
+  c.getContext("2d").drawImage(img, (s - w) / 2, (s - h) / 2, w, h);
+  return c.toDataURL("image/jpeg", 0.7);
+}
+
+/* ===================================================================
+   ARMAZENAMENTO — Firebase (real) ou demonstração (localStorage)
+   =================================================================== */
+function makeDemoStore() {
+  const KEY = "cozily-demo-v1";
+  const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } };
+  let db = load();
+  db.items = db.items || {}; db.settings = db.settings || {}; db.photos = db.photos || {};
+  const listeners = new Set();
+  const persist = () => {
+    try { localStorage.setItem(KEY, JSON.stringify(db)); }
+    catch { toast("O navegador ficou sem espaço para as fotos do modo demonstração"); }
+    listeners.forEach(fn => fn());
+  };
+  let authCb = () => {};
+  return {
+    onAuth(cb) { authCb = cb; setTimeout(() => cb(db.user || null), 120); },
+    async login(email, senha) {
+      if (!email || !senha) throw { code: "auth/missing" };
+      db.user = { email }; persist(); authCb(db.user);
+    },
+    async logout() { delete db.user; persist(); authCb(null); },
+    async reset() {},
+    subscribe(onItems, onSettings) {
+      const fn = () => { onItems(Object.values(db.items)); onSettings(db.settings); };
+      listeners.add(fn); setTimeout(fn, 60);
+      return () => listeners.delete(fn);
+    },
+    async putItem(it) { db.items[it.id] = { ...(db.items[it.id] || {}), ...it }; persist(); },
+    async delItem(id) { delete db.items[id]; persist(); },
+    async putSettings(o) { db.settings = { ...db.settings, ...o }; persist(); },
+    async seed(list) { list.forEach(it => db.items[it.id] = it); db.settings.importado = true; persist(); },
+    async getPhotos(id) { return db.photos[id] || []; },
+    async putPhotos(id, arr) { if (arr.length) db.photos[id] = arr; else delete db.photos[id]; persist(); }
+  };
+}
+
+async function makeFirebaseStore() {
+  const V = "10.12.2", B = `https://www.gstatic.com/firebasejs/${V}/`;
+  const [{ initializeApp }, A, F] = await Promise.all([
+    import(B + "firebase-app.js"), import(B + "firebase-auth.js"), import(B + "firebase-firestore.js")
+  ]);
+  const app = initializeApp(FIREBASE_CONFIG);
+  const auth = A.getAuth(app);
+  try { await A.setPersistence(auth, A.browserLocalPersistence); } catch {}
+  let db;
+  try { db = F.initializeFirestore(app, { localCache: F.persistentLocalCache({ tabManager: F.persistentMultipleTabManager() }) }); }
+  catch { db = F.getFirestore(app); }
+  const casa = F.doc(db, "casas", CASA_ID);
+  const col = F.collection(db, "casas", CASA_ID, "itens");
+  const foto = (id, i) => F.doc(db, "casas", CASA_ID, "fotos", `${id}__${i}`);
+  return {
+    onAuth: cb => A.onAuthStateChanged(auth, u => cb(u ? { email: u.email } : null)),
+    login: (e, s) => A.signInWithEmailAndPassword(auth, e, s),
+    logout: () => A.signOut(auth),
+    reset: e => A.sendPasswordResetEmail(auth, e),
+    subscribe(onItems, onSettings, onErr) {
+      const u1 = F.onSnapshot(col, s => { const arr = []; s.forEach(d => arr.push({ id: d.id, ...d.data() })); onItems(arr, s.metadata.fromCache); }, onErr);
+      const u2 = F.onSnapshot(casa, d => onSettings(d.exists() ? d.data() : {}), onErr);
+      return () => { u1(); u2(); };
+    },
+    putItem(it) { const { id, ...rest } = it; return F.setDoc(F.doc(col, id), rest, { merge: true }); },
+    delItem: id => F.deleteDoc(F.doc(col, id)),
+    putSettings: o => F.setDoc(casa, o, { merge: true }),
+    async seed(list) {
+      for (let i = 0; i < list.length; i += 400) {
+        const b = F.writeBatch(db);
+        list.slice(i, i + 400).forEach(({ id, ...r }) => b.set(F.doc(col, id), r));
+        await b.commit();
+      }
+      await F.setDoc(casa, { importado: true }, { merge: true });
+    },
+    async getPhotos(id) {
+      const snaps = await Promise.all([0, 1, 2].map(i => F.getDoc(foto(id, i)).catch(() => null)));
+      return snaps.filter(s => s && s.exists()).map(s => s.data().data);
+    },
+    async putPhotos(id, arr) {
+      await Promise.all([0, 1, 2].map(i => arr[i] ? F.setDoc(foto(id, i), { data: arr[i], itemId: id }) : F.deleteDoc(foto(id, i)).catch(() => {})));
+    }
+  };
+}
+
+/* ===================================================================
+   ESTADO
+   =================================================================== */
+const S = {
+  store: null, user: undefined, items: new Map(), settings: {}, loaded: false,
+  route: null, prevDepth: 0, scroll: {},
+  roomTopic: {}, roomFilter: {}, stage: 1, month: null, q: "", qFilter: "all",
+  photos: {}, pending: new Set()
+};
+
+const all = () => [...S.items.values()].sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0));
+const inRoom = id => all().filter(i => i.comodo === id);
+const topicsOf = id => { const t = []; inRoom(id).forEach(i => { if (!t.includes(i.topico || "")) t.push(i.topico || ""); }); return t; };
+const done = list => list.filter(i => i.comprado).length;
+
+/* ===================================================================
+   ROTAS E RENDERIZAÇÃO
+   =================================================================== */
+function parseRoute() {
+  const h = decodeURIComponent(location.hash.replace(/^#\/?/, ""));
+  const [a, b] = h.split("/");
+  if (a === "c" && ROOM[b]) return { name: "room", id: b, depth: 1, key: "c/" + b };
+  if (a === "i" && b) return { name: "item", id: b, depth: 2, key: "i/" + b };
+  if (a === "ordem") return { name: "ordem", depth: 0, tab: true, key: "ordem" };
+  if (a === "gastos") return { name: "gastos", depth: 0, tab: true, key: "gastos" };
+  if (a === "busca") return { name: "busca", depth: 0, tab: true, key: "busca" };
+  return { name: "home", depth: 0, tab: true, key: "home" };
+}
+const go = h => { location.hash = h; };
+const back = fallback => { if (history.length > 1 && S.route && S.route.depth > 0) history.back(); else go(fallback || "#/"); };
+
+function render(mode) {
+  const app = $("#app");
+  if (S.user === undefined) return;
+  if (!S.user) { app.innerHTML = viewLogin(); setTabs(null); return; }
+  const r = S.route || parseRoute();
+  let html = "";
+  if (!S.loaded) html = `<div class="loading"><div class="spinner" role="status" aria-label="Carregando"></div></div>`;
+  else if (r.name === "room") html = viewRoom(r.id);
+  else if (r.name === "item") html = viewItem(r.id);
+  else if (r.name === "ordem") html = viewOrdem();
+  else if (r.name === "gastos") html = viewGastos();
+  else if (r.name === "busca") html = viewBusca();
+  else html = viewHome();
+  app.innerHTML = html;
+  const page = app.firstElementChild;
+  if (mode && page) page.classList.add(mode);
+  setTabs(r.tab ? r.name : null);
+  afterRender(r, !!mode);
+}
+
+function afterRender(r, fresh) {
+  // anima anéis e barras a partir de zero
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    document.querySelectorAll("[data-w]").forEach(el => el.style.width = el.dataset.w + "%");
+    document.querySelectorAll("[data-h]").forEach(el => el.style.height = el.dataset.h + "px");
+    document.querySelectorAll("[data-off]").forEach(el => el.style.strokeDashoffset = el.dataset.off);
+  }));
+  if (r.name === "item") loadPhotos(r.id);
+  if (r.name === "busca" && fresh) { /* teclado só abre com toque no iPhone */ }
+}
+
+function navigate() {
+  const prev = S.route;
+  if (prev) S.scroll[prev.key] = window.scrollY;
+  const r = parseRoute();
+  S.route = r;
+  let mode = "enter-fade";
+  if (prev) {
+    if (r.depth > prev.depth) mode = "enter-push";
+    else if (r.depth < prev.depth) mode = "enter-pop";
+  }
+  render(mode);
+  const y = (prev && r.depth < prev.depth) ? (S.scroll[r.key] || 0) : 0;
+  window.scrollTo(0, y);
+}
+
+/* redesenha sem animação (quando os dados mudam) */
+let raf = 0;
+function refresh() {
+  if (raf) return;
+  raf = requestAnimationFrame(() => {
+    raf = 0;
+    if (document.querySelector(".overlay")) { S.dirty = true; return; }
+    const y = window.scrollY;
+    render(null);
+    window.scrollTo(0, y);
+  });
+}
+
+function setTabs(active) {
+  const bar = $("#tabbar");
+  if (!active) { bar.classList.add("hide"); return; }
+  const t = (id, href, icon, label) => `<a class="tab" href="${href}" ${active === id ? 'aria-current="page"' : ""}>${ic(icon, 24, 1.9)}${label}</a>`;
+  bar.innerHTML = `<nav aria-label="Navegação principal">
+    ${t("home", "#/", "home", "Início")}
+    ${t("ordem", "#/ordem", "flag", "Ordem")}
+    <button class="fab" data-act="add" aria-label="Adicionar item">${ic("plus", 26, 2.2)}</button>
+    ${t("gastos", "#/gastos", "chart", "Gastos")}
+    ${t("busca", "#/busca", "search", "Buscar")}
+  </nav>`;
+  bar.classList.remove("hide");
+}
+
+/* ---------------- telas ---------------- */
+function viewLogin() {
+  return `<div class="login">
+    <div class="brand">
+      <div class="logo">${LOGO(60)}</div>
+      <h1>Cozily</h1>
+      <p>Tudo do nosso ap, item por item.</p>
+    </div>
+    <form id="loginForm" novalidate>
+      <h2>Entrar</h2>
+      ${DEMO ? `<span class="demo">Modo demonstração · qualquer e-mail e senha entram</span>` : ""}
+      <div class="field"><label for="lEmail">E-mail</label><input class="input" id="lEmail" type="email" autocomplete="username" inputmode="email" autocapitalize="off" required></div>
+      <div class="field"><label for="lSenha">Senha</label><input class="input" id="lSenha" type="password" autocomplete="current-password" required></div>
+      <div class="err" id="lErr" role="alert"></div>
+      <button class="btn primary block" type="submit" id="lBtn">Entrar</button>
+      <button class="link-btn" type="button" data-act="reset">Esqueci minha senha</button>
+    </form>
+  </div>`;
+}
+
+function roomStats(id) { const l = inRoom(id); return { d: done(l), t: l.length }; }
+
+function nextStage() {
+  for (const n of [1, 2, 3]) {
+    const l = all().filter(i => i.etapa === n);
+    const falta = l.filter(i => !i.comprado);
+    if (falta.length) return { n, l, falta };
+  }
+  return null;
+}
+
+function viewHome() {
+  const items = all();
+  const d = done(items), t = items.length, p = pct(d, t);
+  const C = 2 * Math.PI * 46;
+  const entrega = S.settings.entrega || ENTREGA_PADRAO;
+  const [ey, em] = entrega.split("-").map(Number);
+  const now = new Date();
+  const meses = Math.max(0, (ey - now.getFullYear()) * 12 + (em - 1 - now.getMonth()));
+  const nomes = S.settings.nomes || NOMES_PADRAO;
+  const hora = now.getHours();
+  const saud = hora < 12 ? "Bom dia" : hora < 18 ? "Boa tarde" : "Boa noite";
+
+  if (!t) {
+    return `<main class="page">
+      <div class="topbar"><div class="hello"><small>${saud}, ${esc(nomes)}</small><h1 class="h-display">Nosso ap</h1></div>
+      <button class="icon-btn" data-act="settings" aria-label="Ajustes">${ic("gear", 20, 1.8)}</button></div>
+      ${DEMO ? `<span class="demo">Modo demonstração · dados só neste aparelho</span>` : ""}
+      <div class="card" style="align-items:flex-start">
+        <h2 class="h-display" style="font-size:20px">Vamos começar?</h2>
+        <p style="margin:0;color:var(--muted)">Importe a lista que vocês montaram nas notas: 10 ambientes, ${SEED.reduce((a, s) => a + s[2].length, 0)} itens, com o que já foi comprado marcado e a ordem de prioridade da mudança.</p>
+        <button class="btn primary block" data-act="seed" id="seedBtn">Importar nossa lista</button>
+        <button class="link-btn" data-act="add">Começar do zero</button>
+      </div>
+    </main>`;
+  }
+
+  const ns = nextStage();
+  const rooms = ROOMS.filter(r => !r.casaToda), casa = ROOMS.filter(r => r.casaToda);
+  return `<main class="page">
+    <div class="topbar">
+      <div class="hello"><small>${saud}, ${esc(nomes)}</small><h1 class="h-display">Nosso ap</h1></div>
+      <button class="icon-btn" data-act="settings" aria-label="Ajustes">${ic("gear", 20, 1.8)}</button>
+    </div>
+    ${DEMO ? `<span class="demo">Modo demonstração · dados só neste aparelho</span>` : ""}
+    <section class="hero" aria-label="Progresso do ap">
+      <div class="hero-top">
+        <div class="ring" role="img" aria-label="${p}% montado">
+          <svg viewBox="0 0 108 108"><circle class="track" cx="54" cy="54" r="46"/><circle class="arc" cx="54" cy="54" r="46" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${C.toFixed(1)}" data-off="${(C * (1 - p / 100)).toFixed(1)}"/></svg>
+          <div class="ring-label"><b>${p}%</b><span>montado</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="kv"><small>Comprados</small><b>${d} de ${t}</b></div>
+          <div class="kv"><small>Faltam</small><b>${plural(t - d, "item", "itens")}</b></div>
+        </div>
+      </div>
+      <div class="keys"><span>${ic("key", 16, 2).replace('stroke="currentColor"', 'stroke="var(--key)"')}Chaves · ${MESES[em - 1]} ${ey}</span><span>${meses > 0 ? `faltam ~${plural(meses, "mês", "meses")}` : "chegou a hora!"}</span></div>
+    </section>
+    ${ns ? `<a class="next" href="#/ordem" data-stage="${ns.n}">
+      <div class="eyebrow"><span>Próximo passo · Etapa ${ns.n}</span><span>${done(ns.l)} de ${ns.l.length}</span></div>
+      <b>${ETAPAS[ns.n].nome}</b>
+      <div class="bar"><i data-w="${pct(done(ns.l), ns.l.length)}"></i></div>
+      <p>Faltam ${ns.falta.slice(0, 3).map(i => esc(i.nome.toLowerCase())).join(", ")}${ns.falta.length > 3 ? ` e mais ${ns.falta.length - 3}` : ""} →</p>
+    </a>` : ""}
+    <div class="sec-h"><h2>Cômodos</h2><span>${rooms.length} ambientes</span></div>
+    <div class="grid2 stagger">
+      ${rooms.map((r, i) => { const s = roomStats(r.id); return `<a class="room-card ${r.cor}" href="#/c/${r.id}" style="--i:${i}">
+        <div class="top"><span class="tile">${ic(r.icon)}</span><span class="count">${s.d}/${s.t}</span></div>
+        <span class="name">${r.nome}</span>
+        <div class="bar"><i data-w="${pct(s.d, s.t)}"></i></div>
+      </a>`; }).join("")}
+    </div>
+    <div class="sec-h"><h2>Casa toda</h2></div>
+    <div class="list">
+      ${casa.map(r => { const s = roomStats(r.id); return `<a class="list-link ${r.cor}" href="#/c/${r.id}"><span class="tile">${ic(r.icon)}</span><span class="grow">${r.nome}</span><span class="count">${s.d}/${s.t}</span></a>`; }).join("")}
+    </div>
+  </main>`;
+}
+
+function rowHtml(it, opts = {}) {
+  const r = ROOM[it.comodo] || ROOMS[0];
+  const thumb = it.thumb
+    ? `<span class="thumb"><img src="${it.thumb}" alt=""></span>`
+    : it.comprado ? `<span class="thumb">${ic("image", 22)}</span>` : `<span class="thumb empty">${ic("camera", 20)}</span>`;
+  const status = it.comprado
+    ? (it.valorPago ? money(it.valorPago) : "Comprado")
+    : (it.valorPrevisto ? "Previsto " + money(it.valorPrevisto) : "Falta");
+  const meta = opts.showRoom
+    ? `<span class="dot"></span><span class="room">${esc(r.nome)}</span><span>· ${esc(status)}</span>`
+    : `${it.etapa ? `<span class="pill e${it.etapa}">Etapa ${it.etapa}</span>` : ""}<span>${esc(status)}</span>`;
+  return `<div class="item ${it.comprado ? "done" : ""} ${opts.showRoom ? r.cor : ""}" data-id="${esc(it.id)}">
+    <a class="item-main" href="#/i/${encodeURIComponent(it.id)}">${thumb}
+      <span class="item-txt"><span class="item-name">${esc(it.nome)}</span><span class="meta">${meta}</span></span>
+    </a>
+    <button class="chk" data-act="toggle" data-id="${esc(it.id)}" aria-pressed="${it.comprado}" aria-label="${it.comprado ? "Desmarcar" : "Marcar como comprado"}: ${esc(it.nome)}"><span>${ic("check", 15, 3)}</span></button>
+  </div>`;
+}
+
+function viewRoom(id) {
+  const r = ROOM[id];
+  const list = inRoom(id);
+  const d = done(list), t = list.length;
+  const topics = topicsOf(id);
+  const sel = topics.length > 1 ? (S.roomTopic[id] ?? topics[0]) : "*";
+  const filt = S.roomFilter[id] || "all";
+  const pass = i => filt === "all" || (filt === "falta" ? !i.comprado : i.comprado);
+  const groups = (sel === "*" ? topics : [sel]).map(tp => ({ tp, l: list.filter(i => (i.topico || "") === tp) }));
+  const shown = groups.map(g => ({ ...g, v: g.l.filter(pass) })).filter(g => g.v.length);
+  return `<main class="page no-tabs ${r.cor}">
+    <div class="topbar">
+      <button class="icon-btn" data-act="back" aria-label="Voltar">${ic("back", 22, 2)}</button>
+      <div class="row-gap">
+        <a class="icon-btn" href="#/busca" aria-label="Buscar">${ic("search", 20, 2)}</a>
+        <button class="icon-btn solid" data-act="add" data-room="${id}" data-topic="${esc(sel === "*" ? (topics[0] || "") : sel)}" aria-label="Adicionar item em ${esc(r.nome)}">${ic("plus", 20, 2.2)}</button>
+      </div>
+    </div>
+    <section class="room-hero">
+      <div class="t"><span class="tile lg">${ic(r.icon, 30, 1.7)}</span>
+        <div><h1 class="h-display">${r.nome}</h1><p>${d} de ${plural(t, "item", "itens")} · ${pct(d, t)}%</p></div>
+      </div>
+      <div class="bar"><i data-w="${pct(d, t)}"></i></div>
+    </section>
+    <div class="seg" role="group" aria-label="Mostrar">
+      ${[["all", "Todos"], ["falta", "Faltam"], ["ok", "Comprados"]].map(([k, l]) => `<button data-act="filter" data-room="${id}" data-v="${k}" aria-pressed="${filt === k}">${l}</button>`).join("")}
+    </div>
+    ${topics.length > 1 ? `<div class="chips" role="group" aria-label="Tópicos">
+      <button class="chip" data-act="topic" data-room="${id}" data-v="*" aria-pressed="${sel === "*"}">Todos <small>${d}/${t}</small></button>
+      ${topics.map(tp => { const l = list.filter(i => (i.topico || "") === tp); return `<button class="chip" data-act="topic" data-room="${id}" data-v="${esc(tp)}" aria-pressed="${sel === tp}">${esc(tp || "Sem tópico")} <small>${done(l)}/${l.length}</small></button>`; }).join("")}
+    </div>` : ""}
+    ${shown.length ? shown.map(g => `<section class="group">
+      ${topics.length > 1 || g.tp ? `<div class="group-h"><h3>${esc(g.tp || "Sem tópico")}</h3><span>${done(g.l)} de ${g.l.length}</span></div>` : ""}
+      <div class="items">${g.v.map(i => rowHtml(i)).join("")}</div>
+    </section>`).join("") : `<div class="empty-state"><b>${filt === "ok" ? "Nada comprado aqui ainda" : filt === "falta" ? "Tudo comprado por aqui!" : "Nenhum item ainda"}</b><span>Use o + para adicionar.</span></div>`}
+  </main>`;
+}
+
+function viewItem(id) {
+  const it = S.items.get(id);
+  if (!it) return `<main class="page no-tabs"><div class="topbar"><button class="icon-btn" data-act="back" aria-label="Voltar">${ic("back", 22, 2)}</button></div><div class="empty-state"><b>Item não encontrado</b><span>Ele pode ter sido excluído.</span></div></main>`;
+  const r = ROOM[it.comodo] || ROOMS[0];
+  const ph = S.photos[id];
+  const photos = ph === undefined ? (it.thumb ? [it.thumb] : []) : ph;
+  const eco = it.comprado && it.valorPago && it.valorPrevisto ? it.valorPrevisto - it.valorPago : null;
+  const info = [];
+  if (it.comprado && it.data) info.push(["Data da compra", fmtDate(it.data)]);
+  if (it.loja) info.push(["Onde", it.loja]);
+  if (it.comprado && it.parcelas) info.push(["Pagamento", it.parcelas]);
+  if (it.comprado && it.garantia) info.push(["Garantia até", it.garantia]);
+  return `<main class="page no-tabs ${r.cor}">
+    <div class="photo-wrap">
+      ${photos.length ? `<div class="photos" id="photos">${photos.map((p, i) => `<img src="${p}" alt="Foto ${i + 1} de ${esc(it.nome)}">`).join("")}</div>
+        ${photos.length > 1 ? `<div class="dots" aria-hidden="true">${photos.map((_, i) => `<i class="${i ? "" : "on"}"></i>`).join("")}</div>` : ""}`
+        : `<div class="photo-empty">${ic("camera", 44, 1.5)}<button data-act="edit" data-id="${esc(id)}" data-photo="1">${ic("plus", 18, 2.2)} Adicionar foto</button></div>`}
+      <div class="float-bar">
+        <button class="icon-btn" data-act="back" aria-label="Voltar">${ic("back", 22, 2)}</button>
+        <button class="icon-btn" data-act="edit" data-id="${esc(id)}" aria-label="Editar">${ic("edit", 20, 2)}</button>
+      </div>
+    </div>
+    <section class="sheet-card">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="pills"><span class="pill room">${esc(r.nome)}${it.topico ? " · " + esc(it.topico) : ""}</span>${it.etapa ? `<span class="pill e${it.etapa}">Etapa ${it.etapa} · ${ETAPAS[it.etapa].curto}</span>` : ""}</div>
+        <h1 class="detail-title h-display">${esc(it.nome)}</h1>
+      </div>
+      <button class="status-btn ${it.comprado ? "is-done" : ""}" data-act="toggle" data-id="${esc(id)}" aria-pressed="${!!it.comprado}">${it.comprado ? `${ic("check", 20, 2.6)} Comprado · toque para desfazer` : "Marcar como comprado"}</button>
+      ${(it.valorPago || it.valorPrevisto) ? `<div class="price">
+        <div><small>${it.comprado && it.valorPago ? "Valor pago" : "Previsto"}</small><b>${money(it.comprado && it.valorPago ? it.valorPago : it.valorPrevisto)}</b></div>
+        ${it.comprado && it.valorPago && it.valorPrevisto ? `<div class="side"><span>Previsto ${money(it.valorPrevisto)}</span>${eco > 0 ? `<span class="save">− ${money(eco)} de economia</span>` : eco < 0 ? `<span>${money(-eco)} acima</span>` : ""}</div>` : ""}
+      </div>` : ""}
+      ${info.length ? `<div class="info">${info.map(([k, v]) => `<div><small>${k}</small><b>${esc(v)}</b></div>`).join("")}</div>` : ""}
+      ${it.link ? `<a class="btn ghost block" href="${esc(it.link)}" target="_blank" rel="noopener">${ic("link", 18, 2)} Abrir link do produto</a>` : ""}
+      ${it.notas ? `<div class="notes"><small>Notas</small><p>${esc(it.notas)}</p></div>` : ""}
+      ${!it.comprado && !it.valorPrevisto && !it.notas && !it.link ? `<p style="margin:0;color:var(--muted);font-size:14px">Dica: toque em editar para colocar valor previsto, link ou notas.</p>` : ""}
+      <button class="btn danger" data-act="delete" data-id="${esc(id)}">${ic("trash", 18, 2)} Excluir item</button>
+    </section>
+  </main>`;
+}
+
+function viewOrdem() {
+  const sel = S.stage;
+  const by = n => all().filter(i => i.etapa === n);
+  const list = by(sel).sort((a, b) => (a.comprado - b.comprado) || ((a.ordem ?? 0) - (b.ordem ?? 0)));
+  const falta = list.filter(i => !i.comprado);
+  const prev = falta.reduce((a, i) => a + (i.valorPrevisto || 0), 0);
+  const sem = all().filter(i => !i.etapa).length;
+  return `<main class="page">
+    <div class="hello"><h1 class="h-display" style="margin:0;font-size:30px">Ordem de compra</h1><small style="font-size:14px;color:var(--muted)">O que comprar primeiro para poder mudar</small></div>
+    <div style="display:flex;flex-direction:column;gap:10px" class="stagger">
+      ${[1, 2, 3].map((n, i) => { const l = by(n); return `<button class="stage s${n}" data-act="stage" data-v="${n}" aria-pressed="${sel === n}" style="--i:${i}">
+        <span class="num">${n}</span>
+        <span class="body"><span><b>${ETAPAS[n].nome}</b><small>${done(l)} de ${l.length}</small></span><span class="bar"><i data-w="${pct(done(l), l.length)}"></i></span></span>
+      </button>`; }).join("")}
+    </div>
+    <div class="tip"><span class="tile">${ic("bulb", 18, 2)}</span><p>Não precisa ter tudo antes de mudar. Primeiro o que deixa dormir, tomar banho, cozinhar, comer, lavar roupa e limpar. O resto vem aos poucos.</p></div>
+    <div class="group-h"><h3>Etapa ${sel} · faltam ${falta.length}</h3>${prev ? `<span>previsto ${money(prev)}</span>` : ""}</div>
+    ${list.length ? `<div class="items">${list.map(i => rowHtml(i, { showRoom: true })).join("")}</div>`
+      : `<div class="empty-state"><b>Nenhum item nesta etapa</b><span>Ao editar um item, escolha a etapa dele.</span></div>`}
+    ${sem ? `<p style="margin:0;text-align:center;font-size:13px;color:var(--muted)">${plural(sem, "item está", "itens estão")} sem etapa — dá pra definir ao editar cada um.</p>` : ""}
+  </main>`;
+}
+
+function viewGastos() {
+  const items = all();
+  const comprados = items.filter(i => i.comprado);
+  const pagos = comprados.filter(i => i.valorPago);
+  const total = pagos.reduce((a, i) => a + i.valorPago, 0);
+  const prevFalta = items.filter(i => !i.comprado).reduce((a, i) => a + (i.valorPrevisto || 0), 0);
+  const semValor = comprados.length - pagos.length;
+  const byMonth = {};
+  pagos.filter(i => i.data).forEach(i => { const k = i.data.slice(0, 7); (byMonth[k] = byMonth[k] || []).push(i); });
+  const months = Object.keys(byMonth).sort();
+  const sel = S.month && byMonth[S.month] ? S.month : months[months.length - 1];
+  const maxM = Math.max(1, ...months.map(k => byMonth[k].reduce((a, i) => a + i.valorPago, 0)));
+  const rooms = ROOMS.map(r => ({ r, v: pagos.filter(i => i.comodo === r.id).reduce((a, i) => a + i.valorPago, 0) })).filter(x => x.v > 0).sort((a, b) => b.v - a.v);
+  const maxR = Math.max(1, ...rooms.map(x => x.v));
+  return `<main class="page">
+    <h1 class="h-display" style="margin:0;font-size:30px">Gastos</h1>
+    <section class="card total">
+      <div><small>Total investido</small><b class="big">${money(total)}</b></div>
+      <div class="split"><span>${plural(pagos.length, "compra com valor", "compras com valor")}</span><span>${pagos.length ? `média <b>${money(Math.round(total / pagos.length))}</b>` : ""}</span></div>
+      <div class="split"><span>Previsão do que falta</span><b>${prevFalta ? money(prevFalta) : "—"}</b></div>
+    </section>
+    ${semValor ? `<p style="margin:-6px 4px 0;font-size:13px;color:var(--muted)">${plural(semValor, "item comprado está", "itens comprados estão")} sem valor. Edite o item para colocar quanto pagaram.</p>` : ""}
+    ${months.length ? `<section class="card">
+      <div class="sec-h" style="margin:0"><h2>Por mês</h2><span><b style="color:var(--ink)">${MESES_LONGOS[+sel.slice(5) - 1]} ${sel.slice(0, 4)}</b> · ${money(byMonth[sel].reduce((a, i) => a + i.valorPago, 0))}</span></div>
+      <div class="months">${months.map(k => { const v = byMonth[k].reduce((a, i) => a + i.valorPago, 0); return `<button class="mbar" data-act="month" data-v="${k}" aria-pressed="${k === sel}" aria-label="${MESES_LONGOS[+k.slice(5) - 1]}: ${money(v)}"><i style="height:6px" data-h="${Math.max(6, Math.round(v / maxM * 120))}"></i><span>${MESES[+k.slice(5) - 1]}</span></button>`; }).join("")}</div>
+      <div>${byMonth[sel].sort((a, b) => a.data.localeCompare(b.data)).map(i => `<a class="buy" href="#/i/${encodeURIComponent(i.id)}" style="color:var(--ink)"><span>${esc(i.nome)}</span><span>${money(i.valorPago)}</span></a>`).join("")}</div>
+    </section>` : ""}
+    ${rooms.length ? `<section class="card">
+      <h2>Por cômodo</h2>
+      ${rooms.map(({ r, v }) => `<div class="hrow ${r.cor}"><div><span>${r.nome}</span><span>${money(v)}</span></div><div class="bar"><i data-w="${Math.max(3, Math.round(v / maxR * 100))}"></i></div></div>`).join("")}
+    </section>` : `<div class="empty-state"><b>Os gráficos aparecem aqui</b><span>Quando marcarem um item como comprado, coloquem o valor pago e a data.</span></div>`}
+  </main>`;
+}
+
+function viewBusca() {
+  const q = S.q.trim();
+  const norm = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  const nq = norm(q);
+  const f = S.qFilter;
+  let res = q ? all().filter(i => norm(i.nome + " " + (i.topico || "") + " " + (ROOM[i.comodo]?.nome || "")).includes(nq)) : [];
+  if (f !== "all") res = res.filter(i => f === "ok" ? i.comprado : !i.comprado);
+  return `<main class="page">
+    <h1 class="h-display" style="margin:0;font-size:30px">Buscar</h1>
+    <label class="search">${ic("search", 20, 2)}<span class="sr">Buscar item</span><input id="q" type="search" placeholder="Ex.: toalha, panela, cortina…" value="${esc(S.q)}" autocomplete="off" enterkeyhint="search"></label>
+    <div class="seg" role="group" aria-label="Mostrar">
+      ${[["all", "Todos"], ["falta", "Faltam"], ["ok", "Comprados"]].map(([k, l]) => `<button data-act="qfilter" data-v="${k}" aria-pressed="${f === k}">${l}</button>`).join("")}
+    </div>
+    <div id="qres">${q ? (res.length ? `<div class="items">${res.slice(0, 120).map(i => rowHtml(i, { showRoom: true })).join("")}</div>` : `<div class="empty-state"><b>Nada encontrado</b><span>Que tal adicionar “${esc(q)}”?</span><button class="btn primary" data-act="add" data-name="${esc(q)}">${ic("plus", 18, 2.2)} Adicionar</button></div>`) : `<div class="empty-state"><span>Procure em todos os cômodos de uma vez.</span></div>`}</div>
+  </main>`;
+}
+
+/* ---------------- folhas (sheets) ---------------- */
+function openSheet(title, bodyHtml, { saveLabel, onSave, onMount, onClose } = {}) {
+  const ov = document.createElement("div");
+  ov.className = "overlay";
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}">
+    <div class="sheet-head"><span class="grab" aria-hidden="true"></span>
+      <div class="sheet-bar"><button data-x>Cancelar</button><h2>${esc(title)}</h2>${saveLabel ? `<button class="save" data-s>${saveLabel}</button>` : `<span style="width:64px"></span>`}</div>
+    </div>
+    <div class="sheet-body">${bodyHtml}</div>
+  </div>`;
+  document.body.appendChild(ov);
+  document.body.style.overflow = "hidden";
+  const sheet = $(".sheet", ov);
+  const close = () => {
+    if (ov.classList.contains("closing")) return;
+    ov.classList.add("closing");
+    setTimeout(() => {
+      ov.remove(); document.body.style.overflow = "";
+      onClose && onClose();
+      if (S.dirty) { S.dirty = false; refresh(); }
+    }, 280);
+  };
+  ov.addEventListener("click", e => { if (e.target === ov) close(); });
+  $("[data-x]", ov).onclick = close;
+  if (onSave) $("[data-s]", ov).onclick = async () => { const b = $("[data-s]", ov); b.disabled = true; try { if (await onSave(ov) !== false) close(); } finally { b.disabled = false; } };
+  // arrastar para fechar
+  let y0 = null, dy = 0;
+  const head = $(".sheet-head", ov);
+  head.addEventListener("touchstart", e => { y0 = e.touches[0].clientY; sheet.style.transition = "none"; }, { passive: true });
+  head.addEventListener("touchmove", e => { if (y0 === null) return; dy = Math.max(0, e.touches[0].clientY - y0); sheet.style.transform = `translateY(${dy}px)`; }, { passive: true });
+  head.addEventListener("touchend", () => { sheet.style.transition = "transform .3s var(--ease)"; if (dy > 110) close(); else sheet.style.transform = ""; y0 = null; dy = 0; });
+  onMount && onMount(ov, close);
+  return close;
+}
+
+function itemForm(it, defaults = {}) {
+  const v = it || { nome: defaults.nome || "", comodo: defaults.room || (S.route?.name === "room" ? S.route.id : "cozinha"), topico: defaults.topic ?? "", etapa: 0, comprado: false };
+  return `
+    <div class="field"><span class="lbl">Fotos (até 3)</span><div class="photo-row" id="fPhotos"></div></div>
+    <div class="field"><label for="fNome">Nome do item</label><input class="input" id="fNome" value="${esc(v.nome)}" placeholder="Ex.: Micro-ondas" autocomplete="off"></div>
+    <div class="two">
+      <div class="field"><label for="fRoom">Cômodo</label><select class="input" id="fRoom">${ROOMS.map(r => `<option value="${r.id}" ${r.id === v.comodo ? "selected" : ""}>${r.nome}</option>`).join("")}</select></div>
+      <div class="field"><label for="fTopic">Tópico</label><select class="input" id="fTopic"></select></div>
+    </div>
+    <div class="field hidden" id="fNewTopicWrap"><label for="fNewTopic">Nome do novo tópico</label><input class="input" id="fNewTopic" placeholder="Ex.: Eletrodomésticos"></div>
+    <div class="field"><span class="lbl">Etapa da mudança</span>
+      <div class="stage-pick" id="fStage" role="group" aria-label="Etapa">
+        ${[[1, "Morar"], [2, "Funcional"], [3, "Bonita"], [0, "Sem etapa"]].map(([n, l]) => `<button type="button" class="p${n}" data-v="${n}" aria-pressed="${(v.etapa || 0) === n}"><b>${n || "—"}</b>${l}</button>`).join("")}
+      </div>
+    </div>
+    <div class="seg" id="fStatus" role="group" aria-label="Situação">
+      <button type="button" data-v="0" aria-pressed="${!v.comprado}">Falta comprar</button>
+      <button type="button" data-v="1" aria-pressed="${!!v.comprado}">Já compramos</button>
+    </div>
+    <div id="fOk" class="${v.comprado ? "" : "hidden"}" style="display:flex;flex-direction:column;gap:14px">
+      <div class="two">
+        <div class="field"><label for="fPago">Valor pago</label><input class="input" id="fPago" inputmode="decimal" placeholder="R$ 0,00" value="${moneyInput(v.valorPago)}"></div>
+        <div class="field"><label for="fData">Data</label><input class="input" id="fData" type="date" value="${esc(v.data || (it ? "" : today()))}"></div>
+      </div>
+      <div class="two">
+        <div class="field"><label for="fParc">Pagamento</label><input class="input" id="fParc" placeholder="Ex.: 10× R$ 99" value="${esc(v.parcelas || "")}"></div>
+        <div class="field"><label for="fGar">Garantia até</label><input class="input" id="fGar" placeholder="Ex.: ago 2027" value="${esc(v.garantia || "")}"></div>
+      </div>
+    </div>
+    <div class="two">
+      <div class="field"><label for="fPrev">Valor previsto</label><input class="input" id="fPrev" inputmode="decimal" placeholder="R$ 0,00" value="${moneyInput(v.valorPrevisto)}"></div>
+      <div class="field"><label for="fLoja">Loja</label><input class="input" id="fLoja" placeholder="Onde comprar" value="${esc(v.loja || "")}"></div>
+    </div>
+    <div class="field"><label for="fLink">Link do produto</label><input class="input" id="fLink" type="url" inputmode="url" autocapitalize="off" placeholder="https://" value="${esc(v.link || "")}"></div>
+    <div class="field"><label for="fNotas">Notas</label><textarea class="input" id="fNotas" placeholder="Cor, medidas, modelo…">${esc(v.notas || "")}</textarea></div>
+    <div class="err" id="fErr" role="alert"></div>`;
+}
+
+async function openItemForm(id, defaults = {}) {
+  const it = id ? S.items.get(id) : null;
+  let photos = id ? (S.photos[id] ?? await S.store.getPhotos(id).catch(() => [])) : [];
+  photos = [...photos];
+  let photosChanged = false;
+  const state = { etapa: it?.etapa || 0, comprado: !!it?.comprado };
+  openSheet(it ? "Editar item" : "Novo item", itemForm(it, defaults), {
+    saveLabel: "Salvar",
+    onMount(ov) {
+      const roomSel = $("#fRoom", ov), topicSel = $("#fTopic", ov), newWrap = $("#fNewTopicWrap", ov);
+      const fillTopics = (keep) => {
+        const ts = topicsOf(roomSel.value);
+        const cur = keep ?? (ts[0] || "");
+        const opts = ts.length ? ts : [""];
+        topicSel.innerHTML = opts.map(t => `<option value="${esc(t)}" ${t === cur ? "selected" : ""}>${esc(t || "Sem tópico")}</option>`).join("") + `<option value="__new">+ Novo tópico…</option>`;
+        if (cur && !opts.includes(cur)) { topicSel.insertAdjacentHTML("afterbegin", `<option value="${esc(cur)}" selected>${esc(cur)}</option>`); }
+        newWrap.classList.toggle("hidden", topicSel.value !== "__new");
+      };
+      fillTopics(it ? (it.topico || "") : (defaults.topic ?? undefined));
+      roomSel.onchange = () => fillTopics();
+      topicSel.onchange = () => { newWrap.classList.toggle("hidden", topicSel.value !== "__new"); if (topicSel.value === "__new") $("#fNewTopic", ov).focus(); };
+      $("#fStage", ov).onclick = e => { const b = e.target.closest("button"); if (!b) return; state.etapa = +b.dataset.v; [...$("#fStage", ov).children].forEach(x => x.setAttribute("aria-pressed", x === b)); };
+      $("#fStatus", ov).onclick = e => { const b = e.target.closest("button"); if (!b) return; state.comprado = b.dataset.v === "1"; [...$("#fStatus", ov).children].forEach(x => x.setAttribute("aria-pressed", x === b)); $("#fOk", ov).classList.toggle("hidden", !state.comprado); if (state.comprado && !$("#fData", ov).value) $("#fData", ov).value = today(); };
+      const drawPhotos = () => {
+        $("#fPhotos", ov).innerHTML = photos.map((p, i) => `<div class="ph"><img src="${p}" alt="Foto ${i + 1}"><button type="button" class="rm" data-rm="${i}" aria-label="Remover foto ${i + 1}">${ic("x", 14, 2.6)}</button></div>`).join("")
+          + (photos.length < 3 ? `<button type="button" class="ph-add" id="phAdd">${ic("camera", 24, 1.8)}Adicionar</button>` : "");
+      };
+      drawPhotos();
+      $("#fPhotos", ov).onclick = e => {
+        const rm = e.target.closest("[data-rm]");
+        if (rm) { photos.splice(+rm.dataset.rm, 1); photosChanged = true; drawPhotos(); return; }
+        if (e.target.closest("#phAdd")) {
+          const fp = $("#filepick");
+          fp.value = "";
+          fp.onchange = async () => {
+            const f = fp.files[0]; if (!f) return;
+            const add = $("#phAdd", ov); if (add) add.innerHTML = `<div class="spinner"></div>`;
+            try { photos.push(await processPhoto(f)); photosChanged = true; }
+            catch (err) { toast(err.message || "Não deu pra usar essa foto"); }
+            drawPhotos();
+          };
+          fp.click();
+        }
+      };
+      if (defaults.photo) setTimeout(() => $("#phAdd", ov)?.click(), 350);
+      if (!it && !defaults.nome) setTimeout(() => $("#fNome", ov).focus(), 450);
+    },
+    async onSave(ov) {
+      const nome = $("#fNome", ov).value.trim();
+      if (!nome) { $("#fErr", ov).textContent = "Dê um nome para o item."; $("#fNome", ov).focus(); return false; }
+      let topico = $("#fTopic", ov).value;
+      if (topico === "__new") { topico = $("#fNewTopic", ov).value.trim(); if (!topico) { $("#fErr", ov).textContent = "Escreva o nome do novo tópico."; return false; } }
+      const comodo = $("#fRoom", ov).value;
+      const data = {
+        id: it ? it.id : `${comodo}--${slug(topico || "geral")}--${slug(nome)}-${Date.now().toString(36)}`,
+        nome, comodo, topico, etapa: state.etapa, comprado: state.comprado,
+        valorPrevisto: parseMoney($("#fPrev", ov).value),
+        valorPago: state.comprado ? parseMoney($("#fPago", ov).value) : (it?.valorPago ?? null),
+        data: state.comprado ? ($("#fData", ov).value || null) : (it?.data ?? null),
+        parcelas: $("#fParc", ov).value.trim() || null,
+        garantia: $("#fGar", ov).value.trim() || null,
+        loja: $("#fLoja", ov).value.trim() || null,
+        link: (() => { let l = $("#fLink", ov).value.trim(); if (l && !/^https?:\/\//i.test(l)) l = "https://" + l; return l || null; })(),
+        notas: $("#fNotas", ov).value.trim() || null,
+        ordem: it ? it.ordem : Date.now(),
+        atualizadoEm: Date.now()
+      };
+      if (!it) data.criadoEm = Date.now();
+      if (photosChanged) {
+        data.thumb = photos[0] ? await thumbFrom(photos[0]) : null;
+        S.photos[data.id] = photos;
+      }
+      S.items.set(data.id, { ...(it || {}), ...data });
+      write(S.store.putItem(data));
+      if (photosChanged) write(S.store.putPhotos(data.id, photos), "As fotos não foram salvas. Tente de novo.");
+      toast(it ? "Item atualizado" : `Adicionado em ${ROOM[comodo].nome}`);
+      S.dirty = true;
+      return true;
+    }
+  });
+}
+
+function openSettings() {
+  const entrega = S.settings.entrega || ENTREGA_PADRAO;
+  openSheet("Ajustes", `
+    <div class="field"><label for="sNomes">Nomes na tela inicial</label><input class="input" id="sNomes" value="${esc(S.settings.nomes || NOMES_PADRAO)}"></div>
+    <div class="field"><label for="sEntrega">Mês previsto das chaves</label><input class="input" id="sEntrega" type="month" value="${esc(entrega)}"></div>
+    <button class="btn ghost block" data-exp type="button">Baixar backup da lista (JSON)</button>
+    <div style="border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:8px">
+      <span style="font-size:13px;color:var(--muted)">Conectado como <b style="color:var(--ink)">${esc(S.user?.email || "")}</b>${DEMO ? " · modo demonstração" : ""}</span>
+      <button class="btn ghost block" data-out type="button">Sair</button>
+    </div>
+    <p style="margin:0;text-align:center;font-size:12px;color:var(--faint)">Cozily · feito para o nosso ap</p>`, {
+    saveLabel: "Salvar",
+    onMount(ov, close) {
+      $("[data-out]", ov).onclick = async () => { close(); await S.store.logout(); };
+      const exp = $("[data-exp]", ov);
+      if (exp) exp.onclick = () => {
+        const blob = new Blob([JSON.stringify({ exportadoEm: new Date().toISOString(), itens: all().map(({ thumb, ...r }) => r) }, null, 2)], { type: "application/json" });
+        const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `cozily-backup-${today()}.json`; a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      };
+    },
+    async onSave(ov) {
+      const o = { nomes: $("#sNomes", ov).value.trim() || NOMES_PADRAO, entrega: $("#sEntrega", ov).value || ENTREGA_PADRAO };
+      S.settings = { ...S.settings, ...o };
+      write(S.store.putSettings(o));
+      S.dirty = true;
+      return true;
+    }
+  });
+}
+
+/* ---------------- ações ---------------- */
+function write(p, msg = "Não foi possível salvar. Confira a internet.") {
+  Promise.resolve(p).catch(err => { console.error(err); toast(err?.code === "permission-denied" ? "Sem permissão — confira as regras do Firestore" : msg); });
+}
+
+function toggleItem(id) {
+  const it = S.items.get(id); if (!it) return;
+  const comprado = !it.comprado;
+  const patch = { id, comprado, atualizadoEm: Date.now() };
+  if (comprado && !it.data) patch.data = today();
+  S.items.set(id, { ...it, ...patch });
+  write(S.store.putItem(patch));
+  const y = window.scrollY;
+  render(null); window.scrollTo(0, y);
+  const row = document.querySelector(`.item[data-id="${CSS.escape(id)}"]`);
+  if (row) row.classList.add("pop");
+  if (comprado && S.route?.name !== "item") toast(`${it.nome} comprado`, "Adicionar valor", () => openItemForm(id));
+}
+
+function deleteItem(id) {
+  const it = S.items.get(id); if (!it) return;
+  openSheet("Excluir item", `<p style="margin:0;font-size:16px">Excluir <b>${esc(it.nome)}</b> da lista? As fotos dele também saem.</p>
+    <button class="btn primary block" data-yes type="button" style="background:var(--danger);color:var(--card)">Excluir</button>`, {
+    onMount(ov, close) { $("[data-yes]", ov).onclick = () => { close(); reallyDelete(id, it); }; }
+  });
+}
+
+function reallyDelete(id, it) {
+  S.items.delete(id);
+  write(S.store.delItem(id));
+  back("#/c/" + it.comodo);
+  let undone = false;
+  toast("Item excluído", "Desfazer", () => { undone = true; S.items.set(id, it); write(S.store.putItem(it)); refresh(); }, 5000);
+  setTimeout(() => { if (!undone) write(S.store.putPhotos(id, [])); }, 5600);
+}
+
+async function loadPhotos(id) {
+  if (S.photos[id] !== undefined || S.pending.has(id)) return;
+  const it = S.items.get(id);
+  if (!it || !it.thumb) { S.photos[id] = []; return; }
+  S.pending.add(id);
+  try { S.photos[id] = await S.store.getPhotos(id); } catch { S.photos[id] = [it.thumb]; }
+  S.pending.delete(id);
+  if (S.route?.name === "item" && S.route.id === id) refresh();
+}
+
+let toastTimer;
+function toast(msg, actionLabel, action, ms = 3200) {
+  document.querySelector(".toast")?.remove();
+  clearTimeout(toastTimer);
+  const t = document.createElement("div");
+  t.className = "toast"; t.setAttribute("role", "status");
+  t.innerHTML = `<span>${esc(msg)}</span>${actionLabel ? `<button>${esc(actionLabel)}</button>` : ""}`;
+  if (actionLabel) $("button", t).onclick = () => { t.remove(); action(); };
+  document.body.appendChild(t);
+  toastTimer = setTimeout(() => t.remove(), ms);
+}
+
+document.addEventListener("click", e => {
+  const el = e.target.closest("[data-act]");
+  if (!el) return;
+  const a = el.dataset.act, id = el.dataset.id;
+  if (a === "toggle") { e.preventDefault(); toggleItem(id); }
+  else if (a === "back") back(S.route?.name === "item" ? "#/c/" + (S.items.get(S.route.id)?.comodo || "") : "#/");
+  else if (a === "add") openItemForm(null, { room: el.dataset.room, topic: el.dataset.topic, nome: el.dataset.name });
+  else if (a === "edit") openItemForm(id, { photo: !!el.dataset.photo });
+  else if (a === "delete") deleteItem(id);
+  else if (a === "settings") openSettings();
+  else if (a === "filter") { S.roomFilter[el.dataset.room] = el.dataset.v; refresh(); }
+  else if (a === "topic") { S.roomTopic[el.dataset.room] = el.dataset.v; const y = window.scrollY; render(null); window.scrollTo(0, y); el.scrollIntoView?.({ inline: "center", block: "nearest", behavior: "smooth" }); }
+  else if (a === "stage") { S.stage = +el.dataset.v; refresh(); }
+  else if (a === "month") { S.month = el.dataset.v; refresh(); }
+  else if (a === "qfilter") { S.qFilter = el.dataset.v; refresh(); }
+  else if (a === "seed") {
+    el.disabled = true; el.textContent = "Importando…";
+    const list = buildSeed();
+    list.forEach(i => S.items.set(i.id, i));
+    S.store.seed(list).then(() => toast(`${list.length} itens importados`)).catch(err => { console.error(err); toast("Não deu pra importar. Confira as regras do Firestore."); });
+    render("enter-fade");
+  }
+  else if (a === "reset") {
+    const email = $("#lEmail")?.value.trim();
+    if (!email) { $("#lErr").textContent = "Escreva seu e-mail acima e toque de novo."; return; }
+    S.store.reset(email).then(() => toast("Enviamos um link para redefinir a senha")).catch(() => toast("Não deu pra enviar. Confira o e-mail."));
+  }
+});
+
+document.addEventListener("click", e => {
+  const n = e.target.closest(".next[data-stage]");
+  if (n) S.stage = +n.dataset.stage;
+}, true);
+
+document.addEventListener("input", e => {
+  if (e.target.id === "q") {
+    S.q = e.target.value;
+    const box = $("#qres"); if (!box) return;
+    const tmp = document.createElement("div"); tmp.innerHTML = viewBusca();
+    box.innerHTML = $("#qres", tmp).innerHTML;
+  }
+});
+
+document.addEventListener("submit", async e => {
+  if (e.target.id !== "loginForm") return;
+  e.preventDefault();
+  const email = $("#lEmail").value.trim(), senha = $("#lSenha").value;
+  const err = $("#lErr"), btn = $("#lBtn");
+  err.textContent = "";
+  if (!email || !senha) { err.textContent = "Preencha e-mail e senha."; return; }
+  btn.disabled = true; btn.textContent = "Entrando…";
+  try { await S.store.login(email, senha); }
+  catch (x) {
+    const c = x?.code || "";
+    err.textContent = c.includes("invalid") || c.includes("wrong-password") || c.includes("user-not-found") ? "E-mail ou senha incorretos."
+      : c.includes("too-many") ? "Muitas tentativas. Espere um pouco e tente de novo."
+      : c.includes("network") ? "Sem internet no momento." : "Não deu pra entrar. Tente de novo.";
+    btn.disabled = false; btn.textContent = "Entrar";
+  }
+});
+
+document.addEventListener("scroll", e => {
+  if (e.target.id !== "photos") return;
+  const p = e.target, i = Math.round(p.scrollLeft / p.clientWidth);
+  document.querySelectorAll(".dots i").forEach((d, k) => d.classList.toggle("on", k === i));
+}, true);
+
+window.addEventListener("hashchange", navigate);
+
+/* ===================================================================
+   INÍCIO
+   =================================================================== */
+let unsub = null;
+async function start() {
+  try { S.store = DEMO ? makeDemoStore() : await makeFirebaseStore(); }
+  catch (err) {
+    console.error(err);
+    $("#app").innerHTML = `<div class="empty-state" style="min-height:100vh;justify-content:center"><b>Não deu pra conectar</b><span>Confira a internet e as chaves do Firebase no index.html.</span><button class="btn primary" onclick="location.reload()">Tentar de novo</button></div>`;
+    return;
+  }
+  S.store.onAuth(user => {
+    S.user = user;
+    if (unsub) { unsub(); unsub = null; }
+    if (user) {
+      S.loaded = false;
+      unsub = S.store.subscribe(
+        arr => {
+          S.items = new Map(arr.map(i => [i.id, i]));
+          S.loaded = true;
+          refresh();
+        },
+        st => { S.settings = st || {}; if (S.loaded) refresh(); },
+        err => { console.error(err); S.loaded = true; refresh(); toast(err?.code === "permission-denied" ? "Este e-mail não tem acesso à lista" : "Erro ao carregar a lista"); }
+      );
+    } else { S.items = new Map(); S.loaded = false; }
+    S.route = parseRoute();
+    render("enter-fade");
+  });
+}
+start();
+</script>
+</body>
+</html>
