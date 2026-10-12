@@ -1,0 +1,15 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Casa original do Caio e da Mirielly
+    match /casas/nosso-ap/{path=**} {
+      allow read, write: if request.auth != null
+        && request.auth.token.email == 'caiodanielmedeiros1597@gmail.com';
+    }
+    // Cada conta nova tem a própria casa: casas/{id da conta}
+    match /casas/{casaId}/{path=**} {
+      allow read, write: if request.auth != null
+        && request.auth.uid == casaId;
+    }
+  }
+}

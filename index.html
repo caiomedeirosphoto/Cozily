@@ -327,6 +327,41 @@ select.input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w
 .login form h2{margin:0;font-family:Sora,Figtree,system-ui,sans-serif;font-size:22px}
 .link-btn{align-self:center;min-height:44px;font-size:14px;font-weight:600;color:var(--accent-text)}
 
+/* primeiro acesso */
+.switch{width:52px;height:32px;border-radius:16px;background:var(--line);position:relative;flex:none;transition:background .25s}
+.switch i{position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .3s var(--ease)}
+.switch.on{background:var(--accent)}
+.switch.on i{transform:translateX(20px)}
+.switch.sm{width:44px;height:26px}
+.switch.sm i{width:20px;height:20px}
+.switch.sm.on i{transform:translateX(18px)}
+.pick{background:var(--card);border:2px solid var(--line);border-radius:16px;display:flex;align-items:center;min-height:56px;transition:border-color .2s,background .2s}
+.pick.on{border-color:var(--accent)}
+.pick>button{flex:1;min-width:0;min-height:52px;display:flex;align-items:center;gap:10px;padding:0 10px;text-align:left;font-size:14px;font-weight:700;color:var(--ink)}
+.pick .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pick:not(.on) .tile{background:var(--soft);color:var(--faint)}
+.stepper{display:flex;align-items:center;gap:2px;padding-right:6px}
+.stepper button{width:40px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--accent-text)}
+.stepper b{min-width:18px;text-align:center;font-size:16px}
+.choice{text-align:left;border:2px solid var(--line);background:var(--card);border-radius:18px;padding:12px;display:flex;flex-direction:column;gap:4px;transition:border-color .2s,background .2s}
+.choice b{font-size:15px}
+.choice span{font-size:12px;color:var(--muted);line-height:1.35}
+.choice.on{border-color:var(--accent);background:var(--accent-soft)}
+.sw-row{width:100%;display:flex;align-items:center;gap:10px;padding:8px 14px;min-height:48px;text-align:left}
+.sw-row+.sw-row{border-top:1px solid var(--soft)}
+.sw-row .nm{flex:1;font-size:15px;font-weight:600}
+.sw-row small{font-size:13px;color:var(--muted)}
+.passos{gap:10px}
+.passo{display:flex;align-items:center;gap:12px;background:var(--bg);border-radius:14px;padding:10px 12px;min-height:56px;color:var(--ink)}
+.passo .num{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted);flex:none}
+.passo.ok .num{background:var(--accent);border-color:var(--accent);color:#fff}
+.passo .txt{display:flex;flex-direction:column;gap:1px}
+.passo .txt b{font-size:15px}
+.passo.ok .txt b{text-decoration:line-through;color:var(--muted)}
+.passo .txt small{font-size:12.5px;color:var(--muted)}
+.sug{display:flex;flex-wrap:wrap;gap:8px}
+.sug button{min-height:40px;padding:0 14px;border-radius:20px;border:1px solid var(--line);background:var(--card);font-size:14px;font-weight:600;color:var(--ink)}
+
 /* toast + avisos */
 .toast{position:fixed;left:16px;right:16px;bottom:calc(var(--bottom) + 16px);max-width:488px;margin:0 auto;z-index:80;background:var(--ink);color:var(--bg);border-radius:16px;padding:10px 8px 10px 16px;min-height:52px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.25);overflow:hidden;animation:toastIn .38s var(--ease) both}
 body.has-tabs .toast{bottom:calc(var(--bottom) + 110px)}
@@ -370,26 +405,46 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "292997163165",
   appId: "1:292997163165:web:45d8d307a91ef32e154c74"
 };
-const CASA_ID = "nosso-ap";              // todos os dados ficam em casas/nosso-ap
+/* Cada conta tem a própria casa em casas/{id da conta}.
+   A conta original do Caio e da Mirielly continua usando casas/nosso-ap. */
+const LEGACY = { "caiodanielmedeiros1597@gmail.com": "nosso-ap" };
 const ENTREGA_PADRAO = "2028-12";         // mês previsto das chaves (dá pra mudar em Ajustes)
 const NOMES_PADRAO = "Caio e Mirielly";
+const CASA_PADRAO = "Nosso AP";
 
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
+const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
+if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
+const casaIdFor = (user) => LEGACY[(user.email || "").toLowerCase()] || user.uid;
 
 /* ---------------- cômodos ---------------- */
-const ROOMS = [
-  { id: "cozinha",     nome: "Cozinha",          icon: "pot",    cor: "c-green" },
-  { id: "quarto",      nome: "Quarto",           icon: "bed",    cor: "c-lilac" },
-  { id: "sala-estar",  nome: "Sala de estar",    icon: "sofa",   cor: "c-blue" },
-  { id: "sala-jantar", nome: "Sala de jantar",   icon: "dining", cor: "c-rose" },
-  { id: "banheiro",    nome: "Banheiro",         icon: "bath",   cor: "c-teal" },
-  { id: "lavanderia",  nome: "Lavanderia",       icon: "washer", cor: "c-sand" },
-  { id: "escritorio",  nome: "Escritório",       icon: "laptop", cor: "c-grey" },
-  { id: "hall",        nome: "Hall / Entrada",   icon: "door",   cor: "c-ochre" },
-  { id: "limpeza",     nome: "Limpeza geral",    icon: "broom",  cor: "c-grey", casaToda: true },
-  { id: "organizacao", nome: "Organização geral",icon: "box",    cor: "c-grey", casaToda: true }
-];
-const ROOM = Object.fromEntries(ROOMS.map(r => [r.id, r]));
+/* tipos de cômodo: ícone e cor */
+const TIPOS = {
+  "cozinha":     { nome: "Cozinha",        icon: "pot",    cor: "c-green" },
+  "sala-estar":  { nome: "Sala de estar",  icon: "sofa",   cor: "c-blue" },
+  "sala-jantar": { nome: "Sala de jantar", icon: "dining", cor: "c-rose" },
+  "quarto":      { nome: "Quarto",         icon: "bed",    cor: "c-lilac", contador: true },
+  "banheiro":    { nome: "Banheiro",       icon: "bath",   cor: "c-teal",  contador: true },
+  "lavanderia":  { nome: "Lavanderia",     icon: "washer", cor: "c-sand" },
+  "escritorio":  { nome: "Escritório",     icon: "laptop", cor: "c-grey" },
+  "hall":        { nome: "Hall / Entrada", icon: "door",   cor: "c-ochre" },
+  "varanda":     { nome: "Varanda",        icon: "plant",  cor: "c-green" },
+  "gourmet":     { nome: "Área gourmet",   icon: "grill",  cor: "c-sand" },
+  "closet":      { nome: "Closet",         icon: "hanger", cor: "c-lilac" },
+  "outro":       { nome: "Outro",          icon: "home",   cor: "c-ochre" },
+  "limpeza":     { nome: "Limpeza geral",     icon: "broom", cor: "c-grey", casaToda: true },
+  "organizacao": { nome: "Organização geral", icon: "box",   cor: "c-grey", casaToda: true }
+};
+/* cômodos da casa original (antes de existir a escolha de cômodos) */
+const LEGACY_ROOMS = ["cozinha", "quarto", "sala-estar", "sala-jantar", "banheiro", "lavanderia", "escritorio", "hall", "limpeza", "organizacao"]
+  .map(t => ({ id: t, nome: TIPOS[t].nome, tipo: t }));
+const CASA_TODA = [{ id: "limpeza", nome: "Limpeza geral", tipo: "limpeza" }, { id: "organizacao", nome: "Organização geral", tipo: "organizacao" }];
+let ROOMS = [], ROOM = {};
+function applyRooms() {
+  const list = (S.settings && S.settings.comodos) || LEGACY_ROOMS;
+  ROOMS = list.map(r => { const t = TIPOS[r.tipo] || TIPOS.outro; return { ...r, icon: t.icon, cor: t.cor, casaToda: !!t.casaToda }; });
+  ROOM = Object.fromEntries(ROOMS.map(r => [r.id, r]));
+}
 const ETAPAS = {
   1: { nome: "Para conseguir morar", curto: "Morar" },
   2: { nome: "Para deixar funcional", curto: "Funcional" },
@@ -427,6 +482,37 @@ const SEED = [
   ["limpeza", "", ["Vassoura#1","Pá","Rodo#1","Mop","Baldes#1","Bacias","Panos de chão","Panos de microfibra","Flanelas","Esponjas","Escovas","Luvas","Sacos de lixo","Lixeira para cada ambiente","Aspirador de pó#2","Organizadores","Produtos de limpeza#1"]],
   ["organizacao", "", ["+Caixas organizadoras#2","Cestos","+Organizadores de gaveta#2","Organizadores de armário#2","Etiquetas","Cabides","Prateleiras","Caixas para objetos pequenos"]]
 ];
+/* sugestões para cômodos que não estavam nas notas */
+const SEED_EXTRA = [
+  ["varanda", "", ["Cadeiras externas","Mesa pequena","Rede","Vasos#3","Plantas#3","Tapete externo","Luminária","Almofadas","Toldo ou cortina"]],
+  ["gourmet", "", ["Churrasqueira","Mesa","Cadeiras","Kit churrasco","Tábua de carne","Frigobar","Cooler","Luminária"]],
+  ["closet", "", ["Cabides#2","Organizadores de gaveta","Colmeias","Sapateira","Espelho","Cestos","Porta-joias"]]
+];
+const seedRowsFor = tipo => [...SEED, ...SEED_EXTRA].filter(r => r[0] === tipo);
+const seedCount = tipo => seedRowsFor(tipo).reduce((a, r) => a + r[2].length, 0);
+const parseSeedName = raw => {
+  if (raw.startsWith("+")) raw = raw.slice(1);
+  let etapa = 0; const m = raw.match(/#(\d)$/);
+  if (m) { etapa = +m[1]; raw = raw.slice(0, -2); }
+  return { nome: raw, etapa };
+};
+/* lista sugerida para uma conta nova: nada vem marcado como comprado */
+function buildSeedFor(rooms) {
+  const out = [], used = new Set();
+  let ordem = 0;
+  for (const r of rooms) {
+    for (const [, topico, list] of seedRowsFor(r.tipo)) {
+      for (const raw of list) {
+        const { nome, etapa } = parseSeedName(raw);
+        let id = `${r.id}--${slug(topico || "geral")}--${slug(nome)}`;
+        while (used.has(id)) id += "-2";
+        used.add(id);
+        out.push({ id, nome, comodo: r.id, topico, comprado: false, etapa, ordem: ordem++, criadoEm: Date.now() });
+      }
+    }
+  }
+  return out;
+}
 
 /* ---------------- ícones ---------------- */
 const IC = {
@@ -440,6 +526,11 @@ const IC = {
   door: '<path d="M6 21V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v17M4 21h16"/><circle cx="14.5" cy="12" r="1"/>',
   broom: '<path d="M20 3l-7.5 7.5M10 9l5 5-2.5 7L3 11.5z"/>',
   box: '<path d="M3 8h18v12H3zM3 8l2-4h14l2 4M9 12h6"/>',
+  plant: '<path d="M7 15h10l-1.5 6h-7z"/><path d="M12 15V9M12 9c0-3 2-5 5-5 0 3-2 5-5 5zM12 11c0-2.5-1.7-4-4-4 0 2.3 1.5 4 4 4z"/>',
+  grill: '<path d="M4 10h16a8 8 0 0 1-16 0zM8 17.5 6 22M16 17.5l2 4.5M9 6c0-1 1-1.5 1-2.5M14 6c0-1 1-1.5 1-2.5"/>',
+  hanger: '<path d="M10 6a2 2 0 1 1 2 2v1.5M12 9.5 3 16a1 1 0 0 0 .6 1.8h16.8A1 1 0 0 0 21 16z"/>',
+  users: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c.8-3.4 3.2-5.2 6-5.2s5.2 1.8 6 5.2"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14.6c2.4.2 4.2 1.8 5 4.6"/>',
+  minus: '<path d="M5 12h14"/>',
   home: '<path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/>',
   flag: '<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
   chart: '<path d="M5 20V11M12 20V5M19 20v-7"/>',
@@ -539,36 +630,53 @@ async function thumbFrom(dataUrl) {
    ARMAZENAMENTO — Firebase (real) ou demonstração (localStorage)
    =================================================================== */
 function makeDemoStore() {
-  const KEY = "cozily-demo-v1";
+  const KEY = "cozily-demo-v2";
   const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } };
   let db = load();
-  db.items = db.items || {}; db.settings = db.settings || {}; db.photos = db.photos || {};
+  db.users = db.users || {}; db.casas = db.casas || {};
+  if (DEMO_PRELOAD && !db.users["caio@exemplo.com"]) {
+    db.users["caio@exemplo.com"] = { uid: "demo-caio", senha: "demonstracao" };
+    const items = {}; buildSeed().forEach(i => items[i.id] = i);
+    db.casas["nosso-ap"] = { items, settings: { importado: true }, photos: {} };
+  }
   const listeners = new Set();
+  let casaId = null;
+  const casa = () => (db.casas[casaId] = db.casas[casaId] || { items: {}, settings: {}, photos: {} });
   const persist = () => {
     try { localStorage.setItem(KEY, JSON.stringify(db)); }
     catch { toast("O navegador ficou sem espaço para as fotos do modo demonstração"); }
     listeners.forEach(fn => fn());
   };
   let authCb = () => {};
+  const userOf = email => email && db.users[email] ? { email, uid: db.users[email].uid } : null;
   return {
-    onAuth(cb) { authCb = cb; setTimeout(() => cb(db.user || null), 120); },
+    onAuth(cb) { authCb = cb; setTimeout(() => cb(userOf(db.session)), 120); },
     async login(email, senha) {
-      if (!email || !senha) throw { code: "auth/missing" };
-      db.user = { email }; persist(); authCb(db.user);
+      email = (email || "").toLowerCase();
+      const u = db.users[email];
+      if (!u || (u.senha && u.senha !== senha)) throw { code: "auth/invalid-credential" };
+      db.session = email; persist(); authCb(userOf(email));
     },
-    async logout() { delete db.user; persist(); authCb(null); },
+    async createAccount(email, senha) {
+      email = (email || "").toLowerCase();
+      if (db.users[email]) throw { code: "auth/email-already-in-use" };
+      db.users[email] = { uid: "demo-" + Date.now().toString(36), senha };
+      db.session = email; persist(); authCb(userOf(email));
+    },
+    async logout() { delete db.session; persist(); authCb(null); },
     async reset() {},
-    subscribe(onItems, onSettings) {
-      const fn = () => { onItems(Object.values(db.items)); onSettings(db.settings); };
+    subscribe(id, onItems, onSettings) {
+      casaId = id;
+      const fn = () => { if (casaId !== id) return; onItems(Object.values(casa().items)); onSettings(casa().settings); };
       listeners.add(fn); setTimeout(fn, 60);
       return () => listeners.delete(fn);
     },
-    async putItem(it) { db.items[it.id] = { ...(db.items[it.id] || {}), ...it }; persist(); },
-    async delItem(id) { delete db.items[id]; persist(); },
-    async putSettings(o) { db.settings = { ...db.settings, ...o }; persist(); },
-    async seed(list) { list.forEach(it => db.items[it.id] = it); db.settings.importado = true; persist(); },
-    async getPhotos(id) { return db.photos[id] || []; },
-    async putPhotos(id, arr) { if (arr.length) db.photos[id] = arr; else delete db.photos[id]; persist(); }
+    async putItem(it) { const c = casa(); c.items[it.id] = { ...(c.items[it.id] || {}), ...it }; persist(); },
+    async delItem(id) { delete casa().items[id]; persist(); },
+    async putSettings(o) { const c = casa(); c.settings = { ...c.settings, ...o }; persist(); },
+    async seed(list) { const c = casa(); list.forEach(it => c.items[it.id] = it); c.settings.importado = true; persist(); },
+    async getPhotos(id) { return casa().photos[id] || []; },
+    async putPhotos(id, arr) { const c = casa(); if (arr.length) c.photos[id] = arr; else delete c.photos[id]; persist(); }
   };
 }
 
@@ -583,15 +691,20 @@ async function makeFirebaseStore() {
   let db;
   try { db = F.initializeFirestore(app, { localCache: F.persistentLocalCache({ tabManager: F.persistentMultipleTabManager() }) }); }
   catch { db = F.getFirestore(app); }
-  const casa = F.doc(db, "casas", CASA_ID);
-  const col = F.collection(db, "casas", CASA_ID, "itens");
-  const foto = (id, i) => F.doc(db, "casas", CASA_ID, "fotos", `${id}__${i}`);
+  let casa, col, foto;
+  const useCasa = id => {
+    casa = F.doc(db, "casas", id);
+    col = F.collection(db, "casas", id, "itens");
+    foto = (item, i) => F.doc(db, "casas", id, "fotos", `${item}__${i}`);
+  };
   return {
-    onAuth: cb => A.onAuthStateChanged(auth, u => cb(u ? { email: u.email } : null)),
+    onAuth: cb => A.onAuthStateChanged(auth, u => cb(u ? { email: u.email, uid: u.uid } : null)),
     login: (e, s) => A.signInWithEmailAndPassword(auth, e, s),
+    createAccount: (e, s) => A.createUserWithEmailAndPassword(auth, e, s),
     logout: () => A.signOut(auth),
     reset: e => A.sendPasswordResetEmail(auth, e),
-    subscribe(onItems, onSettings, onErr) {
+    subscribe(id, onItems, onSettings, onErr) {
+      useCasa(id);
       const u1 = F.onSnapshot(col, s => { const arr = []; s.forEach(d => arr.push({ id: d.id, ...d.data() })); onItems(arr, s.metadata.fromCache); }, onErr);
       const u2 = F.onSnapshot(casa, d => onSettings(d.exists() ? d.data() : {}), onErr);
       return () => { u1(); u2(); };
@@ -630,7 +743,7 @@ const S = {
 const all = () => [...S.items.values()].filter(i => !i.excluido).sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0));
 const lixeira = () => [...S.items.values()].filter(i => i.excluido).sort((a, b) => (b.excluidoEm ?? 0) - (a.excluidoEm ?? 0));
 /* itens da lista original que foram apagados de vez (antes de existir a lixeira) */
-const sumidos = () => { const ids = new Set(S.items.keys()); return buildSeed().filter(i => !ids.has(i.id)); };
+const sumidos = () => { if (S.casaId !== "nosso-ap") return []; const ids = new Set(S.items.keys()); return buildSeed().filter(i => !ids.has(i.id)); };
 const inRoom = id => all().filter(i => i.comodo === id);
 const topicsOf = id => { const t = []; inRoom(id).forEach(i => { if (!t.includes(i.topico || "")) t.push(i.topico || ""); }); return t; };
 const done = list => list.filter(i => i.comprado).length;
@@ -641,7 +754,7 @@ const done = list => list.filter(i => i.comprado).length;
 function parseRoute() {
   const h = decodeURIComponent(location.hash.replace(/^#\/?/, ""));
   const [a, b] = h.split("/");
-  if (a === "c" && ROOM[b]) return { name: "room", id: b, depth: 1, key: "c/" + b };
+  if (a === "c" && b) return { name: "room", id: b, depth: 1, key: "c/" + b };
   if (a === "i" && b) return { name: "item", id: b, depth: 2, key: "i/" + b };
   if (a === "ordem") return { name: "ordem", depth: 0, tab: true, key: "ordem" };
   if (a === "gastos") return { name: "gastos", depth: 0, tab: true, key: "gastos" };
@@ -657,7 +770,9 @@ function render(mode) {
   if (!S.user) { app.innerHTML = viewLogin(); setTabs(null); return; }
   const r = S.route || parseRoute();
   let html = "";
+  const onb = S.loaded && needsOnboarding();
   if (!S.loaded) html = `<div class="loading"><div class="spinner" role="status" aria-label="Carregando"></div></div>`;
+  else if (onb) html = viewOnboarding();
   else if (r.name === "room") html = viewRoom(r.id);
   else if (r.name === "item") html = viewItem(r.id);
   else if (r.name === "ordem") html = viewOrdem();
@@ -667,7 +782,8 @@ function render(mode) {
   app.innerHTML = html;
   const page = app.firstElementChild;
   if (mode && page) page.classList.add(mode);
-  setTabs(r.tab ? r.name : null);
+  setTabs(r.tab && !onb && S.loaded ? r.name : null);
+  if (r.name === "ordem" && S.loaded && !onb && S.settings.onboarded && !S.settings.viuOrdem) { S.settings.viuOrdem = true; write(S.store.putSettings({ viuOrdem: true })); }
   // barras e anéis animam só na primeira abertura do app e ao entrar num cômodo
   let animate = false;
   if (S.loaded && page && !page.classList.contains("loading")) {
@@ -748,22 +864,172 @@ function setTabs(active) {
 
 /* ---------------- telas ---------------- */
 function viewLogin() {
+  const criar = S.authMode === "criar";
   return `<div class="login">
     <div class="brand">
       <div class="logo">${LOGO(60)}</div>
       <h1>Cozily</h1>
-      <p>Tudo do nosso AP, item por item.</p>
+      <p>Monte sua casa, item por item.</p>
     </div>
     <form id="loginForm" novalidate>
-      <h2>Entrar</h2>
-      ${DEMO ? `<span class="demo">Modo demonstração · qualquer e-mail e senha entram</span>` : ""}
-      <div class="field"><label for="lEmail">E-mail</label><input class="input" id="lEmail" type="email" autocomplete="username" inputmode="email" autocapitalize="off" required></div>
-      <div class="field"><label for="lSenha">Senha</label><input class="input" id="lSenha" type="password" autocomplete="current-password" required></div>
+      <div class="seg" role="group" aria-label="Entrar ou criar conta">
+        <button type="button" data-act="authmode" data-v="entrar" aria-pressed="${!criar}">Entrar</button>
+        <button type="button" data-act="authmode" data-v="criar" aria-pressed="${criar}">Criar conta</button>
+      </div>
+      ${DEMO ? `<span class="demo">Modo demonstração · dados só neste aparelho</span>` : ""}
+      ${criar ? `<p style="margin:0;font-size:14px;color:var(--muted);line-height:1.45">Se for um casal, podem usar um e-mail só e entrar nos dois celulares.</p>` : ""}
+      <div class="field"><label for="lEmail">E-mail</label><input class="input" id="lEmail" type="email" autocomplete="username" inputmode="email" autocapitalize="off" value="${esc(S.authEmail || "")}" required></div>
+      <div class="field"><label for="lSenha">Senha</label><input class="input" id="lSenha" type="password" autocomplete="${criar ? "new-password" : "current-password"}" required>${criar ? `<span style="font-size:12px;color:var(--muted)">Pelo menos 6 caracteres</span>` : ""}</div>
+      ${criar ? `<div class="field"><label for="lSenha2">Repita a senha</label><input class="input" id="lSenha2" type="password" autocomplete="new-password" required></div>` : ""}
       <div class="err" id="lErr" role="alert"></div>
-      <button class="btn primary block" type="submit" id="lBtn">Entrar</button>
-      <button class="link-btn" type="button" data-act="reset">Esqueci minha senha</button>
+      <button class="btn primary block" type="submit" id="lBtn">${criar ? "Criar conta" : "Entrar"}</button>
+      ${criar ? "" : `<button class="link-btn" type="button" data-act="reset">Esqueci minha senha</button>`}
     </form>
   </div>`;
+}
+
+/* ===================================================================
+   PRIMEIRO ACESSO (conta nova): quem usa, cômodos e lista sugerida
+   =================================================================== */
+const CATALOGO = ["cozinha", "sala-estar", "sala-jantar", "quarto", "banheiro", "lavanderia", "escritorio", "hall", "varanda", "gourmet", "closet"];
+const needsOnboarding = () => !S.settings.onboarded && !S.settings.importado && S.items.size === 0;
+function obState() {
+  if (!S.ob) S.ob = { step: 2, casal: false, n1: "", n2: "", casa: "", sel: { "cozinha": 1, "sala-estar": 1, "quarto": 1, "banheiro": 1, "lavanderia": 1 }, cnt: { quarto: 1, banheiro: 1 }, custom: [], mode: "sug", off: {}, entrega: "", semData: false };
+  return S.ob;
+}
+function obRooms() {
+  const o = obState(), out = [];
+  for (const t of CATALOGO) {
+    if (!o.sel[t]) continue;
+    const n = TIPOS[t].contador ? (o.cnt[t] || 1) : 1;
+    if (n > 1) for (let i = 1; i <= n; i++) out.push({ id: `${t}-${i}`, nome: `${TIPOS[t].nome} ${i}`, tipo: t });
+    else out.push({ id: t, nome: TIPOS[t].nome, tipo: t });
+  }
+  o.custom.forEach(nome => { let id = "c-" + slug(nome); while (out.some(r => r.id === id)) id += "-2"; out.push({ id, nome, tipo: "outro" }); });
+  return out;
+}
+function obHeader(step) {
+  return `<div class="topbar" style="gap:14px">
+      ${step > 2 ? `<button class="icon-btn" data-act="ob-back" aria-label="Voltar">${ic("back", 22, 2)}</button>` : `<span style="width:44px"></span>`}
+      <div style="flex:1;display:flex;gap:6px" role="img" aria-label="Passo ${step} de 4">${[1, 2, 3, 4].map(i => `<span style="flex:1;height:5px;border-radius:3px;background:${i <= step ? "var(--accent)" : "var(--line)"}"></span>`).join("")}</div>
+      ${step === 2 ? `<button class="link-btn" data-act="ob-sair" style="min-height:44px">Sair</button>` : `<span style="width:44px"></span>`}
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:13px;font-weight:700;color:var(--accent-text);text-transform:uppercase;letter-spacing:.08em">Passo ${step} de 4</span>`;
+}
+function viewOnboarding() {
+  const o = obState();
+  if (o.step === 2) {
+    const casaPh = o.casal ? "Nossa casa" : "Minha casa";
+    return `<main class="page no-tabs">${obHeader(2)}
+      <h1 class="h-display" style="margin:0;font-size:28px;line-height:1.15">Quem vai usar a lista?</h1></div>
+      <button class="card" data-act="ob-casal" role="switch" aria-checked="${o.casal}" style="flex-direction:row;align-items:center;gap:14px;text-align:left;border:0">
+        <span class="tile" style="--tint:var(--accent-soft);--tone:var(--accent-text);width:44px;height:44px;border-radius:14px">${ic("users", 24, 1.9)}</span>
+        <span style="flex:1;display:flex;flex-direction:column;gap:2px"><b style="font-size:16px">Somos um casal</b><span style="font-size:13px;color:var(--muted)">${o.casal ? "Os dois usam a mesma conta e a mesma lista" : "Lista só sua. Ligue se for dividir com alguém"}</span></span>
+        <span class="switch ${o.casal ? "on" : ""}" aria-hidden="true"><i></i></span>
+      </button>
+      ${o.casal ? `<div class="two">
+        <div class="field"><label for="obN1">Seu nome</label><input class="input" id="obN1" value="${esc(o.n1)}" autocomplete="given-name" autocapitalize="words"></div>
+        <div class="field"><label for="obN2">Nome do par</label><input class="input" id="obN2" value="${esc(o.n2)}" autocapitalize="words"></div>
+      </div>` : `<div class="field"><label for="obN1">Seu nome</label><input class="input" id="obN1" value="${esc(o.n1)}" autocomplete="given-name" autocapitalize="words"></div>`}
+      <div class="field"><label for="obCasa">Nome da casa</label><input class="input" id="obCasa" value="${esc(o.casa)}" placeholder="${casaPh}"><span style="font-size:12px;color:var(--muted)">É o título da tela inicial. Ex.: Nosso AP, Casa da praia</span></div>
+      <div class="hero" style="gap:4px;padding:16px 18px">
+        <span style="font-size:11px;font-weight:700;color:var(--deep-muted);text-transform:uppercase;letter-spacing:.08em">Vai aparecer assim</span>
+        <span style="font-size:14px;color:var(--deep-muted)" id="obPrevNomes">Boa noite${obNomes() ? ", " + esc(obNomes()) : ""}</span>
+        <span class="h-display" style="font-size:24px;font-weight:700" id="obPrevCasa">${esc(o.casa || casaPh)}</span>
+      </div>
+      <div class="err" id="obErr" role="alert"></div>
+      <button class="btn primary block" data-act="ob-next">Continuar</button>
+    </main>`;
+  }
+  if (o.step === 3) {
+    const rooms = obRooms();
+    return `<main class="page no-tabs">${obHeader(3)}
+      <h1 class="h-display" style="margin:0;font-size:26px;line-height:1.15">Quais cômodos a casa tem?</h1>
+      <p style="margin:0;font-size:14px;color:var(--muted)">Toque para escolher. Dá pra mudar depois em Ajustes.</p></div>
+      <div class="grid2" style="gap:8px">
+        ${CATALOGO.map(t => { const on = !!o.sel[t], T = TIPOS[t], n = o.cnt[t] || 1; const wide = T.contador && on; return `<div class="pick ${on ? "on" : ""} ${T.cor}" style="${wide ? "grid-column:span 2" : ""}">
+          <button type="button" data-act="ob-room" data-v="${t}" aria-pressed="${on}"><span class="tile" style="width:32px;height:32px;border-radius:10px">${ic(T.icon, 18)}</span><span class="nm">${T.nome}${wide && n > 1 ? "s" : ""}</span></button>
+          ${wide ? `<span class="stepper"><button type="button" data-act="ob-cnt" data-v="${t}" data-d="-1" aria-label="Menos ${T.nome.toLowerCase()}s">${ic("minus", 18, 2.4)}</button><b aria-live="polite">${n}</b><button type="button" data-act="ob-cnt" data-v="${t}" data-d="1" aria-label="Mais ${T.nome.toLowerCase()}s">${ic("plus", 18, 2.4)}</button></span>` : ""}
+        </div>`; }).join("")}
+        ${o.custom.map((nome, i) => `<div class="pick on c-ochre" style="grid-column:span 2"><button type="button" data-act="ob-rm-custom" data-i="${i}" aria-label="Tirar ${esc(nome)}"><span class="tile" style="width:32px;height:32px;border-radius:10px">${ic("home", 18)}</span><span class="nm">${esc(nome)}</span>${ic("x", 14, 2.4)}</button></div>`).join("")}
+      </div>
+      <form class="row-gap" id="obCustomForm"><label for="obCustom" class="sr">Outro cômodo</label><input class="input" id="obCustom" placeholder="Outro cômodo (ex.: Closet do bebê)" style="flex:1;min-width:0"><button type="submit" class="btn" style="background:var(--accent-soft);color:var(--accent-text);min-height:50px">Adicionar</button></form>
+      <div class="card" style="padding:12px 14px;font-size:13px;color:var(--muted);line-height:1.45;gap:0"><span><b style="color:var(--ink)">${plural(rooms.length, "cômodo", "cômodos")}:</b> ${rooms.map(r => esc(r.nome)).join(", ") || "nenhum ainda"}. Limpeza e Organização da casa toda entram sempre.</span></div>
+      <div class="err" id="obErr" role="alert"></div>
+      <button class="btn primary block" data-act="ob-next">Continuar</button>
+    </main>`;
+  }
+  const rooms = obRooms(), sug = o.mode === "sug";
+  let total = 0;
+  const rows = [...rooms, ...CASA_TODA].map(r => {
+    const n = seedCount(r.tipo), on = n > 0 && !o.off[r.id];
+    if (sug && on) total += n;
+    return { r, n, on };
+  });
+  return `<main class="page no-tabs">${obHeader(4)}
+    <h1 class="h-display" style="margin:0;font-size:26px;line-height:1.15">Começar com uma lista pronta?</h1></div>
+    <div class="grid2" style="gap:8px">
+      <button type="button" class="choice ${sug ? "on" : ""}" data-act="ob-mode" data-v="sug" aria-pressed="${sug}"><b>Lista sugerida</b><span>Itens prontos por cômodo, com a ordem da mudança</span></button>
+      <button type="button" class="choice ${sug ? "" : "on"}" data-act="ob-mode" data-v="zero" aria-pressed="${!sug}"><b>Começar do zero</b><span>Cômodos vazios, vocês escrevem cada item</span></button>
+    </div>
+    ${sug ? `<div class="items">${rows.map(({ r, n, on }) => n ? `<button type="button" class="sw-row" data-act="ob-off" data-v="${r.id}" role="switch" aria-checked="${on}"><span class="nm">${esc(r.nome)}</span><small>${on ? plural(n, "item", "itens") : "vazio"}</small><span class="switch sm ${on ? "on" : ""}" aria-hidden="true"><i></i></span></button>`
+      : `<div class="sw-row"><span class="nm">${esc(r.nome)}</span><small>sem sugestões</small></div>`).join("")}</div>` : ""}
+    <div class="field"><label for="obEntrega">Quando recebem as chaves?</label>
+      <div class="row-gap">${o.semData ? `<span class="input" style="display:flex;align-items:center;color:var(--muted);flex:1">Sem data por enquanto</span>` : `<input class="input" id="obEntrega" type="month" value="${esc(o.entrega)}" style="flex:1;min-width:0">`}
+      <button type="button" class="btn ghost" data-act="ob-nodate" style="min-height:50px;font-size:14px;padding:0 14px">${o.semData ? "Colocar data" : "Ainda não sei"}</button></div>
+    </div>
+    <button class="btn primary block" data-act="ob-finish" id="obFinish">${sug && total ? `Criar minha casa com ${total} itens` : "Criar minha casa"}</button>
+  </main>`;
+}
+function obNomes() { const o = obState(); const a = o.n1.trim(), b = o.n2.trim(); return o.casal ? [a, b].filter(Boolean).join(" e ") : a; }
+async function finishOnboarding(btn) {
+  const o = obState();
+  if (!o.semData && $("#obEntrega")) o.entrega = $("#obEntrega").value;
+  const rooms = obRooms();
+  const comodos = [...rooms, ...CASA_TODA].map(({ id, nome, tipo }) => ({ id, nome, tipo }));
+  const settings = {
+    onboarded: true, importado: true, criadoEm: Date.now(), casal: o.casal,
+    nomes: obNomes(), nomeCasa: o.casa.trim() || (o.casal ? "Nossa casa" : "Minha casa"),
+    entrega: o.semData ? null : (o.entrega || null), comodos, comecouDoZero: o.mode !== "sug"
+  };
+  const items = o.mode === "sug" ? buildSeedFor(comodos.filter(r => !o.off[r.id])) : [];
+  btn.disabled = true; btn.textContent = "Criando…";
+  S.settings = { ...S.settings, ...settings };
+  applyRooms();
+  items.forEach(i => S.items.set(i.id, i));
+  try {
+    await S.store.putSettings(settings);
+    if (items.length) S.store.seed(items).catch(err => { console.error(err); toast("A lista não terminou de salvar. Confira a internet."); });
+  } catch (err) {
+    console.error(err);
+    btn.disabled = false; btn.textContent = "Tentar de novo";
+    toast(err?.code === "permission-denied" ? "Sem permissão — confira as regras do Firestore" : "Não deu pra criar. Confira a internet.");
+    return;
+  }
+  S.ob = null; S.introDone = false;
+  if (location.hash && location.hash !== "#/") go("#/"); else render("enter-fade");
+  toast(`${settings.nomeCasa} criada!`);
+}
+
+/* card de primeiros passos (só em contas novas) */
+function viewPassos() {
+  if (!S.settings.onboarded || S.settings.passosOk) return "";
+  const items = all();
+  const first = ROOMS.find(r => !r.casaToda && inRoom(r.id).length) || ROOMS[0];
+  const P = [
+    S.settings.comecouDoZero && !items.some(i => i.comprado)
+      ? ["Adicione os primeiros itens", "Abra um cômodo e toque nas sugestões ou no +", items.length > 0, first ? "#/c/" + first.id : "#/"]
+      : ["Marque o que já têm", "Abra cada cômodo e toque no círculo", items.some(i => i.comprado), first ? "#/c/" + first.id : "#/"],
+    ["Escolha as prioridades", "Na aba Ordem: o que precisa para mudar", !!S.settings.viuOrdem, "#/ordem"],
+    ["Coloque valores previstos", "Para saber quanto falta juntar", items.some(i => i.valorPrevisto), first ? "#/c/" + first.id : "#/"]
+  ];
+  const n = P.filter(x => x[2]).length;
+  return `<section class="card passos" aria-label="Primeiros passos">
+    <div class="sec-h" style="margin:0"><h2>${n === 3 ? "Tudo pronto!" : "Primeiros passos"}</h2><span>${n} de 3</span></div>
+    ${P.map(([t, sub, ok, href], i) => `<a class="passo ${ok ? "ok" : ""}" href="${href}"><span class="num">${ok ? ic("check", 14, 3) : i + 1}</span><span class="txt"><b>${t}</b><small>${sub}</small></span></a>`).join("")}
+    <button class="link-btn" data-act="passos-ok" style="min-height:36px">${n === 3 ? "Fechar" : "Esconder"}</button>
+  </section>`;
 }
 
 function roomStats(id) { const l = inRoom(id); return { d: done(l), t: l.length }; }
@@ -781,34 +1047,21 @@ function viewHome() {
   const items = all();
   const d = done(items), t = items.length, p = pct(d, t);
   const C = 2 * Math.PI * 46;
-  const entrega = S.settings.entrega || ENTREGA_PADRAO;
-  const [ey, em] = entrega.split("-").map(Number);
+  const entrega = S.settings.entrega === undefined ? ENTREGA_PADRAO : S.settings.entrega;
+  const [ey, em] = (entrega || "2000-01").split("-").map(Number);
   const now = new Date();
   const meses = Math.max(0, (ey - now.getFullYear()) * 12 + (em - 1 - now.getMonth()));
-  const nomes = S.settings.nomes || NOMES_PADRAO;
+  const nomes = S.settings.nomes || (S.casaId === "nosso-ap" ? NOMES_PADRAO : "");
+  const titulo = S.settings.nomeCasa || CASA_PADRAO;
   const hora = now.getHours();
   // madrugada (0h–4h59) conta como noite
   const saud = hora >= 5 && hora < 12 ? "Bom dia" : hora >= 12 && hora < 18 ? "Boa tarde" : "Boa noite";
-
-  if (!t) {
-    return `<main class="page">
-      <div class="topbar"><div class="hello"><small>${saud}, ${esc(nomes)}</small><h1 class="h-display">Nosso AP</h1></div>
-      <button class="icon-btn" data-act="settings" aria-label="Ajustes">${ic("gear", 20, 1.8)}</button></div>
-      ${DEMO ? `<span class="demo">Modo demonstração · dados só neste aparelho</span>` : ""}
-      <div class="card" style="align-items:flex-start">
-        <h2 class="h-display" style="font-size:20px">Vamos começar?</h2>
-        <p style="margin:0;color:var(--muted)">Importe a lista que vocês montaram nas notas: 10 ambientes, ${SEED.reduce((a, s) => a + s[2].length, 0)} itens, com o que já foi comprado marcado e a ordem de prioridade da mudança.</p>
-        <button class="btn primary block" data-act="seed" id="seedBtn">Importar nossa lista</button>
-        <button class="link-btn" data-act="add">Começar do zero</button>
-      </div>
-    </main>`;
-  }
 
   const ns = nextStage();
   const rooms = ROOMS.filter(r => !r.casaToda), casa = ROOMS.filter(r => r.casaToda);
   return `<main class="page">
     <div class="topbar">
-      <div class="hello"><small>${saud}, ${esc(nomes)}</small><h1 class="h-display">Nosso AP</h1></div>
+      <div class="hello"><small>${saud}${nomes ? ", " + esc(nomes) : ""}</small><h1 class="h-display">${esc(titulo)}</h1></div>
       <button class="icon-btn" data-act="settings" aria-label="Ajustes">${ic("gear", 20, 1.8)}</button>
     </div>
     ${DEMO ? `<span class="demo">Modo demonstração · dados só neste aparelho</span>` : ""}
@@ -823,15 +1076,16 @@ function viewHome() {
           <div class="kv"><small>Faltam</small><b>${plural(t - d, "item", "itens")}</b></div>
         </div>
       </div>
-      <div class="keys"><span>${ic("key", 16, 2).replace('stroke="currentColor"', 'stroke="var(--key)"')}Chaves · ${MESES[em - 1]} ${ey}</span><span>${meses > 0 ? `faltam ~${plural(meses, "mês", "meses")}` : "chegou a hora!"}</span></div>
+      ${entrega ? `<div class="keys"><span>${ic("key", 16, 2).replace('stroke="currentColor"', 'stroke="var(--key)"')}Chaves · ${MESES[em - 1]} ${ey}</span><span>${meses > 0 ? `faltam ~${plural(meses, "mês", "meses")}` : "chegou a hora!"}</span></div>` : ""}
     </section>
+    ${viewPassos()}
     ${ns ? `<a class="next" href="#/ordem" data-stage="${ns.n}">
       <div class="eyebrow"><span>Próximo passo · Etapa ${ns.n}</span><span>${done(ns.l)} de ${ns.l.length}</span></div>
       <b>${ETAPAS[ns.n].nome}</b>
       <div class="bar"><i data-w="${pct(done(ns.l), ns.l.length)}"></i></div>
       <p>Faltam ${ns.falta.slice(0, 3).map(i => esc(i.nome.toLowerCase())).join(", ")}${ns.falta.length > 3 ? ` e mais ${ns.falta.length - 3}` : ""} →</p>
     </a>` : ""}
-    <div class="sec-h"><h2>Cômodos</h2><span>${rooms.length} ambientes</span></div>
+    <div class="sec-h"><h2>Cômodos</h2><span>${plural(rooms.length, "ambiente", "ambientes")}</span></div>
     <div class="grid2 stagger">
       ${rooms.map((r, i) => { const s = roomStats(r.id); return `<a class="room-card ${r.cor}" href="#/c/${r.id}" style="--i:${i}">
         <div class="top"><span class="tile">${ic(r.icon)}</span><span class="count">${s.d}/${s.t}</span></div>
@@ -867,7 +1121,11 @@ function rowHtml(it, opts = {}) {
 
 function viewRoom(id) {
   const r = ROOM[id];
+  if (!r) return `<main class="page no-tabs"><div class="topbar"><button class="icon-btn" data-act="back" aria-label="Voltar">${ic("back", 22, 2)}</button></div><div class="empty-state"><b>Cômodo não encontrado</b><span>Ele pode ter sido removido em Ajustes.</span></div></main>`;
   const list = inRoom(id);
+  // sugestões: itens da lista base deste tipo de cômodo que ainda não estão aqui
+  const nomesAqui = new Set(list.map(i => slug(i.nome)));
+  const sugs = list.length < 6 ? seedRowsFor(r.tipo).flatMap(([, tp, l]) => l.map(raw => ({ tp, ...parseSeedName(raw) }))).filter(x => !nomesAqui.has(slug(x.nome))).slice(0, 14) : [];
   const d = done(list), t = list.length;
   const topics = topicsOf(id);
   const sel = topics.length > 1 ? (S.roomTopic[id] ?? topics[0]) : "*";
@@ -889,9 +1147,9 @@ function viewRoom(id) {
       </div>
       <div class="bar"><i data-w="${pct(d, t)}"></i></div>
     </section>
-    <div class="seg" role="group" aria-label="Mostrar">
+    ${t ? `<div class="seg" role="group" aria-label="Mostrar">
       ${[["all", "Todos"], ["falta", "Faltam"], ["ok", "Comprados"]].map(([k, l]) => `<button data-act="filter" data-room="${id}" data-v="${k}" aria-pressed="${filt === k}">${l}</button>`).join("")}
-    </div>
+    </div>` : ""}
     ${topics.length > 1 ? `<div class="chips" role="group" aria-label="Tópicos">
       <button class="chip" data-act="topic" data-room="${id}" data-v="*" aria-pressed="${sel === "*"}">Todos <small>${d}/${t}</small></button>
       ${topics.map(tp => { const l = list.filter(i => (i.topico || "") === tp); return `<button class="chip" data-act="topic" data-room="${id}" data-v="${esc(tp)}" aria-pressed="${sel === tp}">${esc(tp || "Sem tópico")} <small>${done(l)}/${l.length}</small></button>`; }).join("")}
@@ -899,7 +1157,9 @@ function viewRoom(id) {
     ${shown.length ? shown.map(g => `<section class="group">
       ${topics.length > 1 || g.tp ? `<div class="group-h"><h3>${esc(g.tp || "Sem tópico")}</h3><span>${done(g.l)} de ${g.l.length}</span></div>` : ""}
       <div class="items">${g.v.map(i => rowHtml(i)).join("")}</div>
-    </section>`).join("") : `<div class="empty-state"><b>${filt === "ok" ? "Nada comprado aqui ainda" : filt === "falta" ? "Tudo comprado por aqui!" : "Nenhum item ainda"}</b><span>Use o + para adicionar.</span></div>`}
+    </section>`).join("") : (t ? `<div class="empty-state"><b>${filt === "ok" ? "Nada comprado aqui ainda" : "Tudo comprado por aqui!"}</b></div>` : `<div class="card" style="align-items:center;text-align:center;gap:6px;padding:22px 18px"><b style="font-size:16px">${esc(r.nome)} ainda está vazio</b><span style="font-size:14px;color:var(--muted);line-height:1.4">${sugs.length ? "Toque nas sugestões abaixo ou no + para escrever um item seu." : "Toque no + para adicionar o primeiro item."}</span></div>`)}
+    ${sugs.length ? `<section class="group"><div class="group-h"><h3>Sugestões para ${esc(r.nome)}</h3></div>
+      <div class="sug">${sugs.map(x => `<button type="button" data-act="add-sug" data-room="${id}" data-topic="${esc(x.tp)}" data-etapa="${x.etapa}" data-name="${esc(x.nome)}">+ ${esc(x.nome)}</button>`).join("")}</div></section>` : ""}
   </main>`;
 }
 
@@ -1236,21 +1496,27 @@ async function openItemForm(id, defaults = {}) {
 }
 
 function openSettings() {
-  const entrega = S.settings.entrega || ENTREGA_PADRAO;
+  const legacy = S.casaId === "nosso-ap";
+  const entrega = S.settings.entrega === undefined ? ENTREGA_PADRAO : (S.settings.entrega || "");
+  const nomes = S.settings.nomes ?? (legacy ? NOMES_PADRAO : "");
+  const nExcl = lixeira().length + sumidos().length;
   openSheet("Ajustes", `
-    <div class="field"><label for="sNomes">Nomes na tela inicial</label><input class="input" id="sNomes" value="${esc(S.settings.nomes || NOMES_PADRAO)}"></div>
-    <div class="field"><label for="sEntrega">Mês previsto das chaves</label><input class="input" id="sEntrega" type="month" value="${esc(entrega)}"></div>
-    <button class="btn ghost block" data-trash type="button">${ic("trash", 18, 2)} Itens excluídos${(lixeira().length + sumidos().length) ? ` (${lixeira().length + sumidos().length})` : ""}</button>
+    <div class="field"><label for="sCasa">Nome da casa</label><input class="input" id="sCasa" value="${esc(S.settings.nomeCasa || CASA_PADRAO)}"></div>
+    <div class="field"><label for="sNomes">Nomes na saudação</label><input class="input" id="sNomes" value="${esc(nomes)}" placeholder="Ex.: Ana e Pedro"></div>
+    <div class="field"><label for="sEntrega">Mês previsto das chaves</label><input class="input" id="sEntrega" type="month" value="${esc(entrega)}"><span style="font-size:12px;color:var(--muted)">Deixe vazio se ainda não sabem.</span></div>
+    <button class="btn ghost block" data-rooms type="button">${ic("home", 18, 2)} Cômodos da casa (${ROOMS.length})</button>
+    <button class="btn ghost block" data-trash type="button">${ic("trash", 18, 2)} Itens excluídos${nExcl ? ` (${nExcl})` : ""}</button>
     <button class="btn ghost block" data-exp type="button">Baixar backup da lista (JSON)</button>
     <div style="border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:8px">
       <span style="font-size:13px;color:var(--muted)">Conectado como <b style="color:var(--ink)">${esc(S.user?.email || "")}</b>${DEMO ? " · modo demonstração" : ""}</span>
       <button class="btn ghost block" data-out type="button">Sair</button>
     </div>
-    <p style="margin:0;text-align:center;font-size:12px;color:var(--faint)">Cozily · feito para o nosso AP</p>`, {
+    <p style="margin:0;text-align:center;font-size:12px;color:var(--faint)">Cozily · sua casa, item por item</p>`, {
     saveLabel: "Salvar",
     onMount(ov, close) {
       $("[data-out]", ov).onclick = async () => { close(); await S.store.logout(); };
       $("[data-trash]", ov).onclick = () => { close(); setTimeout(openTrash, 320); };
+      $("[data-rooms]", ov).onclick = () => { close(); setTimeout(openRoomsEditor, 320); };
       const exp = $("[data-exp]", ov);
       if (exp) exp.onclick = () => {
         const blob = new Blob([JSON.stringify({ exportadoEm: new Date().toISOString(), itens: all().map(({ thumb, ...r }) => r) }, null, 2)], { type: "application/json" });
@@ -1259,10 +1525,62 @@ function openSettings() {
       };
     },
     async onSave(ov) {
-      const o = { nomes: $("#sNomes", ov).value.trim() || NOMES_PADRAO, entrega: $("#sEntrega", ov).value || ENTREGA_PADRAO };
+      const o = { nomeCasa: $("#sCasa", ov).value.trim() || CASA_PADRAO, nomes: $("#sNomes", ov).value.trim(), entrega: $("#sEntrega", ov).value || null };
       S.settings = { ...S.settings, ...o };
       write(S.store.putSettings(o));
       S.dirty = true;
+      return true;
+    }
+  });
+}
+
+/* editar cômodos: renomear, adicionar e remover (só vazios) */
+function openRoomsEditor() {
+  let list = ROOMS.map(({ id, nome, tipo }) => ({ id, nome, tipo: tipo || id }));
+  const draw = () => list.map((r, i) => {
+    const n = inRoom(r.id).length;
+    const T = TIPOS[r.tipo] || TIPOS.outro;
+    return `<div class="list-link ${T.cor}" style="padding:10px 12px">
+      <span class="tile">${ic(T.icon)}</span>
+      <label class="sr" for="rn${i}">Nome do cômodo</label>
+      <input class="input" id="rn${i}" data-i="${i}" value="${esc(r.nome)}" style="flex:1;min-width:0;height:44px">
+      ${n ? `<span class="count" style="min-width:56px;text-align:right">${plural(n, "item", "itens")}</span>`
+        : `<button type="button" data-rm="${i}" aria-label="Remover ${esc(r.nome)}" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--danger)">${ic("trash", 18, 2)}</button>`}
+    </div>`;
+  }).join("");
+  openSheet("Cômodos", `
+    <p style="margin:0;font-size:14px;color:var(--muted)">Toque no nome para renomear. Só dá para remover cômodos sem itens.</p>
+    <div class="list" id="rList">${draw()}</div>
+    <div class="field"><span class="lbl">Adicionar cômodo</span>
+      <div class="row-gap"><label class="sr" for="rTipo">Tipo</label><select class="input" id="rTipo" style="flex:1;min-width:0">${[...CATALOGO, "outro"].map(t => `<option value="${t}">${TIPOS[t].nome}</option>`).join("")}</select>
+      <button type="button" class="btn" id="rAdd" style="background:var(--accent-soft);color:var(--accent-text);min-height:50px">Adicionar</button></div>
+      <label class="sr" for="rNome">Nome</label><input class="input" id="rNome" placeholder="Nome (opcional, ex.: Quarto do bebê)">
+    </div>`, {
+    saveLabel: "Salvar",
+    onMount(ov) {
+      const box = $("#rList", ov);
+      box.oninput = e => { const i = e.target.dataset.i; if (i !== undefined) list[+i].nome = e.target.value; };
+      box.onclick = e => { const b = e.target.closest("[data-rm]"); if (b) { list.splice(+b.dataset.rm, 1); box.innerHTML = draw(); } };
+      $("#rAdd", ov).onclick = () => {
+        const tipo = $("#rTipo", ov).value, T = TIPOS[tipo];
+        let nome = $("#rNome", ov).value.trim();
+        if (!nome) { const same = list.filter(r => r.tipo === tipo).length; nome = same ? `${T.nome} ${same + 1}` : T.nome; }
+        const base = tipo === "outro" ? "c-" + slug(nome) : tipo;
+        let id = base, k = 2;
+        while (list.some(r => r.id === id)) id = base + "-" + k++;
+        const ct = list.findIndex(r => (TIPOS[r.tipo] || {}).casaToda);
+        list.splice(ct < 0 ? list.length : ct, 0, { id, nome, tipo });
+        $("#rNome", ov).value = "";
+        box.innerHTML = draw();
+      };
+    },
+    async onSave() {
+      list = list.map(r => ({ ...r, nome: r.nome.trim() || (TIPOS[r.tipo] || TIPOS.outro).nome }));
+      S.settings = { ...S.settings, comodos: list };
+      applyRooms();
+      write(S.store.putSettings({ comodos: list }));
+      S.dirty = true;
+      toast("Cômodos atualizados");
       return true;
     }
   });
@@ -1394,13 +1712,14 @@ document.addEventListener("click", e => {
   else if (a === "stage") { S.stage = +el.dataset.v; refresh(); }
   else if (a === "month") { S.month = el.dataset.v; refresh(); }
   else if (a === "qfilter") { S.qFilter = el.dataset.v; refresh(); }
-  else if (a === "seed") {
-    el.disabled = true; el.textContent = "Importando…";
-    const list = buildSeed();
-    list.forEach(i => S.items.set(i.id, i));
-    S.store.seed(list).then(() => toast(`${list.length} itens importados`)).catch(err => { console.error(err); toast("Não deu pra importar. Confira as regras do Firestore."); });
-    render("enter-fade");
+  else if (a === "authmode") { S.authEmail = $("#lEmail")?.value || S.authEmail; S.authMode = el.dataset.v; render(null); }
+  else if (a === "passos-ok") { S.settings.passosOk = true; write(S.store.putSettings({ passosOk: true })); refresh(); }
+  else if (a === "add-sug") {
+    const it = { id: `${el.dataset.room}--${slug(el.dataset.topic || "geral")}--${slug(el.dataset.name)}-${Date.now().toString(36)}`, nome: el.dataset.name, comodo: el.dataset.room, topico: el.dataset.topic || "", etapa: +el.dataset.etapa || 0, comprado: false, ordem: Date.now(), criadoEm: Date.now() };
+    S.items.set(it.id, it); write(S.store.putItem(it)); S.popId = it.id;
+    const y = window.scrollY; render(null); window.scrollTo(0, y);
   }
+  else if (a.startsWith("ob-")) obAction(a, el);
   else if (a === "reset") {
     const email = $("#lEmail")?.value.trim();
     if (!email) { $("#lErr").textContent = "Escreva seu e-mail acima e toque de novo."; return; }
@@ -1414,6 +1733,16 @@ document.addEventListener("click", e => {
 }, true);
 
 document.addEventListener("input", e => {
+  const id = e.target.id;
+  if (id === "lEmail") S.authEmail = e.target.value;
+  if (S.ob && (id === "obN1" || id === "obN2" || id === "obCasa")) {
+    const o = S.ob;
+    if (id === "obN1") o.n1 = e.target.value; else if (id === "obN2") o.n2 = e.target.value; else o.casa = e.target.value;
+    const pn = $("#obPrevNomes"), pc = $("#obPrevCasa");
+    if (pn) pn.textContent = "Boa noite" + (obNomes() ? ", " + obNomes() : "");
+    if (pc) pc.textContent = o.casa.trim() || (o.casal ? "Nossa casa" : "Minha casa");
+  }
+  if (S.ob && id === "obEntrega") S.ob.entrega = e.target.value;
   if (e.target.id === "q") {
     S.q = e.target.value;
     const box = $("#qres"); if (!box) return;
@@ -1423,22 +1752,68 @@ document.addEventListener("input", e => {
 });
 
 document.addEventListener("submit", async e => {
+  if (e.target.id === "obCustomForm") {
+    e.preventDefault();
+    const inp = $("#obCustom"), nome = inp.value.trim();
+    if (!nome) return;
+    const o = obState();
+    if (!o.custom.some(c => c.toLowerCase() === nome.toLowerCase())) o.custom.push(nome);
+    render(null);
+    return;
+  }
   if (e.target.id !== "loginForm") return;
   e.preventDefault();
+  const criar = S.authMode === "criar";
   const email = $("#lEmail").value.trim(), senha = $("#lSenha").value;
   const err = $("#lErr"), btn = $("#lBtn");
   err.textContent = "";
   if (!email || !senha) { err.textContent = "Preencha e-mail e senha."; return; }
-  btn.disabled = true; btn.textContent = "Entrando…";
-  try { await S.store.login(email, senha); }
+  if (criar) {
+    if (senha.length < 6) { err.textContent = "A senha precisa ter pelo menos 6 caracteres."; return; }
+    if (senha !== $("#lSenha2").value) { err.textContent = "As duas senhas estão diferentes."; return; }
+  }
+  btn.disabled = true; btn.textContent = criar ? "Criando conta…" : "Entrando…";
+  try {
+    S.ob = null;
+    if (criar) await S.store.createAccount(email, senha);
+    else await S.store.login(email, senha);
+  }
   catch (x) {
     const c = x?.code || "";
-    err.textContent = c.includes("invalid") || c.includes("wrong-password") || c.includes("user-not-found") ? "E-mail ou senha incorretos."
+    err.textContent = c.includes("email-already-in-use") ? "Já existe uma conta com esse e-mail. Toque em Entrar."
+      : c.includes("invalid-email") ? "Esse e-mail não parece certo."
+      : c.includes("weak-password") ? "Escolha uma senha mais forte (6 caracteres ou mais)."
+      : c.includes("operation-not-allowed") || c.includes("admin-restricted") ? "A criação de contas está desligada no Firebase."
+      : c.includes("invalid") || c.includes("wrong-password") || c.includes("user-not-found") ? "E-mail ou senha incorretos."
       : c.includes("too-many") ? "Muitas tentativas. Espere um pouco e tente de novo."
-      : c.includes("network") ? "Sem internet no momento." : "Não deu pra entrar. Tente de novo.";
-    btn.disabled = false; btn.textContent = "Entrar";
+      : c.includes("network") ? "Sem internet no momento." : (criar ? "Não deu pra criar a conta. Tente de novo." : "Não deu pra entrar. Tente de novo.");
+    btn.disabled = false; btn.textContent = criar ? "Criar conta" : "Entrar";
   }
 });
+
+function obAction(a, el) {
+  const o = obState();
+  const rerender = () => { const y = window.scrollY; render(null); window.scrollTo(0, y); };
+  if (a === "ob-casal") { o.casal = !o.casal; rerender(); }
+  else if (a === "ob-room") { const t = el.dataset.v; o.sel[t] = !o.sel[t]; rerender(); }
+  else if (a === "ob-cnt") { const t = el.dataset.v; o.cnt[t] = Math.min(8, Math.max(1, (o.cnt[t] || 1) + (+el.dataset.d))); rerender(); }
+  else if (a === "ob-rm-custom") { o.custom.splice(+el.dataset.i, 1); rerender(); }
+  else if (a === "ob-mode") { o.mode = el.dataset.v; rerender(); }
+  else if (a === "ob-off") { o.off[el.dataset.v] = !o.off[el.dataset.v]; rerender(); }
+  else if (a === "ob-nodate") { if ($("#obEntrega")) o.entrega = $("#obEntrega").value; o.semData = !o.semData; rerender(); }
+  else if (a === "ob-back") { o.step = Math.max(2, o.step - 1); render("enter-pop"); window.scrollTo(0, 0); }
+  else if (a === "ob-sair") { S.ob = null; S.store.logout(); }
+  else if (a === "ob-finish") finishOnboarding(el);
+  else if (a === "ob-next") {
+    const err = $("#obErr");
+    if (o.step === 2) {
+      if (!o.n1.trim()) { err.textContent = "Escreva seu nome."; $("#obN1")?.focus(); return; }
+      if (o.casal && !o.n2.trim()) { err.textContent = "Escreva o nome do par."; $("#obN2")?.focus(); return; }
+    }
+    if (o.step === 3 && !obRooms().length) { err.textContent = "Escolha pelo menos um cômodo."; return; }
+    o.step++; render("enter-push"); window.scrollTo(0, 0);
+  }
+}
 
 document.addEventListener("scroll", e => {
   if (e.target.id !== "photos") return;
@@ -1464,16 +1839,21 @@ async function start() {
     if (unsub) { unsub(); unsub = null; }
     if (user) {
       S.loaded = false;
-      unsub = S.store.subscribe(
+      S.casaId = casaIdFor(user);
+      S.items = new Map(); S.settings = {}; S.photos = {}; S.ob = null; S.introDone = false;
+      S.authMode = "entrar"; S.authEmail = "";
+      applyRooms();
+      let gotItems = false, gotSettings = false;
+      const ready = () => { if (gotItems && gotSettings && !S.loaded) { S.loaded = true; refresh(); } else if (S.loaded) refresh(); };
+      unsub = S.store.subscribe(S.casaId,
         arr => {
           S.items = new Map(arr.map(i => [i.id, i]));
-          S.loaded = true;
-          refresh();
+          gotItems = true; ready();
         },
-        st => { S.settings = st || {}; if (S.loaded) refresh(); },
+        st => { S.settings = st || {}; applyRooms(); gotSettings = true; ready(); },
         err => { console.error(err); S.loaded = true; refresh(); toast(err?.code === "permission-denied" ? "Este e-mail não tem acesso à lista" : "Erro ao carregar a lista"); }
       );
-    } else { S.items = new Map(); S.loaded = false; }
+    } else { S.items = new Map(); S.settings = {}; S.loaded = false; applyRooms(); }
     S.route = parseRoute();
     render("enter-fade");
   });
