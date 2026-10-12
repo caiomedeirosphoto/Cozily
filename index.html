@@ -620,7 +620,10 @@ const S = {
   photos: {}, pending: new Set()
 };
 
-const all = () => [...S.items.values()].sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0));
+const all = () => [...S.items.values()].filter(i => !i.excluido).sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0));
+const lixeira = () => [...S.items.values()].filter(i => i.excluido).sort((a, b) => (b.excluidoEm ?? 0) - (a.excluidoEm ?? 0));
+/* itens da lista original que foram apagados de vez (antes de existir a lixeira) */
+const sumidos = () => { const ids = new Set(S.items.keys()); return buildSeed().filter(i => !ids.has(i.id)); };
 const inRoom = id => all().filter(i => i.comodo === id);
 const topicsOf = id => { const t = []; inRoom(id).forEach(i => { if (!t.includes(i.topico || "")) t.push(i.topico || ""); }); return t; };
 const done = list => list.filter(i => i.comprado).length;
@@ -895,6 +898,7 @@ function viewRoom(id) {
 function viewItem(id) {
   const it = S.items.get(id);
   if (!it) return `<main class="page no-tabs"><div class="topbar"><button class="icon-btn" data-act="back" aria-label="Voltar">${ic("back", 22, 2)}</button></div><div class="empty-state"><b>Item não encontrado</b><span>Ele pode ter sido excluído.</span></div></main>`;
+  if (it.excluido) return `<main class="page no-tabs"><div class="topbar"><button class="icon-btn" data-act="back" aria-label="Voltar">${ic("back", 22, 2)}</button></div><div class="empty-state"><b>${esc(it.nome)} está na lixeira</b><span>Foi excluído, mas dá pra trazer de volta.</span><button class="btn primary" data-act="restore" data-id="${esc(id)}">Restaurar item</button></div></main>`;
   const r = ROOM[it.comodo] || ROOMS[0];
   const ph = S.photos[id];
   const photos = ph === undefined ? (it.thumb ? [it.thumb] : []) : ph;
@@ -1228,6 +1232,7 @@ function openSettings() {
   openSheet("Ajustes", `
     <div class="field"><label for="sNomes">Nomes na tela inicial</label><input class="input" id="sNomes" value="${esc(S.settings.nomes || NOMES_PADRAO)}"></div>
     <div class="field"><label for="sEntrega">Mês previsto das chaves</label><input class="input" id="sEntrega" type="month" value="${esc(entrega)}"></div>
+    <button class="btn ghost block" data-trash type="button">${ic("trash", 18, 2)} Itens excluídos${(lixeira().length + sumidos().length) ? ` (${lixeira().length + sumidos().length})` : ""}</button>
     <button class="btn ghost block" data-exp type="button">Baixar backup da lista (JSON)</button>
     <div style="border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:8px">
       <span style="font-size:13px;color:var(--muted)">Conectado como <b style="color:var(--ink)">${esc(S.user?.email || "")}</b>${DEMO ? " · modo demonstração" : ""}</span>
@@ -1237,6 +1242,7 @@ function openSettings() {
     saveLabel: "Salvar",
     onMount(ov, close) {
       $("[data-out]", ov).onclick = async () => { close(); await S.store.logout(); };
+      $("[data-trash]", ov).onclick = () => { close(); setTimeout(openTrash, 320); };
       const exp = $("[data-exp]", ov);
       if (exp) exp.onclick = () => {
         const blob = new Blob([JSON.stringify({ exportadoEm: new Date().toISOString(), itens: all().map(({ thumb, ...r }) => r) }, null, 2)], { type: "application/json" });
@@ -1274,19 +1280,72 @@ function toggleItem(id) {
 
 function deleteItem(id) {
   const it = S.items.get(id); if (!it) return;
-  openSheet("Excluir item", `<p style="margin:0;font-size:16px">Excluir <b>${esc(it.nome)}</b> da lista? As fotos dele também saem.</p>
+  openSheet("Excluir item", `<p style="margin:0;font-size:16px">Excluir <b>${esc(it.nome)}</b> da lista? Ele vai para a lixeira e dá pra restaurar em Ajustes › Itens excluídos.</p>
     <button class="btn primary block" data-yes type="button" style="background:var(--danger);color:var(--card)">Excluir</button>`, {
     onMount(ov, close) { $("[data-yes]", ov).onclick = () => { close(); reallyDelete(id, it); }; }
   });
 }
 
+/* excluir manda para a lixeira (dá pra restaurar em Ajustes › Itens excluídos) */
 function reallyDelete(id, it) {
+  const patch = { id, excluido: true, excluidoEm: Date.now() };
+  S.items.set(id, { ...it, ...patch });
+  write(S.store.putItem(patch));
+  if (S.route?.name === "item") back("#/c/" + it.comodo); else refresh();
+  toast(`${it.nome} foi para a lixeira`, "Desfazer", () => restoreItem(id), 10000);
+}
+
+function restoreItem(id) {
+  const it = S.items.get(id);
+  if (it) {
+    S.items.set(id, { ...it, excluido: false, excluidoEm: null });
+    write(S.store.putItem({ id, excluido: false, excluidoEm: null, atualizadoEm: Date.now() }));
+  } else {
+    const seed = buildSeed().find(i => i.id === id);
+    if (!seed) return;
+    S.items.set(id, seed);
+    write(S.store.putItem(seed));
+  }
+  S.popId = id;
+  const n = S.items.get(id);
+  toast(`${n.nome} voltou para ${ROOM[n.comodo]?.nome || "a lista"}`);
+  refresh();
+}
+
+function purgeItem(id) {
   S.items.delete(id);
+  delete S.photos[id];
   write(S.store.delItem(id));
-  back("#/c/" + it.comodo);
-  let undone = false;
-  toast("Item excluído", "Desfazer", () => { undone = true; S.items.set(id, it); write(S.store.putItem(it)); refresh(); }, 5000);
-  setTimeout(() => { if (!undone) write(S.store.putPhotos(id, [])); }, 5600);
+  write(S.store.putPhotos(id, []));
+}
+
+function openTrash() {
+  const row = (it, kind) => { const r = ROOM[it.comodo] || ROOMS[0]; return `<div class="item ${r.cor}" data-tid="${esc(it.id)}">
+    <div class="item-main" style="cursor:default"><span class="item-txt"><span class="item-name">${esc(it.nome)}</span>
+    <span class="meta"><span class="dot"></span><span class="room">${esc(r.nome)}</span>${kind === "lixo" && it.excluidoEm ? `<span>· ${new Date(it.excluidoEm).getDate()} ${MESES[new Date(it.excluidoEm).getMonth()]}</span>` : kind === "seed" ? "<span>· da lista original</span>" : ""}</span></span></div>
+    <button class="btn ghost" style="min-height:40px;padding:0 14px;font-size:14px" data-restore="${esc(it.id)}">Restaurar</button>
+    ${kind === "lixo" ? `<button data-purge="${esc(it.id)}" aria-label="Apagar ${esc(it.nome)} de vez" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex:none;color:var(--danger)">${ic("trash", 18, 2)}</button>` : ""}
+  </div>`; };
+  const draw = () => {
+    const l = lixeira(), sm = sumidos();
+    return (l.length ? `<div class="group-h"><h3>Lixeira</h3><span>${l.length}</span></div><div class="items">${l.map(i => row(i, "lixo")).join("")}</div>` : "")
+      + (sm.length ? `<div class="group-h"><h3>Apagados da lista original</h3><span>${sm.length}</span></div><div class="items">${sm.map(i => row(i, "seed")).join("")}</div>` : "")
+      + (!l.length && !sm.length ? `<div class="empty-state"><b>Nada excluído</b><span>Itens que vocês excluírem aparecem aqui e podem ser restaurados.</span></div>` : "");
+  };
+  openSheet("Itens excluídos", `<div id="trashBox" style="display:flex;flex-direction:column;gap:10px">${draw()}</div>`, {
+    onMount(ov) {
+      const box = $("#trashBox", ov);
+      box.onclick = e => {
+        const r = e.target.closest("[data-restore]");
+        if (r) { restoreItem(r.dataset.restore); S.dirty = true; box.innerHTML = draw(); return; }
+        const pz = e.target.closest("[data-purge]");
+        if (pz) {
+          if (pz.dataset.sure) { purgeItem(pz.dataset.purge); S.dirty = true; box.innerHTML = draw(); toast("Apagado de vez"); }
+          else { pz.dataset.sure = "1"; pz.innerHTML = `<span style="font-size:12px;font-weight:700">Apagar?</span>`; }
+        }
+      };
+    }
+  });
 }
 
 async function loadPhotos(id) {
@@ -1320,6 +1379,7 @@ document.addEventListener("click", e => {
   else if (a === "add") openItemForm(null, { room: el.dataset.room, topic: el.dataset.topic, nome: el.dataset.name });
   else if (a === "edit") openItemForm(id, { photo: !!el.dataset.photo });
   else if (a === "delete") deleteItem(id);
+  else if (a === "restore") restoreItem(id);
   else if (a === "settings") openSettings();
   else if (a === "filter") { S.roomFilter[el.dataset.room] = el.dataset.v; refresh(); }
   else if (a === "topic") { S.roomTopic[el.dataset.room] = el.dataset.v; const y = window.scrollY; render(null); window.scrollTo(0, y); el.scrollIntoView?.({ inline: "center", block: "nearest", behavior: "smooth" }); }
