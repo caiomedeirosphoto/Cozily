@@ -271,6 +271,16 @@ img{display:block}
 .search input{flex:1;border:0;background:transparent;outline:none;font-size:16px;min-height:48px}
 
 /* tab bar */
+/* topo: faixa sólida atrás da barra de status + barra compacta ao rolar */
+#shield{position:fixed;left:0;right:0;top:0;height:calc(var(--top) + 14px);background:linear-gradient(var(--bg) calc(100% - 14px),color-mix(in srgb,var(--bg) 0%,transparent));z-index:29;pointer-events:none;transition:opacity .25s}
+body.no-shield #shield{opacity:0}
+#appbar{position:fixed;left:0;right:0;top:0;z-index:30;padding-top:var(--top);background:var(--bg);box-shadow:0 1px 0 var(--line);transform:translateY(-110%);transition:transform .32s var(--ease)}
+body.scrolled #appbar.has{transform:none}
+#appbar .in{max-width:520px;margin:0 auto;height:52px;display:grid;grid-template-columns:56px minmax(0,1fr) 56px;align-items:center;padding:0 6px}
+#appbar .ttl{text-align:center;font-family:Sora,Figtree,system-ui,sans-serif;font-weight:600;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#appbar .icon-btn{width:40px;height:40px;box-shadow:none;background:var(--card);justify-self:center}
+#appbar .icon-btn.solid{background:var(--accent)}
+@media (prefers-reduced-motion: reduce){#appbar{transition:none}}
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:center;pointer-events:none;transition:transform .35s var(--ease)}
 .tabbar.hide{transform:translateY(130%)}
 .tabbar nav{pointer-events:auto;width:100%;max-width:520px;background:color-mix(in srgb,var(--card) 88%,transparent);-webkit-backdrop-filter:saturate(1.6) blur(18px);backdrop-filter:saturate(1.6) blur(18px);border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:flex-start;padding:8px 6px calc(var(--bottom) + 8px)}
@@ -386,6 +396,8 @@ body.has-tabs .toast{bottom:calc(var(--bottom) + 110px)}
 </head>
 <body>
 <div id="app"><div class="loading"><div class="spinner" role="status" aria-label="Carregando"></div></div></div>
+<div id="shield" aria-hidden="true"></div>
+<header id="appbar" aria-hidden="true"></header>
 <div class="tabbar hide" id="tabbar"></div>
 <input type="file" id="filepick" accept="image/*" class="sr" aria-hidden="true" tabindex="-1">
 
@@ -767,7 +779,7 @@ const back = fallback => { if (history.length > 1 && S.route && S.route.depth > 
 function render(mode) {
   const app = $("#app");
   if (S.user === undefined) return;
-  if (!S.user) { app.innerHTML = viewLogin(); setTabs(null); return; }
+  if (!S.user) { app.innerHTML = viewLogin(); setTabs(null); setAppbar(null); return; }
   const r = S.route || parseRoute();
   let html = "";
   const onb = S.loaded && needsOnboarding();
@@ -783,6 +795,7 @@ function render(mode) {
   const page = app.firstElementChild;
   if (mode && page) page.classList.add(mode);
   setTabs(r.tab && !onb && S.loaded ? r.name : null);
+  setAppbar(S.loaded && !onb ? r : null);
   if (r.name === "ordem" && S.loaded && !onb && S.settings.onboarded && !S.settings.viuOrdem) { S.settings.viuOrdem = true; write(S.store.putSettings({ viuOrdem: true })); }
   // barras e anéis animam só na primeira abertura do app e ao entrar num cômodo
   let animate = false;
@@ -819,6 +832,46 @@ function afterRender(r, animate) {
   if (r.name === "item") loadPhotos(r.id);
 }
 
+/* barra do topo: aparece compacta quando a página rola */
+let barThreshold = 56, barMode = "";
+function setAppbar(r) {
+  const bar = $("#appbar");
+  document.body.classList.toggle("no-shield", !r);
+  if (!r) { bar.classList.remove("has"); bar.innerHTML = ""; barMode = ""; updateScrolled(); return; }
+  let title = "", left = "", right = "";
+  const backBtn = `<button class="icon-btn" data-act="back" aria-label="Voltar">${ic("back", 20, 2)}</button>`;
+  if (r.name === "room") {
+    const room = ROOM[r.id];
+    title = room ? room.nome : "";
+    left = backBtn;
+    if (room) right = `<button class="icon-btn solid" data-act="add" data-room="${r.id}" data-topic="${esc((S.roomTopic[r.id] && S.roomTopic[r.id] !== "*") ? S.roomTopic[r.id] : (topicsOf(r.id)[0] || ""))}" aria-label="Adicionar item em ${esc(title)}">${ic("plus", 20, 2.2)}</button>`;
+    barThreshold = 96;
+  } else if (r.name === "item") {
+    const it = S.items.get(r.id);
+    title = it ? it.nome : "";
+    left = backBtn;
+    if (it && !it.excluido) right = `<button class="icon-btn" data-act="edit" data-id="${esc(r.id)}" aria-label="Editar">${ic("edit", 18, 2)}</button>`;
+    barThreshold = it && !it.excluido ? 250 : 20;
+  } else {
+    title = r.name === "ordem" ? "Ordem de compra" : r.name === "gastos" ? "Gastos" : r.name === "busca" ? "Buscar"
+      : (S.settings.nomeCasa || CASA_PADRAO);
+    if (r.name === "home") right = `<button class="icon-btn" data-act="settings" aria-label="Ajustes">${ic("gear", 18, 1.8)}</button>`;
+    barThreshold = 56;
+  }
+  bar.innerHTML = `<div class="in"><span>${left}</span><span class="ttl">${esc(title)}</span><span style="display:flex;justify-content:center">${right}</span></div>`;
+  bar.classList.add("has");
+  barMode = r.name;
+  updateScrolled();
+}
+function updateScrolled() {
+  const sc = window.scrollY > barThreshold;
+  document.body.classList.toggle("scrolled", sc);
+  $("#appbar")?.setAttribute("aria-hidden", sc ? "false" : "true");
+  // na foto do item, a faixa do topo só aparece depois de rolar
+  if (barMode === "item") document.body.classList.toggle("no-shield", !sc);
+}
+window.addEventListener("scroll", updateScrolled, { passive: true });
+
 function navigate() {
   const prev = S.route;
   if (prev) S.scroll[prev.key] = window.scrollY;
@@ -832,6 +885,7 @@ function navigate() {
   render(mode);
   const y = (prev && r.depth < prev.depth) ? (S.scroll[r.key] || 0) : 0;
   window.scrollTo(0, y);
+  updateScrolled();
 }
 
 /* redesenha sem animação (quando os dados mudam) */
