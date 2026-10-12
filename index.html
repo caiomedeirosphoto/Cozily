@@ -685,6 +685,11 @@ function afterRender(r, animate) {
     void document.body.offsetHeight;
     requestAnimationFrame(() => els.forEach(el => el.style.transition = ""));
   }
+  if (S.popId) {
+    const row = document.querySelector(`.item[data-id="${CSS.escape(S.popId)}"]`);
+    if (row) row.classList.add("pop");
+    S.popId = null;
+  }
   if (r.name === "item") loadPhotos(r.id);
 }
 
@@ -1004,6 +1009,7 @@ function viewBusca() {
 
 /* ---------------- folhas (sheets) ---------------- */
 function openSheet(title, bodyHtml, { saveLabel, onSave, onMount, onClose } = {}) {
+  document.querySelector(".toast")?.remove();
   const ov = document.createElement("div");
   ov.className = "overlay";
   ov.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}">
@@ -1075,6 +1081,86 @@ function itemForm(it, defaults = {}) {
     <div class="err" id="fErr" role="alert"></div>`;
 }
 
+/* fotos dentro de uma folha: desenha as miniaturas, adiciona e remove (até 3) */
+function setupPhotos(ov, photos, onChange) {
+  const box = $("#fPhotos", ov);
+  const draw = () => {
+    box.innerHTML = photos.map((p, i) => `<div class="ph"><img src="${p}" alt="Foto ${i + 1}"><button type="button" class="rm" data-rm="${i}" aria-label="Remover foto ${i + 1}">${ic("x", 14, 2.6)}</button></div>`).join("")
+      + (photos.length < 3 ? `<button type="button" class="ph-add" id="phAdd">${ic("camera", 24, 1.8)}Adicionar</button>` : "");
+  };
+  draw();
+  box.onclick = e => {
+    const rm = e.target.closest("[data-rm]");
+    if (rm) { photos.splice(+rm.dataset.rm, 1); onChange(); draw(); return; }
+    if (e.target.closest("#phAdd")) {
+      const fp = $("#filepick");
+      fp.value = "";
+      fp.onchange = async () => {
+        const f = fp.files[0]; if (!f) return;
+        const add = $("#phAdd", ov); if (add) add.innerHTML = `<div class="spinner"></div>`;
+        try { photos.push(await processPhoto(f)); onChange(); }
+        catch (err) { toast(err.message || "Não deu pra usar essa foto"); }
+        draw();
+      };
+      fp.click();
+    }
+  };
+}
+
+/* ao marcar como comprado: pede valor, data, loja, pagamento, garantia e foto */
+async function openPurchaseSheet(id) {
+  const it = S.items.get(id); if (!it) return;
+  const r = ROOM[it.comodo] || ROOMS[0];
+  let photos = [...(S.photos[id] ?? (it.thumb ? await S.store.getPhotos(id).catch(() => []) : []))];
+  let photosChanged = false;
+  let skip = false;
+  openSheet("Comprado!", `
+    <div class="${r.cor}" style="display:flex;align-items:center;gap:12px">
+      <span class="tile">${ic(r.icon)}</span>
+      <div style="min-width:0"><b style="display:block;font-size:17px">${esc(it.nome)}</b><span style="font-size:13px;color:var(--muted)">${esc(r.nome)}${it.topico ? " · " + esc(it.topico) : ""}</span></div>
+    </div>
+    <div class="two">
+      <div class="field"><label for="pPago">Valor pago</label><input class="input" id="pPago" inputmode="decimal" placeholder="${it.valorPrevisto ? "Previsto " + esc(money(it.valorPrevisto)) : "R$ 0,00"}" value="${moneyInput(it.valorPago)}" autocomplete="off"></div>
+      <div class="field"><label for="pData">Data</label><input class="input" id="pData" type="date" value="${esc(it.data || today())}"></div>
+    </div>
+    <div class="two">
+      <div class="field"><label for="pLoja">Onde comprou</label><input class="input" id="pLoja" placeholder="Loja ou site" value="${esc(it.loja || "")}"></div>
+      <div class="field"><label for="pParc">Pagamento</label><input class="input" id="pParc" placeholder="Ex.: 10× R$ 99" value="${esc(it.parcelas || "")}"></div>
+    </div>
+    <div class="field"><label for="pGar">Garantia até</label><input class="input" id="pGar" placeholder="Ex.: ago 2027 (opcional)" value="${esc(it.garantia || "")}"></div>
+    <div class="field"><span class="lbl">Foto (opcional)</span><div class="photo-row" id="fPhotos"></div></div>
+    <button class="btn primary block" type="button" data-confirm>${ic("check", 20, 2.6)} Marcar como comprado</button>
+    <button class="link-btn" type="button" data-skip>Marcar sem preencher agora</button>`, {
+    saveLabel: "Salvar",
+    onMount(ov) {
+      setupPhotos(ov, photos, () => { photosChanged = true; });
+      $("[data-confirm]", ov).onclick = () => $("[data-s]", ov).click();
+      $("[data-skip]", ov).onclick = () => { skip = true; $("[data-s]", ov).click(); };
+      setTimeout(() => { if (!skip) $("#pPago", ov)?.focus(); }, 450);
+    },
+    async onSave(ov) {
+      const patch = { id, comprado: true, atualizadoEm: Date.now(), data: $("#pData", ov).value || today() };
+      if (!skip) {
+        patch.valorPago = parseMoney($("#pPago", ov).value);
+        patch.loja = $("#pLoja", ov).value.trim() || null;
+        patch.parcelas = $("#pParc", ov).value.trim() || null;
+        patch.garantia = $("#pGar", ov).value.trim() || null;
+      }
+      if (photosChanged) {
+        patch.thumb = photos[0] ? await thumbFrom(photos[0]) : null;
+        S.photos[id] = photos;
+      }
+      S.items.set(id, { ...it, ...patch });
+      write(S.store.putItem(patch));
+      if (photosChanged) write(S.store.putPhotos(id, photos), "As fotos não foram salvas. Tente de novo.");
+      S.popId = id;
+      S.dirty = true;
+      toast(`${it.nome} comprado${patch.valorPago ? " · " + money(patch.valorPago) : ""}`);
+      return true;
+    }
+  });
+}
+
 async function openItemForm(id, defaults = {}) {
   const it = id ? S.items.get(id) : null;
   let photos = id ? (S.photos[id] ?? await S.store.getPhotos(id).catch(() => [])) : [];
@@ -1098,27 +1184,7 @@ async function openItemForm(id, defaults = {}) {
       topicSel.onchange = () => { newWrap.classList.toggle("hidden", topicSel.value !== "__new"); if (topicSel.value === "__new") $("#fNewTopic", ov).focus(); };
       $("#fStage", ov).onclick = e => { const b = e.target.closest("button"); if (!b) return; state.etapa = +b.dataset.v; [...$("#fStage", ov).children].forEach(x => x.setAttribute("aria-pressed", x === b)); };
       $("#fStatus", ov).onclick = e => { const b = e.target.closest("button"); if (!b) return; state.comprado = b.dataset.v === "1"; [...$("#fStatus", ov).children].forEach(x => x.setAttribute("aria-pressed", x === b)); $("#fOk", ov).classList.toggle("hidden", !state.comprado); if (state.comprado && !$("#fData", ov).value) $("#fData", ov).value = today(); };
-      const drawPhotos = () => {
-        $("#fPhotos", ov).innerHTML = photos.map((p, i) => `<div class="ph"><img src="${p}" alt="Foto ${i + 1}"><button type="button" class="rm" data-rm="${i}" aria-label="Remover foto ${i + 1}">${ic("x", 14, 2.6)}</button></div>`).join("")
-          + (photos.length < 3 ? `<button type="button" class="ph-add" id="phAdd">${ic("camera", 24, 1.8)}Adicionar</button>` : "");
-      };
-      drawPhotos();
-      $("#fPhotos", ov).onclick = e => {
-        const rm = e.target.closest("[data-rm]");
-        if (rm) { photos.splice(+rm.dataset.rm, 1); photosChanged = true; drawPhotos(); return; }
-        if (e.target.closest("#phAdd")) {
-          const fp = $("#filepick");
-          fp.value = "";
-          fp.onchange = async () => {
-            const f = fp.files[0]; if (!f) return;
-            const add = $("#phAdd", ov); if (add) add.innerHTML = `<div class="spinner"></div>`;
-            try { photos.push(await processPhoto(f)); photosChanged = true; }
-            catch (err) { toast(err.message || "Não deu pra usar essa foto"); }
-            drawPhotos();
-          };
-          fp.click();
-        }
-      };
+      setupPhotos(ov, photos, () => { photosChanged = true; });
       if (defaults.photo) setTimeout(() => $("#phAdd", ov)?.click(), 350);
       if (!it && !defaults.nome) setTimeout(() => $("#fNome", ov).focus(), 450);
     },
@@ -1195,16 +1261,15 @@ function write(p, msg = "Não foi possível salvar. Confira a internet.") {
 
 function toggleItem(id) {
   const it = S.items.get(id); if (!it) return;
-  const comprado = !it.comprado;
-  const patch = { id, comprado, atualizadoEm: Date.now() };
-  if (comprado && !it.data) patch.data = today();
+  if (!it.comprado) { openPurchaseSheet(id); return; }
+  // desmarcar continua direto
+  const patch = { id, comprado: false, atualizadoEm: Date.now() };
   S.items.set(id, { ...it, ...patch });
   write(S.store.putItem(patch));
+  S.popId = id;
   const y = window.scrollY;
   render(null); window.scrollTo(0, y);
-  const row = document.querySelector(`.item[data-id="${CSS.escape(id)}"]`);
-  if (row) row.classList.add("pop");
-  if (comprado && S.route?.name !== "item") toast(`${it.nome} comprado`, "Adicionar valor", () => openItemForm(id));
+  toast(`${it.nome} voltou para “falta”`, "Desfazer", () => { S.items.set(id, it); write(S.store.putItem({ id, comprado: true, atualizadoEm: Date.now() })); S.popId = id; refresh(); });
 }
 
 function deleteItem(id) {
