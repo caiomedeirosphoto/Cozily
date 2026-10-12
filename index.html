@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Cozily</title>
-<meta name="description" content="Tudo do nosso ap, item por item.">
+<meta name="description" content="Tudo do nosso AP, item por item.">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -658,18 +658,34 @@ function render(mode) {
   const page = app.firstElementChild;
   if (mode && page) page.classList.add(mode);
   setTabs(r.tab ? r.name : null);
-  afterRender(r, !!mode);
+  // barras e anéis animam só na primeira abertura do app e ao entrar num cômodo
+  let animate = false;
+  if (S.loaded && page && !page.classList.contains("loading")) {
+    animate = !S.introDone || (r.name === "room" && mode === "enter-push");
+    S.introDone = true;
+  }
+  afterRender(r, animate);
 }
 
-function afterRender(r, fresh) {
-  // anima anéis e barras a partir de zero
-  requestAnimationFrame(() => requestAnimationFrame(() => {
+function afterRender(r, animate) {
+  const fill = () => {
     document.querySelectorAll("[data-w]").forEach(el => el.style.width = el.dataset.w + "%");
     document.querySelectorAll("[data-h]").forEach(el => el.style.height = el.dataset.h + "px");
     document.querySelectorAll("[data-off]").forEach(el => el.style.strokeDashoffset = el.dataset.off);
-  }));
+  };
+  if (animate) {
+    // começa do zero e cresce até o valor
+    requestAnimationFrame(() => requestAnimationFrame(fill));
+  } else {
+    // já aparece no valor final, sem animação
+    const els = document.querySelectorAll("[data-w],[data-h],[data-off]");
+    document.querySelectorAll(".stagger").forEach(el => el.classList.remove("stagger"));
+    els.forEach(el => el.style.transition = "none");
+    fill();
+    void document.body.offsetHeight;
+    requestAnimationFrame(() => els.forEach(el => el.style.transition = ""));
+  }
   if (r.name === "item") loadPhotos(r.id);
-  if (r.name === "busca" && fresh) { /* teclado só abre com toque no iPhone */ }
 }
 
 function navigate() {
@@ -720,7 +736,7 @@ function viewLogin() {
     <div class="brand">
       <div class="logo">${LOGO(60)}</div>
       <h1>Cozily</h1>
-      <p>Tudo do nosso ap, item por item.</p>
+      <p>Tudo do nosso AP, item por item.</p>
     </div>
     <form id="loginForm" novalidate>
       <h2>Entrar</h2>
@@ -759,7 +775,7 @@ function viewHome() {
 
   if (!t) {
     return `<main class="page">
-      <div class="topbar"><div class="hello"><small>${saud}, ${esc(nomes)}</small><h1 class="h-display">Nosso ap</h1></div>
+      <div class="topbar"><div class="hello"><small>${saud}, ${esc(nomes)}</small><h1 class="h-display">Nosso AP</h1></div>
       <button class="icon-btn" data-act="settings" aria-label="Ajustes">${ic("gear", 20, 1.8)}</button></div>
       ${DEMO ? `<span class="demo">Modo demonstração · dados só neste aparelho</span>` : ""}
       <div class="card" style="align-items:flex-start">
@@ -775,7 +791,7 @@ function viewHome() {
   const rooms = ROOMS.filter(r => !r.casaToda), casa = ROOMS.filter(r => r.casaToda);
   return `<main class="page">
     <div class="topbar">
-      <div class="hello"><small>${saud}, ${esc(nomes)}</small><h1 class="h-display">Nosso ap</h1></div>
+      <div class="hello"><small>${saud}, ${esc(nomes)}</small><h1 class="h-display">Nosso AP</h1></div>
       <button class="icon-btn" data-act="settings" aria-label="Ajustes">${ic("gear", 20, 1.8)}</button>
     </div>
     ${DEMO ? `<span class="demo">Modo demonstração · dados só neste aparelho</span>` : ""}
@@ -1150,7 +1166,7 @@ function openSettings() {
       <span style="font-size:13px;color:var(--muted)">Conectado como <b style="color:var(--ink)">${esc(S.user?.email || "")}</b>${DEMO ? " · modo demonstração" : ""}</span>
       <button class="btn ghost block" data-out type="button">Sair</button>
     </div>
-    <p style="margin:0;text-align:center;font-size:12px;color:var(--faint)">Cozily · feito para o nosso ap</p>`, {
+    <p style="margin:0;text-align:center;font-size:12px;color:var(--faint)">Cozily · feito para o nosso AP</p>`, {
     saveLabel: "Salvar",
     onMount(ov, close) {
       $("[data-out]", ov).onclick = async () => { close(); await S.store.logout(); };

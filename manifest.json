@@ -1,7 +1,7 @@
 {
   "name": "Cozily",
   "short_name": "Cozily",
-  "description": "Tudo do nosso ap, item por item.",
+  "description": "Tudo do nosso AP, item por item.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
