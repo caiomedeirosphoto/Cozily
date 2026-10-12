@@ -853,6 +853,8 @@ function navigate() {
   if (prev) S.scroll[prev.key] = window.scrollY;
   const r = parseRoute();
   S.route = r;
+  // entrar num cômodo (vindo de fora dele) sempre abre em Todos; voltar de um item mantém o filtro
+  if (r.name === "room" && (!prev || r.depth > prev.depth)) { delete S.roomTopic[r.id]; delete S.roomFilter[r.id]; }
   let mode = "enter-fade";
   if (prev) {
     if (r.depth > prev.depth) mode = "enter-push";
@@ -1159,7 +1161,7 @@ function viewRoom(id) {
   const sugs = list.length < 6 ? seedRowsFor(r.tipo).flatMap(([, tp, l]) => l.map(raw => ({ tp, ...parseSeedName(raw) }))).filter(x => !nomesAqui.has(slug(x.nome))).slice(0, 14) : [];
   const d = done(list), t = list.length;
   const topics = topicsOf(id);
-  const sel = topics.length > 1 ? (S.roomTopic[id] ?? topics[0]) : "*";
+  const sel = topics.length > 1 && topics.includes(S.roomTopic[id]) ? S.roomTopic[id] : "*";
   const filt = S.roomFilter[id] || "all";
   const pass = i => filt === "all" || (filt === "falta" ? !i.comprado : i.comprado);
   const groups = (sel === "*" ? topics : [sel]).map(tp => ({ tp, l: list.filter(i => (i.topico || "") === tp) }));
@@ -1944,12 +1946,11 @@ async function start() {
       S.items = new Map(); S.settings = {}; S.photos = {}; S.ob = null; S.introDone = false;
       S.authMode = "entrar"; S.authEmail = "";
       applyRooms();
-      let gotItems = false, gotSettings = false, itemsServer = DEMO;
-      const ready = () => { if (gotItems && gotSettings && !S.loaded) { S.loaded = true; refresh(); } else if (S.loaded) refresh(); if (itemsServer) migrateEtapas(); };
+      let gotItems = false, gotSettings = false;
+      const ready = () => { if (gotItems && gotSettings && !S.loaded) { S.loaded = true; refresh(); } else if (S.loaded) refresh(); migrateEtapas(); };
       unsub = S.store.subscribe(S.casaId,
         (arr, fromCache) => {
           S.items = new Map(arr.map(i => [i.id, i]));
-          if (!fromCache) itemsServer = true;
           gotItems = true; ready();
         },
         st => { S.settings = st || {}; applyRooms(); gotSettings = true; ready(); },
