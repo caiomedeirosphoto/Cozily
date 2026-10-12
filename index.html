@@ -429,6 +429,7 @@ const ENTREGA_PADRAO = "2028-12";         // mês previsto das chaves (dá pra m
 const NOMES_PADRAO = "Caio e Mirielly";
 const CASA_PADRAO = "Nosso AP";
 
+const APP_VERSION = "2026.10.12-4";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -1961,7 +1962,27 @@ async function start() {
     render("enter-fade");
   });
 }
+/* atualização automática: o GitHub Pages deixa o iPhone guardar a página antiga por até 10 min.
+   Aqui o app busca a versão publicada sem cache e, se for mais nova, recarrega já nela. */
+let lastCheck = 0;
+async function checkUpdate() {
+  if (DEMO || !/^https?:/.test(location.protocol) || Date.now() - lastCheck < 60000) return;
+  lastCheck = Date.now();
+  try {
+    const html = await (await fetch(location.pathname + "?check=" + Date.now(), { cache: "no-store" })).text();
+    const v = (html.match(/const APP_VERSION = "([^"]+)"/) || [])[1];
+    if (!v || v === APP_VERSION) return;
+    const tried = (() => { try { return sessionStorage.getItem("cozily-upd"); } catch { return null; } })();
+    if (tried === v) return;                       // já tentou essa versão nesta sessão: não entra em loop
+    if (document.querySelector(".overlay")) { lastCheck = 0; return; } // não interrompe um formulário aberto; tenta na próxima
+    try { sessionStorage.setItem("cozily-upd", v); } catch {}
+    location.replace(location.pathname + "?v=" + encodeURIComponent(v) + location.hash);
+  } catch {}
+}
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") checkUpdate(); });
+
 start();
+setTimeout(checkUpdate, 1500);
 </script>
 </body>
 </html>
