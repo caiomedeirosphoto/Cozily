@@ -301,6 +301,19 @@ img{display:block}
 .overlay.closing{animation:fadeOut .25s both}
 @keyframes fadeIn{from{opacity:0}}
 @keyframes fadeOut{to{opacity:0}}
+/* foto em tela cheia */
+.photos img{cursor:zoom-in}
+.viewer{position:fixed;inset:0;z-index:90;background:#000;animation:fadeIn .22s both;touch-action:none}
+.viewer.closing{animation:fadeOut .2s both}
+.viewer .vtrack{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior:contain}
+.viewer .vtrack::-webkit-scrollbar{display:none}
+.viewer.zoomed .vtrack{overflow:hidden}
+.viewer .vslide{flex:none;width:100vw;height:100%;scroll-snap-align:center;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.viewer .vslide img{max-width:100%;max-height:100%;object-fit:contain;transform-origin:0 0;will-change:transform;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.viewer .vbar{position:absolute;left:0;right:0;top:0;padding:calc(var(--top) + 12px) 16px 12px;display:flex;align-items:center;justify-content:space-between;color:#fff;background:linear-gradient(rgba(0,0,0,.55),transparent);transition:opacity .2s}
+.viewer.zoomed .vbar,.viewer.dragging .vbar{opacity:0}
+.viewer .vbar button{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;display:flex;align-items:center;justify-content:center;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.viewer .vbar span{font-size:14px;font-weight:700;opacity:.9}
 .sheet{width:100%;max-width:520px;max-height:calc(100dvh - var(--top) - 24px);background:var(--card);border-radius:28px 28px 0 0;display:flex;flex-direction:column;animation:sheetUp .48s var(--ease) both;touch-action:pan-y}
 .overlay.closing .sheet{animation:sheetDown .3s ease-in both}
 @keyframes sheetUp{from{transform:translateY(100%)}}
@@ -429,7 +442,7 @@ const ENTREGA_PADRAO = "2028-12";         // mês previsto das chaves (dá pra m
 const NOMES_PADRAO = "Caio e Mirielly";
 const CASA_PADRAO = "Nosso AP";
 
-const APP_VERSION = "2026.10.12-4";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.12-5";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -1214,7 +1227,7 @@ function viewItem(id) {
   if (it.comprado && it.garantia) info.push(["Garantia até", it.garantia]);
   return `<main class="page no-tabs ${r.cor}">
     <div class="photo-wrap">
-      ${photos.length ? `<div class="photos" id="photos">${photos.map((p, i) => `<img src="${p}" alt="Foto ${i + 1} de ${esc(it.nome)}">`).join("")}</div>
+      ${photos.length ? `<div class="photos" id="photos">${photos.map((p, i) => `<img src="${p}" alt="Foto ${i + 1} de ${esc(it.nome)}" data-act="viewphoto" data-id="${esc(id)}" data-i="${i}" role="button" tabindex="0" aria-label="Ver foto ${i + 1} em tela cheia">`).join("")}</div>
         ${photos.length > 1 ? `<div class="dots" aria-hidden="true">${photos.map((_, i) => `<i class="${i ? "" : "on"}"></i>`).join("")}</div>` : ""}`
         : `<div class="photo-empty">${ic("camera", 44, 1.5)}<button data-act="edit" data-id="${esc(id)}" data-photo="1">${ic("plus", 18, 2.2)} Adicionar foto</button></div>`}
       <div class="float-bar">
@@ -1786,6 +1799,7 @@ document.addEventListener("click", e => {
   if (!el) return;
   const a = el.dataset.act, id = el.dataset.id;
   if (a === "toggle") { e.preventDefault(); toggleItem(id); }
+  else if (a === "viewphoto") { const it = S.items.get(id); const ph = S.photos[id] ?? (it?.thumb ? [it.thumb] : []); openViewer(ph, +el.dataset.i || 0, it?.nome || ""); }
   else if (a === "back") back(S.route?.name === "item" ? "#/c/" + (S.items.get(S.route.id)?.comodo || "") : "#/");
   else if (a === "add") openItemForm(null, { room: el.dataset.room, topic: el.dataset.topic, nome: el.dataset.name });
   else if (a === "edit") openItemForm(id, { photo: !!el.dataset.photo });
@@ -1898,6 +1912,110 @@ function obAction(a, el) {
     if (o.step === 3 && !obRooms().length) { err.textContent = "Escolha pelo menos um cômodo."; return; }
     o.step++; render("enter-push"); window.scrollTo(0, 0);
   }
+}
+
+/* foto em tela cheia: deslizar entre fotos, pinça ou toque duplo para zoom, arrastar pra baixo ou X para fechar */
+function openViewer(list, start = 0, nome = "") {
+  if (!list.length) return;
+  const v = document.createElement("div");
+  v.className = "viewer"; v.setAttribute("role", "dialog"); v.setAttribute("aria-modal", "true"); v.setAttribute("aria-label", "Foto de " + nome);
+  v.innerHTML = `<div class="vtrack">${list.map((p, i) => `<div class="vslide"><img src="${p}" alt="Foto ${i + 1} de ${esc(nome)}" draggable="false"></div>`).join("")}</div>
+    <div class="vbar"><button type="button" data-vx aria-label="Fechar">${ic("x", 22, 2.2)}</button><span>${list.length > 1 ? `<b data-vn>${start + 1}</b> de ${list.length}` : ""}</span><span style="width:44px"></span></div>`;
+  document.body.appendChild(v);
+  document.body.style.overflow = "hidden";
+  const track = $(".vtrack", v);
+  requestAnimationFrame(() => { track.scrollLeft = start * track.clientWidth; });
+  let cur = start;
+  track.addEventListener("scroll", () => { cur = Math.round(track.scrollLeft / track.clientWidth); const n = $("[data-vn]", v); if (n) n.textContent = cur + 1; }, { passive: true });
+  const close = () => {
+    if (v.classList.contains("closing")) return;
+    v.classList.add("closing"); document.removeEventListener("keydown", onKey);
+    setTimeout(() => { v.remove(); document.body.style.overflow = ""; }, 200);
+  };
+  const onKey = e => { if (e.key === "Escape") close(); else if (e.key === "ArrowRight" || e.key === "ArrowLeft") track.scrollBy({ left: (e.key === "ArrowRight" ? 1 : -1) * track.clientWidth, behavior: "smooth" }); };
+  document.addEventListener("keydown", onKey);
+  $("[data-vx]", v).onclick = close;
+
+  // zoom e arraste
+  let sc = 1, tx = 0, ty = 0, pinch = null, pan = null, drag = null, lastTap = 0, tap = null, lastTouch = 0;
+  const toggleZoom = (el, x, y) => {
+    if (sc > 1) { sc = 1; tx = 0; ty = 0; }
+    else { const p = local(el, x, y); sc = 2.5; tx = -p.x * (sc - 1); ty = -p.y * (sc - 1); clamp(el); }
+    apply(el, true);
+  };
+  const img = () => track.children[cur].querySelector("img");
+  const apply = (el, anim) => { el.style.transition = anim ? "transform .25s var(--ease)" : "none"; el.style.transform = `translate(${tx}px,${ty}px) scale(${sc})`; v.classList.toggle("zoomed", sc > 1.01); };
+  const clamp = el => {
+    const w = el.offsetWidth, h = el.offsetHeight;
+    const minX = Math.min(0, w - w * sc), minY = Math.min(0, h - h * sc);
+    tx = Math.min(0, Math.max(minX, tx)); ty = Math.min(0, Math.max(minY, ty));
+    if (sc <= 1) { sc = 1; tx = 0; ty = 0; }
+  };
+  const local = (el, x, y) => { const r = el.getBoundingClientRect(); return { x: (x - r.left) / sc, y: (y - r.top) / sc }; };
+  const dist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+  const mid = t => ({ x: (t[0].clientX + t[1].clientX) / 2, y: (t[0].clientY + t[1].clientY) / 2 });
+  v.addEventListener("touchstart", e => {
+    const el = img(); if (!el) return;
+    if (e.touches.length === 2) {
+      drag = null; pan = null;
+      const m = mid(e.touches), r = el.parentElement.getBoundingClientRect(), base = el.getBoundingClientRect();
+      pinch = { d: dist(e.touches), sc, tx, ty, ox: m.x - (base.left - tx), oy: m.y - (base.top - ty) };
+      void r;
+    } else if (e.touches.length === 1) {
+      const t = e.touches[0];
+      tap = { x: t.clientX, y: t.clientY, at: Date.now() };
+      if (sc > 1) pan = { x: t.clientX, y: t.clientY, tx, ty };
+      else drag = { x: t.clientX, y: t.clientY, dy: 0, lock: null };
+    }
+  }, { passive: true });
+  v.addEventListener("touchmove", e => {
+    const el = img(); if (!el) return;
+    if (pinch && e.touches.length === 2) {
+      e.preventDefault();
+      const ns = Math.min(5, Math.max(1, pinch.sc * dist(e.touches) / pinch.d));
+      const k = ns / pinch.sc;
+      sc = ns; tx = pinch.ox - (pinch.ox - pinch.tx) * k; ty = pinch.oy - (pinch.oy - pinch.ty) * k;
+      apply(el);
+    } else if (pan && e.touches.length === 1) {
+      e.preventDefault();
+      const t = e.touches[0]; tx = pan.tx + t.clientX - pan.x; ty = pan.ty + t.clientY - pan.y; apply(el);
+      if (tap && Math.hypot(t.clientX - tap.x, t.clientY - tap.y) > 10) tap = null;
+    } else if (drag && e.touches.length === 1) {
+      const t = e.touches[0], dx = t.clientX - drag.x, dy = t.clientY - drag.y;
+      if (tap && Math.hypot(dx, dy) > 10) tap = null;
+      if (!drag.lock && Math.hypot(dx, dy) > 8) drag.lock = Math.abs(dy) > Math.abs(dx) ? "y" : "x";
+      if (drag.lock === "y") {
+        e.preventDefault();
+        drag.dy = Math.max(0, dy);
+        v.classList.add("dragging");
+        el.style.transition = "none"; el.style.transform = `translateY(${drag.dy}px) scale(${1 - Math.min(.25, drag.dy / 1600)})`;
+        v.style.background = `rgba(0,0,0,${1 - Math.min(.7, drag.dy / 500)})`;
+      }
+    }
+  }, { passive: false });
+  v.addEventListener("touchend", e => {
+    lastTouch = Date.now();
+    const el = img(); if (!el) return;
+    // toque duplo: zoom 2,5× no ponto tocado (ou volta)
+    if (tap && !pinch && !e.touches.length && Date.now() - tap.at < 300) {
+      const now = Date.now(), t = tap; tap = null;
+      if (now - lastTap < 300 && e.target.closest("img")) { lastTap = 0; pan = null; drag = null; v.classList.remove("dragging"); toggleZoom(el, t.x, t.y); return; }
+      lastTap = now;
+    }
+    if (pinch && e.touches.length < 2) { pinch = null; clamp(el); apply(el, true); if (e.touches.length === 1 && sc > 1) { const t = e.touches[0]; pan = { x: t.clientX, y: t.clientY, tx, ty }; } return; }
+    if (pan && !e.touches.length) { pan = null; clamp(el); apply(el, true); }
+    if (drag && !e.touches.length) {
+      const d = drag; drag = null; v.classList.remove("dragging");
+      if (d.lock === "y" && d.dy > 110) { el.style.transition = "transform .2s ease-in"; el.style.transform = `translateY(${window.innerHeight}px)`; close(); return; }
+      if (d.lock === "y") { el.style.transition = "transform .25s var(--ease)"; el.style.transform = ""; v.style.background = ""; }
+    }
+  });
+  // no computador: duplo clique faz zoom
+  v.addEventListener("dblclick", e => {
+    const el = img(); if (!el || !e.target.closest("img") || Date.now() - lastTouch < 800) return; // toque já tratado acima
+    toggleZoom(el, e.clientX, e.clientY);
+  });
+  setTimeout(() => $("[data-vx]", v).focus({ preventScroll: true }), 50);
 }
 
 document.addEventListener("scroll", e => {
