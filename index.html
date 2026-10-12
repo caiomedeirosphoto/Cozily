@@ -30,7 +30,7 @@
   --danger:#B23A2E;
   --shadow:0 1px 2px rgba(23,24,26,.04), 0 6px 20px rgba(23,24,26,.05);
   --r-lg:24px; --r-md:18px; --r-sm:14px;
-  --top:env(safe-area-inset-top,0px); --bottom:env(safe-area-inset-bottom,0px);
+  --top:env(safe-area-inset-top,0px); --gap-top:30px; --bottom:env(safe-area-inset-bottom,0px);
   --ease:cubic-bezier(.22,1,.36,1);
   color-scheme:light;
 }
@@ -79,7 +79,7 @@ img{display:block}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 #app{max-width:520px;margin:0 auto;min-height:100vh;min-height:100dvh;position:relative}
-.page{padding:calc(var(--top) + 14px) 20px calc(var(--bottom) + 112px);display:flex;flex-direction:column;gap:18px}
+.page{padding:calc(var(--top) + var(--gap-top)) 20px calc(var(--bottom) + 112px);display:flex;flex-direction:column;gap:18px}
 .page.no-tabs{padding-bottom:calc(var(--bottom) + 40px)}
 .enter-fade{animation:fadeUp .38s var(--ease) both}
 .enter-push{animation:pushIn .42s var(--ease) both}
@@ -194,13 +194,13 @@ img{display:block}
 .empty-state b{color:var(--ink);font-size:16px}
 
 /* detalhe */
-.photo-wrap{position:relative;margin:calc(-1 * (var(--top) + 14px)) -20px 0;height:calc(var(--top) + 330px);background:var(--accent-soft)}
+.photo-wrap{position:relative;margin:calc(-1 * (var(--top) + var(--gap-top))) -20px 0;height:calc(var(--top) + 330px);background:var(--accent-soft)}
 .photos{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;height:100%;scrollbar-width:none}
 .photos::-webkit-scrollbar{display:none}
 .photos img{flex:none;width:100%;height:100%;object-fit:cover;scroll-snap-align:center}
 .photo-empty{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--accent-text);padding-top:var(--top)}
 .photo-empty button{display:flex;align-items:center;gap:8px;background:var(--card);color:var(--ink);min-height:44px;padding:0 18px;border-radius:22px;font-weight:700;font-size:15px}
-.float-bar{position:absolute;left:20px;right:20px;top:calc(var(--top) + 12px);display:flex;justify-content:space-between}
+.float-bar{position:absolute;left:20px;right:20px;top:calc(var(--top) + var(--gap-top) - 2px);display:flex;justify-content:space-between}
 .dots{position:absolute;bottom:42px;left:0;right:0;display:flex;justify-content:center;gap:6px}
 .dots i{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.6);transition:width .25s}
 .dots i.on{width:18px;background:#fff}
