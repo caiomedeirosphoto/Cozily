@@ -27,6 +27,7 @@
   --amber:#9A5516; --amber-soft:#F6E7D6; --amber-ink:#7A3F0E; --amber-deep:#3D2208;
   --blue:#2D5A8A; --blue-soft:#DCE6F2; --blue-ink:#24507D;
   --purple:#5B4A86; --purple-soft:#E7E1F1; --purple-ink:#4E3F78;
+  --gift:#A2453B; --gift-soft:#F6E1DD; --gift-ink:#8A3E36;
   --danger:#B23A2E;
   --shadow:0 1px 2px rgba(23,24,26,.04), 0 6px 20px rgba(23,24,26,.05);
   --r-lg:24px; --r-md:18px; --r-sm:14px;
@@ -43,6 +44,7 @@
     --amber:#E0A262; --amber-soft:#3A2A19; --amber-ink:#F0C08E; --amber-deep:#F6DDBF;
     --blue:#7EA9D6; --blue-soft:#1C2C3D; --blue-ink:#A9C8EA;
     --purple:#AE9CDB; --purple-soft:#2A2440; --purple-ink:#C9BCEB;
+    --gift:#EBA79E; --gift-soft:#3A2220; --gift-ink:#F0B5AC;
     --danger:#F08A7E;
     --shadow:none;
     color-scheme:dark;
@@ -156,6 +158,7 @@ img{display:block}
 .room-hero .bar{height:8px;border-radius:4px}
 .seg{display:flex;background:var(--soft);border-radius:14px;padding:4px}
 .seg button{flex:1;min-height:38px;border-radius:11px;font-size:14px;font-weight:700;color:var(--muted);transition:background .2s,color .2s}
+.seg button svg{vertical-align:-3px;margin-right:2px}
 .seg button[aria-pressed=true]{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .chips{display:flex;gap:8px;overflow-x:auto;margin:0 -20px;padding:2px 20px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
@@ -183,6 +186,20 @@ img{display:block}
 .e1{color:var(--amber-ink);background:var(--amber-soft)}
 .e2{color:var(--blue-ink);background:var(--blue-soft)}
 .e3{color:var(--purple-ink);background:var(--purple-soft)}
+.pill.gift,.gift-tag{color:var(--gift-ink)}
+.pill.gift{background:var(--gift-soft);display:inline-flex;align-items:center;gap:4px}
+.gift-tag{font-weight:700;overflow:hidden;text-overflow:ellipsis;display:inline-flex;align-items:center;gap:3px}
+.item.done.gift .chk span{background:var(--gift);border-color:var(--gift)}
+.item.gift .thumb{background:var(--gift-soft);color:var(--gift-ink)}
+.status-btn.is-gift{background:var(--gift-soft);color:var(--gift-ink)}
+.giver{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--soft)}
+.giver:first-of-type{border-top:0}
+.giver .av{width:36px;height:36px;border-radius:50%;background:var(--gift-soft);color:var(--gift-ink);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex:none}
+.giver .g{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.giver .g b{font-size:15px}
+.giver .g span{font-size:13px;color:var(--muted);line-height:1.35}
+.giver .g a{color:var(--muted)}
+.giver .n{font-size:13px;font-weight:700;color:var(--gift-ink)}
 .chk{width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex:none}
 .chk span{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;color:#fff;transition:background .2s,border-color .2s}
 .item.done .chk span{background:var(--accent);border-color:var(--accent)}
@@ -516,6 +533,7 @@ function buildSeedFor(rooms) {
 
 /* ---------------- ícones ---------------- */
 const IC = {
+  gift: '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/>',
   pot: '<path d="M4 11h16v6a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3z"/><path d="M2 11h2M20 11h2M9 8c0-1.2 1-1.6 1-2.8M13 8c0-1.2 1-1.6 1-2.8"/>',
   bed: '<path d="M3 5v14M3 14h18M21 19v-6a3 3 0 0 0-3-3h-7v4"/><circle cx="7" cy="11" r="2"/>',
   sofa: '<path d="M4 11V8a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v3"/><path d="M2 13a2 2 0 0 1 4 0v2h12v-2a2 2 0 0 1 4 0v4a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/><path d="M5 18v2M19 18v2"/>',
@@ -573,6 +591,8 @@ const MESES_LONGOS = ["janeiro", "fevereiro", "março", "abril", "maio", "junho"
 const fmtDate = d => { if (!d) return ""; const [y, m, dd] = d.split("-").map(Number); return `${dd} ${MESES[m - 1]} ${y}`; };
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
 const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+const isGift = it => !!(it && it.comprado && it.presente);
+const givers = () => [...new Set(all().filter(isGift).map(i => (i.presenteDe || "").trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, "pt-BR"));
 const plural = (n, s, p) => `${n} ${n === 1 ? s : p}`;
 
 function buildSeed() {
@@ -1108,18 +1128,20 @@ function viewHome() {
   </main>`;
 }
 
+const giftTag = it => `<span class="gift-tag">${ic("gift", 13, 2.2)}Presente${it.presenteDe ? " de " + esc(it.presenteDe) : ""}</span>`;
 function rowHtml(it, opts = {}) {
   const r = ROOM[it.comodo] || ROOMS[0];
   const thumb = it.thumb
     ? `<span class="thumb"><img src="${it.thumb}" alt=""></span>`
-    : it.comprado ? `<span class="thumb">${ic("image", 22)}</span>` : `<span class="thumb empty">${ic("camera", 20)}</span>`;
-  const status = it.comprado
+    : it.comprado ? `<span class="thumb">${ic(isGift(it) ? "gift" : "image", 22)}</span>` : `<span class="thumb empty">${ic("camera", 20)}</span>`;
+  const gift = isGift(it);
+  const status = gift ? "" : it.comprado
     ? (it.valorPago ? money(it.valorPago) : "Comprado")
     : (it.valorPrevisto ? "Previsto " + money(it.valorPrevisto) : "Falta");
   const meta = opts.showRoom
-    ? `<span class="dot"></span><span class="room">${esc(r.nome)}</span><span>· ${esc(status)}</span>`
-    : `${it.etapa ? `<span class="pill e${it.etapa}">Etapa ${it.etapa}</span>` : ""}<span>${esc(status)}</span>`;
-  return `<div class="item ${it.comprado ? "done" : ""} ${opts.showRoom ? r.cor : ""}" data-id="${esc(it.id)}">
+    ? `<span class="dot"></span><span class="room">${esc(r.nome)}</span><span>·</span>${gift ? giftTag(it) : `<span>${esc(status)}</span>`}`
+    : `${it.etapa ? `<span class="pill e${it.etapa}">Etapa ${it.etapa}</span>` : ""}${gift ? giftTag(it) : `<span>${esc(status)}</span>`}`;
+  return `<div class="item ${it.comprado ? "done" : ""} ${gift ? "gift" : ""} ${opts.showRoom ? r.cor : ""}" data-id="${esc(it.id)}">
     <a class="item-main" href="#/i/${encodeURIComponent(it.id)}">${thumb}
       <span class="item-txt"><span class="item-name">${esc(it.nome)}</span><span class="meta">${meta}</span></span>
     </a>
@@ -1180,9 +1202,11 @@ function viewItem(id) {
   const photos = ph === undefined ? (it.thumb ? [it.thumb] : []) : ph;
   const eco = it.comprado && it.valorPago && it.valorPrevisto ? it.valorPrevisto - it.valorPago : null;
   const info = [];
-  if (it.comprado && it.data) info.push(["Data da compra", fmtDate(it.data)]);
-  if (it.loja) info.push(["Onde", it.loja]);
-  if (it.comprado && it.parcelas) info.push(["Pagamento", it.parcelas]);
+  const gift = isGift(it);
+  if (gift && it.presenteDe) info.push(["Presente de", it.presenteDe]);
+  if (it.comprado && it.data) info.push([gift ? "Ganharam em" : "Data da compra", fmtDate(it.data)]);
+  if (it.loja && !gift) info.push(["Onde", it.loja]);
+  if (it.comprado && it.parcelas && !gift) info.push(["Pagamento", it.parcelas]);
   if (it.comprado && it.garantia) info.push(["Garantia até", it.garantia]);
   return `<main class="page no-tabs ${r.cor}">
     <div class="photo-wrap">
@@ -1196,11 +1220,11 @@ function viewItem(id) {
     </div>
     <section class="sheet-card">
       <div style="display:flex;flex-direction:column;gap:10px">
-        <div class="pills"><span class="pill room">${esc(r.nome)}${it.topico ? " · " + esc(it.topico) : ""}</span>${it.etapa ? `<span class="pill e${it.etapa}">Etapa ${it.etapa} · ${ETAPAS[it.etapa].curto}</span>` : ""}</div>
+        <div class="pills"><span class="pill room">${esc(r.nome)}${it.topico ? " · " + esc(it.topico) : ""}</span>${it.etapa ? `<span class="pill e${it.etapa}">Etapa ${it.etapa} · ${ETAPAS[it.etapa].curto}</span>` : ""}${gift ? `<span class="pill gift">${ic("gift", 13, 2.2)}Presente</span>` : ""}</div>
         <h1 class="detail-title h-display">${esc(it.nome)}</h1>
       </div>
-      <button class="status-btn ${it.comprado ? "is-done" : ""}" data-act="toggle" data-id="${esc(id)}" aria-pressed="${!!it.comprado}">${it.comprado ? `${ic("check", 20, 2.6)} Comprado · toque para desfazer` : "Marcar como comprado"}</button>
-      ${(it.valorPago || it.valorPrevisto) ? `<div class="price">
+      <button class="status-btn ${gift ? "is-gift" : it.comprado ? "is-done" : ""}" data-act="toggle" data-id="${esc(id)}" aria-pressed="${!!it.comprado}">${gift ? `${ic("gift", 20, 2.2)} Presente · toque para desfazer` : it.comprado ? `${ic("check", 20, 2.6)} Comprado · toque para desfazer` : "Marcar como comprado ou presente"}</button>
+      ${!gift && (it.valorPago || it.valorPrevisto) ? `<div class="price">
         <div><small>${it.comprado && it.valorPago ? "Valor pago" : "Previsto"}</small><b>${money(it.comprado && it.valorPago ? it.valorPago : it.valorPrevisto)}</b></div>
         ${it.comprado && it.valorPago && it.valorPrevisto ? `<div class="side"><span>Previsto ${money(it.valorPrevisto)}</span>${eco > 0 ? `<span class="save">− ${money(eco)} de economia</span>` : eco < 0 ? `<span>${money(-eco)} acima</span>` : ""}</div>` : ""}
       </div>` : ""}
@@ -1236,9 +1260,21 @@ function viewOrdem() {
   </main>`;
 }
 
+function presentesCard(list) {
+  const by = new Map();
+  list.forEach(i => { const k = (i.presenteDe || "").trim() || "Sem nome"; (by.get(k) || by.set(k, []).get(k)).push(i); });
+  const rows = [...by].sort((a, b) => (a[0] === "Sem nome") - (b[0] === "Sem nome") || b[1].length - a[1].length || a[0].localeCompare(b[0], "pt-BR"));
+  const ini = n => n === "Sem nome" ? ic("gift", 18, 2) : esc(n.split(/\s+/).filter(w => w.length > 2 || /^[A-ZÀ-Ú]/.test(w)).slice(0, 2).map(w => w[0].toUpperCase()).join("") || n[0].toUpperCase());
+  return `<section class="card">
+    <div class="sec-h" style="margin:0"><h2>Presentes</h2><span>${plural(list.length, "item", "itens")} · ${plural(rows.filter(r => r[0] !== "Sem nome").length, "pessoa", "pessoas")}</span></div>
+    <div>${rows.map(([n, l]) => `<div class="giver"><span class="av">${ini(n)}</span><span class="g"><b>${esc(n)}</b><span>${l.map(i => `<a href="#/i/${encodeURIComponent(i.id)}">${esc(i.nome)}</a>`).join(", ")}</span></span><span class="n">${l.length}</span></div>`).join("")}</div>
+  </section>`;
+}
+
 function viewGastos() {
   const items = all();
-  const comprados = items.filter(i => i.comprado);
+  const presentes = items.filter(isGift);
+  const comprados = items.filter(i => i.comprado && !i.presente);
   const pagos = comprados.filter(i => i.valorPago);
   const total = pagos.reduce((a, i) => a + i.valorPago, 0);
   const prevFalta = items.filter(i => !i.comprado).reduce((a, i) => a + (i.valorPrevisto || 0), 0);
@@ -1257,6 +1293,7 @@ function viewGastos() {
       <div class="split"><span>${plural(pagos.length, "compra com valor", "compras com valor")}</span><span>${pagos.length ? `média <b>${money(Math.round(total / pagos.length))}</b>` : ""}</span></div>
       <div class="split"><span>Previsão do que falta</span><b>${prevFalta ? money(prevFalta) : "—"}</b></div>
     </section>
+    ${presentes.length ? presentesCard(presentes) : ""}
     ${semValor ? `<p style="margin:-6px 4px 0;font-size:13px;color:var(--muted)">${plural(semValor, "item comprado está", "itens comprados estão")} sem valor. Edite o item para colocar quanto pagaram.</p>` : ""}
     ${months.length ? `<section class="card">
       <div class="sec-h" style="margin:0"><h2>Por mês</h2><span><b style="color:var(--ink)">${MESES_LONGOS[+sel.slice(5) - 1]} ${sel.slice(0, 4)}</b> · ${money(byMonth[sel].reduce((a, i) => a + i.valorPago, 0))}</span></div>
@@ -1275,15 +1312,15 @@ function viewBusca() {
   const norm = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
   const nq = norm(q);
   const f = S.qFilter;
-  let res = q ? all().filter(i => norm(i.nome + " " + (i.topico || "") + " " + (ROOM[i.comodo]?.nome || "")).includes(nq)) : [];
-  if (f !== "all") res = res.filter(i => f === "ok" ? i.comprado : !i.comprado);
+  let res = q ? all().filter(i => norm(i.nome + " " + (i.topico || "") + " " + (ROOM[i.comodo]?.nome || "") + " " + (isGift(i) ? "presente " + (i.presenteDe || "") : "")).includes(nq)) : (f === "gift" ? all().filter(isGift) : []);
+  if (f !== "all") res = res.filter(i => f === "ok" ? i.comprado : f === "gift" ? isGift(i) : !i.comprado);
   return `<main class="page">
     <h1 class="h-display" style="margin:0;font-size:30px">Buscar</h1>
     <label class="search">${ic("search", 20, 2)}<span class="sr">Buscar item</span><input id="q" type="search" placeholder="Ex.: toalha, panela, cortina…" value="${esc(S.q)}" autocomplete="off" enterkeyhint="search"></label>
     <div class="seg" role="group" aria-label="Mostrar">
-      ${[["all", "Todos"], ["falta", "Faltam"], ["ok", "Comprados"]].map(([k, l]) => `<button data-act="qfilter" data-v="${k}" aria-pressed="${f === k}">${l}</button>`).join("")}
+      ${[["all", "Todos"], ["falta", "Faltam"], ["ok", "Comprados"], ["gift", "Presentes"]].map(([k, l]) => `<button data-act="qfilter" data-v="${k}" aria-pressed="${f === k}">${l}</button>`).join("")}
     </div>
-    <div id="qres">${q ? (res.length ? `<div class="items">${res.slice(0, 120).map(i => rowHtml(i, { showRoom: true })).join("")}</div>` : `<div class="empty-state"><b>Nada encontrado</b><span>Que tal adicionar “${esc(q)}”?</span><button class="btn primary" data-act="add" data-name="${esc(q)}">${ic("plus", 18, 2.2)} Adicionar</button></div>`) : `<div class="empty-state"><span>Procure em todos os cômodos de uma vez.</span></div>`}</div>
+    <div id="qres">${q || f === "gift" ? (res.length ? `<div class="items">${res.slice(0, 120).map(i => rowHtml(i, { showRoom: true })).join("")}</div>` : (!q ? `<div class="empty-state"><b>Nenhum presente ainda</b><span>Ao marcar um item, escolha “Foi presente” e escreva quem deu.</span></div>` : `<div class="empty-state"><b>Nada encontrado</b><span>Que tal adicionar “${esc(q)}”?</span><button class="btn primary" data-act="add" data-name="${esc(q)}">${ic("plus", 18, 2.2)} Adicionar</button></div>`)) : `<div class="empty-state"><span>Procure em todos os cômodos de uma vez.</span></div>`}</div>
   </main>`;
 }
 
@@ -1339,16 +1376,18 @@ function itemForm(it, defaults = {}) {
       </div>
     </div>
     <div class="seg" id="fStatus" role="group" aria-label="Situação">
-      <button type="button" data-v="0" aria-pressed="${!v.comprado}">Falta comprar</button>
-      <button type="button" data-v="1" aria-pressed="${!!v.comprado}">Já compramos</button>
+      <button type="button" data-v="0" aria-pressed="${!v.comprado}">Falta</button>
+      <button type="button" data-v="1" aria-pressed="${!!v.comprado && !v.presente}">Compramos</button>
+      <button type="button" data-v="2" aria-pressed="${isGift(v)}">${ic("gift", 16, 2)} Presente</button>
     </div>
     <div id="fOk" class="${v.comprado ? "" : "hidden"}" style="display:flex;flex-direction:column;gap:14px">
+      <div class="field ${isGift(v) ? "" : "hidden"}" id="fDeWrap"><label for="fDe">Quem deu</label><input class="input" id="fDe" list="giversDl" placeholder="Ex.: Tia Ana, padrinhos…" value="${esc(v.presenteDe || "")}" autocomplete="off" autocapitalize="words">${giversList()}</div>
       <div class="two">
-        <div class="field"><label for="fPago">Valor pago</label><input class="input" id="fPago" inputmode="decimal" placeholder="R$ 0,00" value="${moneyInput(v.valorPago)}"></div>
-        <div class="field"><label for="fData">Data</label><input class="input" id="fData" type="date" value="${esc(v.data || (it ? "" : today()))}"></div>
+        <div class="field ${isGift(v) ? "hidden" : ""}" id="fPagoWrap"><label for="fPago">Valor pago</label><input class="input" id="fPago" inputmode="decimal" placeholder="R$ 0,00" value="${moneyInput(v.valorPago)}"></div>
+        <div class="field"><label for="fData" id="fDataLbl">${isGift(v) ? "Quando ganharam" : "Data"}</label><input class="input" id="fData" type="date" value="${esc(v.data || (it ? "" : today()))}"></div>
       </div>
       <div class="two">
-        <div class="field"><label for="fParc">Pagamento</label><input class="input" id="fParc" placeholder="Ex.: 10× R$ 99" value="${esc(v.parcelas || "")}"></div>
+        <div class="field ${isGift(v) ? "hidden" : ""}" id="fParcWrap"><label for="fParc">Pagamento</label><input class="input" id="fParc" placeholder="Ex.: 10× R$ 99" value="${esc(v.parcelas || "")}"></div>
         <div class="field"><label for="fGar">Garantia até</label><input class="input" id="fGar" placeholder="Ex.: ago 2027" value="${esc(v.garantia || "")}"></div>
       </div>
     </div>
@@ -1387,40 +1426,63 @@ function setupPhotos(ov, photos, onChange) {
   };
 }
 
-/* ao marcar como comprado: pede valor, data, loja, pagamento, garantia e foto */
+/* ao marcar: comprado (valor, data, loja, pagamento, garantia, foto) ou presente (quem deu, data, foto) */
+const giversList = () => `<datalist id="giversDl">${givers().map(g => `<option value="${esc(g)}"></option>`).join("")}</datalist>`;
 async function openPurchaseSheet(id) {
   const it = S.items.get(id); if (!it) return;
   const r = ROOM[it.comodo] || ROOMS[0];
   let photos = [...(S.photos[id] ?? (it.thumb ? await S.store.getPhotos(id).catch(() => []) : []))];
   let photosChanged = false;
   let skip = false;
-  openSheet("Comprado!", `
+  let gift = !!it.presente;
+  openSheet(gift ? "Presente!" : "Comprado!", `
     <div class="${r.cor}" style="display:flex;align-items:center;gap:12px">
       <span class="tile">${ic(r.icon)}</span>
       <div style="min-width:0"><b style="display:block;font-size:17px">${esc(it.nome)}</b><span style="font-size:13px;color:var(--muted)">${esc(r.nome)}${it.topico ? " · " + esc(it.topico) : ""}</span></div>
     </div>
-    <div class="two">
-      <div class="field"><label for="pPago">Valor pago</label><input class="input" id="pPago" inputmode="decimal" placeholder="${it.valorPrevisto ? "Previsto " + esc(money(it.valorPrevisto)) : "R$ 0,00"}" value="${moneyInput(it.valorPago)}" autocomplete="off"></div>
-      <div class="field"><label for="pData">Data</label><input class="input" id="pData" type="date" value="${esc(it.data || today())}"></div>
+    <div class="seg" id="pKind" role="group" aria-label="Como chegou">
+      <button type="button" data-v="0" aria-pressed="${!gift}">Compramos</button>
+      <button type="button" data-v="1" aria-pressed="${gift}">${ic("gift", 16, 2)} Foi presente</button>
     </div>
+    <div class="field ${gift ? "" : "hidden"}" id="pGiftWrap"><label for="pDe">Quem deu</label><input class="input" id="pDe" list="giversDl" placeholder="Ex.: Tia Ana, padrinhos…" value="${esc(it.presenteDe || "")}" autocomplete="off" autocapitalize="words">${giversList()}</div>
     <div class="two">
+      <div class="field ${gift ? "hidden" : ""}" id="pPagoWrap"><label for="pPago">Valor pago</label><input class="input" id="pPago" inputmode="decimal" placeholder="${it.valorPrevisto ? "Previsto " + esc(money(it.valorPrevisto)) : "R$ 0,00"}" value="${moneyInput(it.valorPago)}" autocomplete="off"></div>
+      <div class="field"><label for="pData" id="pDataLbl">${gift ? "Quando ganharam" : "Data"}</label><input class="input" id="pData" type="date" value="${esc(it.data || today())}"></div>
+    </div>
+    <div class="two ${gift ? "hidden" : ""}" id="pBuyWrap">
       <div class="field"><label for="pLoja">Onde comprou</label><input class="input" id="pLoja" placeholder="Loja ou site" value="${esc(it.loja || "")}"></div>
       <div class="field"><label for="pParc">Pagamento</label><input class="input" id="pParc" placeholder="Ex.: 10× R$ 99" value="${esc(it.parcelas || "")}"></div>
     </div>
     <div class="field"><label for="pGar">Garantia até</label><input class="input" id="pGar" placeholder="Ex.: ago 2027 (opcional)" value="${esc(it.garantia || "")}"></div>
     <div class="field"><span class="lbl">Foto (opcional)</span><div class="photo-row" id="fPhotos"></div></div>
-    <button class="btn primary block" type="button" data-confirm>${ic("check", 20, 2.6)} Marcar como comprado</button>
+    <button class="btn primary block" type="button" data-confirm></button>
     <button class="link-btn" type="button" data-skip>Marcar sem preencher agora</button>`, {
     saveLabel: "Salvar",
     onMount(ov) {
       setupPhotos(ov, photos, () => { photosChanged = true; });
+      const paint = () => {
+        $(".sheet-bar h2", ov).textContent = gift ? "Presente!" : "Comprado!";
+        $(".sheet", ov).setAttribute("aria-label", gift ? "Presente!" : "Comprado!");
+        $("#pGiftWrap", ov).classList.toggle("hidden", !gift);
+        $("#pPagoWrap", ov).classList.toggle("hidden", gift);
+        $("#pBuyWrap", ov).classList.toggle("hidden", gift);
+        $("#pDataLbl", ov).textContent = gift ? "Quando ganharam" : "Data";
+        $("[data-confirm]", ov).innerHTML = gift ? `${ic("gift", 20, 2.2)} Marcar como presente` : `${ic("check", 20, 2.6)} Marcar como comprado`;
+        [...$("#pKind", ov).children].forEach(x => x.setAttribute("aria-pressed", (x.dataset.v === "1") === gift));
+      };
+      paint();
+      setTimeout(() => { if (!skip) $(gift ? "#pDe" : "#pPago", ov)?.focus(); }, 450);
+      $("#pKind", ov).onclick = e => { const b = e.target.closest("button"); if (!b) return; gift = b.dataset.v === "1"; paint(); setTimeout(() => $(gift ? "#pDe" : "#pPago", ov)?.focus(), 50); };
       $("[data-confirm]", ov).onclick = () => $("[data-s]", ov).click();
       $("[data-skip]", ov).onclick = () => { skip = true; $("[data-s]", ov).click(); };
-      setTimeout(() => { if (!skip) $("#pPago", ov)?.focus(); }, 450);
     },
     async onSave(ov) {
-      const patch = { id, comprado: true, atualizadoEm: Date.now(), data: $("#pData", ov).value || today() };
-      if (!skip) {
+      const patch = { id, comprado: true, presente: gift, atualizadoEm: Date.now(), data: $("#pData", ov).value || today() };
+      if (gift) {
+        patch.valorPago = null; patch.loja = null; patch.parcelas = null;
+        if (!skip) { patch.presenteDe = $("#pDe", ov).value.trim() || null; patch.garantia = $("#pGar", ov).value.trim() || null; }
+      } else if (!skip) {
+        patch.presenteDe = null;
         patch.valorPago = parseMoney($("#pPago", ov).value);
         patch.loja = $("#pLoja", ov).value.trim() || null;
         patch.parcelas = $("#pParc", ov).value.trim() || null;
@@ -1435,7 +1497,7 @@ async function openPurchaseSheet(id) {
       if (photosChanged) write(S.store.putPhotos(id, photos), "As fotos não foram salvas. Tente de novo.");
       S.popId = id;
       S.dirty = true;
-      toast(`${it.nome} comprado${patch.valorPago ? " · " + money(patch.valorPago) : ""}`);
+      toast(gift ? `${it.nome} · presente${patch.presenteDe ? " de " + patch.presenteDe : ""}` : `${it.nome} comprado${patch.valorPago ? " · " + money(patch.valorPago) : ""}`);
       return true;
     }
   });
@@ -1446,7 +1508,7 @@ async function openItemForm(id, defaults = {}) {
   let photos = id ? (S.photos[id] ?? await S.store.getPhotos(id).catch(() => [])) : [];
   photos = [...photos];
   let photosChanged = false;
-  const state = { etapa: it?.etapa || 0, comprado: !!it?.comprado };
+  const state = { etapa: it?.etapa || 0, comprado: !!it?.comprado, presente: isGift(it) };
   openSheet(it ? "Editar item" : "Novo item", itemForm(it, defaults), {
     saveLabel: "Salvar",
     onMount(ov) {
@@ -1463,7 +1525,16 @@ async function openItemForm(id, defaults = {}) {
       roomSel.onchange = () => fillTopics();
       topicSel.onchange = () => { newWrap.classList.toggle("hidden", topicSel.value !== "__new"); if (topicSel.value === "__new") $("#fNewTopic", ov).focus(); };
       $("#fStage", ov).onclick = e => { const b = e.target.closest("button"); if (!b) return; state.etapa = +b.dataset.v; [...$("#fStage", ov).children].forEach(x => x.setAttribute("aria-pressed", x === b)); };
-      $("#fStatus", ov).onclick = e => { const b = e.target.closest("button"); if (!b) return; state.comprado = b.dataset.v === "1"; [...$("#fStatus", ov).children].forEach(x => x.setAttribute("aria-pressed", x === b)); $("#fOk", ov).classList.toggle("hidden", !state.comprado); if (state.comprado && !$("#fData", ov).value) $("#fData", ov).value = today(); };
+      $("#fStatus", ov).onclick = e => {
+        const b = e.target.closest("button"); if (!b) return;
+        state.comprado = b.dataset.v !== "0"; state.presente = b.dataset.v === "2";
+        [...$("#fStatus", ov).children].forEach(x => x.setAttribute("aria-pressed", x === b));
+        $("#fOk", ov).classList.toggle("hidden", !state.comprado);
+        ["#fPagoWrap", "#fParcWrap"].forEach(q => $(q, ov).classList.toggle("hidden", state.presente));
+        $("#fDeWrap", ov).classList.toggle("hidden", !state.presente);
+        $("#fDataLbl", ov).textContent = state.presente ? "Quando ganharam" : "Data";
+        if (state.comprado && !$("#fData", ov).value) $("#fData", ov).value = today();
+      };
       setupPhotos(ov, photos, () => { photosChanged = true; });
       if (defaults.photo) setTimeout(() => $("#phAdd", ov)?.click(), 350);
       if (!it && !defaults.nome) setTimeout(() => $("#fNome", ov).focus(), 450);
@@ -1477,10 +1548,12 @@ async function openItemForm(id, defaults = {}) {
       const data = {
         id: it ? it.id : `${comodo}--${slug(topico || "geral")}--${slug(nome)}-${Date.now().toString(36)}`,
         nome, comodo, topico, etapa: state.etapa, comprado: state.comprado,
+        presente: state.comprado ? state.presente : !!it?.presente,
+        presenteDe: state.comprado && state.presente ? ($("#fDe", ov).value.trim() || null) : (state.comprado ? null : (it?.presenteDe ?? null)),
         valorPrevisto: parseMoney($("#fPrev", ov).value),
-        valorPago: state.comprado ? parseMoney($("#fPago", ov).value) : (it?.valorPago ?? null),
+        valorPago: state.comprado ? (state.presente ? null : parseMoney($("#fPago", ov).value)) : (it?.valorPago ?? null),
         data: state.comprado ? ($("#fData", ov).value || null) : (it?.data ?? null),
-        parcelas: $("#fParc", ov).value.trim() || null,
+        parcelas: state.comprado && state.presente ? null : ($("#fParc", ov).value.trim() || null),
         garantia: $("#fGar", ov).value.trim() || null,
         loja: $("#fLoja", ov).value.trim() || null,
         link: (() => { let l = $("#fLink", ov).value.trim(); if (l && !/^https?:\/\//i.test(l)) l = "https://" + l; return l || null; })(),
