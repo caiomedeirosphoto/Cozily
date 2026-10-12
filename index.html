@@ -771,7 +771,8 @@ function viewHome() {
   const meses = Math.max(0, (ey - now.getFullYear()) * 12 + (em - 1 - now.getMonth()));
   const nomes = S.settings.nomes || NOMES_PADRAO;
   const hora = now.getHours();
-  const saud = hora < 12 ? "Bom dia" : hora < 18 ? "Boa tarde" : "Boa noite";
+  // madrugada (0h–4h59) conta como noite
+  const saud = hora >= 5 && hora < 12 ? "Bom dia" : hora >= 12 && hora < 18 ? "Boa tarde" : "Boa noite";
 
   if (!t) {
     return `<main class="page">
