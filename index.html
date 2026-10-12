@@ -454,39 +454,39 @@ const ETAPAS = {
 /* ---------------- lista inicial (das notas "Casa") ----------------
    "+" no começo = já comprado · "#1/#2/#3" no fim = etapa da mudança */
 const SEED = [
-  ["cozinha", "Eletrodomésticos", ["Geladeira#1","Cooktop#1","Forno","Micro-ondas#2","+Air fryer#2","+Liquidificador#2","+Batedeira","+Sanduicheira","+Cafeteira","+Chaleira elétrica","Mixer","Torradeira","+Processador","Purificador de água"]],
-  ["cozinha", "Panelas e formas", ["+Jogo de panelas 5pcs#1","+Frigideira pequena 2pcs#1","Frigideira grande","Panela de pressão","Panela pequena","Panela média","Panela grande","Leiteira","Forma retangular","+Forma redonda para bolo","Forma redonda","Assadeira","Forma para pizza","Travessa de vidro","Refratários"]],
-  ["cozinha", "Utensílios", ["+Conjunto de facas#1","Tábua de corte#1","Colher de pau","+Colher de silicone 2pcs","+Pincel culinário","+Cortador de pizza","+Cortador de queijo","Espátula","+Concha","+Escumadeira de silicone","Escumadeira inox","Pegador de massa","Pegador de alimentos","+Fouet","Abridor de latas","Abridor de garrafas","Saca-rolhas","Descascador","Ralador","+Peneira","Escorredor de macarrão","Funil","Espremedor de alho","Espremedor de limão","Medidores","Tesoura de cozinha","Pinça culinária","+Conjunto de churrasco","+Pratos para churrasco"]],
-  ["cozinha", "Louças", ["+Pratos rasos#1","+Pratos fundos#1","+Pratos de sobremesa","Bowls","+Copos#1","+Taças","+Canecas","+Xícaras de café","+Pires","Jarra","Garrafa de água"]],
-  ["cozinha", "Talheres", ["+Garfos#1","+Facas#1","+Colheres#1","+Colheres de sobremesa","Colheres de café","Talheres para servir"]],
-  ["cozinha", "Armazenamento", ["Potes herméticos#2","Potes de vidro","+Potes plásticos#2","Potes para temperos","Porta-talheres","Organizador de gaveta","Porta-papel-toalha","Porta-detergente","Porta-esponja","Potes para mantimentos"]],
-  ["cozinha", "Limpeza", ["Lixeira#1","Sacos de lixo","Esponjas","Panos de prato","Panos de limpeza","Escorredor de louça","Rodo de pia","Balde"]],
-  ["cozinha", "Extras", ["Descanso de panela","Descanso de colher","Avental","Luva térmica","Pegador de panela","Toalha de mesa","Jogo americano","Guardanapos de tecido","Papel-alumínio","Filme plástico","Papel-manteiga","Sacos tipo zip","Papel-toalha"]],
-  ["quarto", "Móveis", ["+Cama#1","+Colchão#1","Guarda-roupa","Criado-mudo","Cômoda","Penteadeira","Sapateira"]],
-  ["quarto", "Roupa de cama", ["Lençóis com elástico#1","Lençóis sem elástico","Fronhas#1","Capas para travesseiro","+Edredom#1","Cobertor","+Manta","Colcha","Protetores de travesseiro"]],
-  ["quarto", "Travesseiros", ["Travesseiros para dormir#1","Travesseiros decorativos","Almofadas"]],
-  ["quarto", "Organização", ["Cabides","Organizadores de gaveta","Colmeias","Caixas organizadoras","Cestos","Organizador de sapatos","Porta-joias"]],
-  ["quarto", "Decoração", ["Cortina#2","Tapete","Espelho","Abajur#3","Luminária","Quadros","Manta decorativa"]],
-  ["sala-estar", "Móveis e organização", ["Sofá#1","Rack/painel para TV","Mesa de centro#3","Mesa lateral","Estante/prateleira","Aparador#3","Puff ou banquinho"]],
-  ["sala-estar", "Têxteis e decoração", ["Tapete#3","Cortina#2","Almofadas#3","Manta para sofá#3","Capas de almofada","Quadros#3","Espelho","Vasos#3","Plantas#3","Objetos decorativos#3","Porta-retratos"]],
-  ["sala-estar", "Eletrônicos", ["Televisão","Controle remoto/baterias","Roteador Wi-Fi","Extensão","Filtro de linha","Lâmpadas"]],
-  ["sala-jantar", "", ["Mesa de jantar#1","Cadeiras#1","Aparador","Buffet","Toalha de mesa","Jogo americano","Porta-guardanapos","Travessas","Jarra","+Taças","Centro de mesa"]],
-  ["banheiro", "Toalhas", ["Toalhas de banho#1","Toalhas de rosto#1","Toalhas de piso","Toalhas de mão"]],
-  ["banheiro", "Organização", ["Porta-sabonete","Porta-escovas","Porta-pasta de dentes","Dispenser de sabonete líquido","Porta-shampoo","Cesto para roupas sujas","Organizadores","Lixeira","Escova sanitária#1"]],
-  ["banheiro", "Acessórios", ["Chuveiro#1","Tapete de banheiro#2","Cortina de banheiro, se necessário","Espelho#2","Ganchos","Suporte para toalhas","Porta-papel higiênico#1"]],
-  ["lavanderia", "Equipamentos", ["Máquina de lavar#1","Secadora","Ferro de passar#2","Tábua de passar#2","Varal#1","Pregadores"]],
-  ["lavanderia", "Limpeza", ["Baldes","Bacias","Rodo","Vassoura","Pá de lixo","Mop","Esfregão","Panos de chão","Escova de limpeza","Luvas","Esponjas","Escova para roupas"]],
-  ["lavanderia", "Organização", ["Cesto de roupas sujas","Cesto para roupas limpas","Organizador de produtos","Varal de chão","Cabides"]],
-  ["escritorio", "", ["Escrivaninha","Cadeira","+Estante","Gaveteiro","+Luminária","Organizadores","+Porta-canetas","+Cadernos","+Canetas","+Post-its","+Grampeador","+Tesoura","+Fita adesiva","+Extensão","+Filtro de linha","+Carregadores"]],
-  ["hall", "", ["Capacho","Sapateira","Cabideiro","Aparador","Espelho","Bandeja para chaves","Porta-cartas","Ganchos","Cesto para bolsas"]],
-  ["limpeza", "", ["Vassoura#1","Pá","Rodo#1","Mop","Baldes#1","Bacias","Panos de chão","Panos de microfibra","Flanelas","Esponjas","Escovas","Luvas","Sacos de lixo","Lixeira para cada ambiente","Aspirador de pó#2","Organizadores","Produtos de limpeza#1"]],
-  ["organizacao", "", ["+Caixas organizadoras#2","Cestos","+Organizadores de gaveta#2","Organizadores de armário#2","Etiquetas","Cabides","Prateleiras","Caixas para objetos pequenos"]]
+  ["cozinha", "Eletrodomésticos", ["Geladeira#1","Cooktop#1","Forno#2","Micro-ondas#2","+Air fryer#2","+Liquidificador#2","+Batedeira#2","+Sanduicheira#3","+Cafeteira#2","+Chaleira elétrica#2","Mixer#3","Torradeira#3","+Processador#3","Purificador de água#1"]],
+  ["cozinha", "Panelas e formas", ["+Jogo de panelas 5pcs#1","+Frigideira pequena 2pcs#1","Frigideira grande#2","Panela de pressão#2","Panela pequena#2","Panela média#2","Panela grande#2","Leiteira#2","Forma retangular#3","+Forma redonda para bolo#3","Forma redonda#3","Assadeira#2","Forma para pizza#3","Travessa de vidro#2","Refratários#2"]],
+  ["cozinha", "Utensílios", ["+Conjunto de facas#1","Tábua de corte#1","Colher de pau#1","+Colher de silicone 2pcs#1","+Pincel culinário#3","+Cortador de pizza#3","+Cortador de queijo#3","Espátula#1","+Concha#1","+Escumadeira de silicone#1","Escumadeira inox#2","Pegador de massa#2","Pegador de alimentos#2","+Fouet#3","Abridor de latas#1","Abridor de garrafas#2","Saca-rolhas#3","Descascador#2","Ralador#2","+Peneira#2","Escorredor de macarrão#1","Funil#3","Espremedor de alho#2","Espremedor de limão#2","Medidores#2","Tesoura de cozinha#2","Pinça culinária#3","+Conjunto de churrasco#3","+Pratos para churrasco#3"]],
+  ["cozinha", "Louças", ["+Pratos rasos#1","+Pratos fundos#1","+Pratos de sobremesa#2","Bowls#2","+Copos#1","+Taças#3","+Canecas#1","+Xícaras de café#2","+Pires#2","Jarra#2","Garrafa de água#2"]],
+  ["cozinha", "Talheres", ["+Garfos#1","+Facas#1","+Colheres#1","+Colheres de sobremesa#2","Colheres de café#2","Talheres para servir#2"]],
+  ["cozinha", "Armazenamento", ["Potes herméticos#2","Potes de vidro#2","+Potes plásticos#2","Potes para temperos#2","Porta-talheres#2","Organizador de gaveta#2","Porta-papel-toalha#2","Porta-detergente#2","Porta-esponja#2","Potes para mantimentos#2"]],
+  ["cozinha", "Limpeza", ["Lixeira#1","Sacos de lixo#1","Esponjas#1","Panos de prato#1","Panos de limpeza#1","Escorredor de louça#1","Rodo de pia#2","Balde#2"]],
+  ["cozinha", "Extras", ["Descanso de panela#2","Descanso de colher#3","Avental#3","Luva térmica#2","Pegador de panela#2","Toalha de mesa#3","Jogo americano#3","Guardanapos de tecido#3","Papel-alumínio#2","Filme plástico#2","Papel-manteiga#3","Sacos tipo zip#2","Papel-toalha#1"]],
+  ["quarto", "Móveis", ["+Cama#1","+Colchão#1","Guarda-roupa#1","Criado-mudo#2","Cômoda#2","Penteadeira#3","Sapateira#2"]],
+  ["quarto", "Roupa de cama", ["Lençóis com elástico#1","Lençóis sem elástico#2","Fronhas#1","Capas para travesseiro#2","+Edredom#1","Cobertor#2","+Manta#2","Colcha#2","Protetores de travesseiro#2"]],
+  ["quarto", "Travesseiros", ["Travesseiros para dormir#1","Travesseiros decorativos#3","Almofadas#3"]],
+  ["quarto", "Organização", ["Cabides#1","Organizadores de gaveta#2","Colmeias#2","Caixas organizadoras#2","Cestos#2","Organizador de sapatos#2","Porta-joias#3"]],
+  ["quarto", "Decoração", ["Cortina#2","Tapete#3","Espelho#2","Abajur#3","Luminária#3","Quadros#3","Manta decorativa#3"]],
+  ["sala-estar", "Móveis e organização", ["Sofá#2","Rack/painel para TV#2","Mesa de centro#3","Mesa lateral#3","Estante/prateleira#2","Aparador#3","Puff ou banquinho#3"]],
+  ["sala-estar", "Têxteis e decoração", ["Tapete#3","Cortina#2","Almofadas#3","Manta para sofá#3","Capas de almofada#3","Quadros#3","Espelho#3","Vasos#3","Plantas#3","Objetos decorativos#3","Porta-retratos#3"]],
+  ["sala-estar", "Eletrônicos", ["Televisão#2","Controle remoto/baterias#2","Roteador Wi-Fi#1","Extensão#1","Filtro de linha#2","Lâmpadas#1"]],
+  ["sala-jantar", "", ["Mesa de jantar#1","Cadeiras#1","Aparador#3","Buffet#3","Toalha de mesa#3","Jogo americano#3","Porta-guardanapos#3","Travessas#2","Jarra#2","+Taças#3","Centro de mesa#3"]],
+  ["banheiro", "Toalhas", ["Toalhas de banho#1","Toalhas de rosto#1","Toalhas de piso#2","Toalhas de mão#2"]],
+  ["banheiro", "Organização", ["Porta-sabonete#2","Porta-escovas#2","Porta-pasta de dentes#3","Dispenser de sabonete líquido#2","Porta-shampoo#2","Cesto para roupas sujas#2","Organizadores#3","Lixeira#1","Escova sanitária#1"]],
+  ["banheiro", "Acessórios", ["Chuveiro#1","Tapete de banheiro#2","Cortina de banheiro, se necessário#2","Espelho#2","Ganchos#2","Suporte para toalhas#2","Porta-papel higiênico#1"]],
+  ["lavanderia", "Equipamentos", ["Máquina de lavar#1","Secadora#3","Ferro de passar#2","Tábua de passar#2","Varal#1","Pregadores#1"]],
+  ["lavanderia", "Limpeza", ["Baldes#2","Bacias#2","Rodo#2","Vassoura#2","Pá de lixo#2","Mop#2","Esfregão#2","Panos de chão#2","Escova de limpeza#2","Luvas#2","Esponjas#2","Escova para roupas#3"]],
+  ["lavanderia", "Organização", ["Cesto de roupas sujas#2","Cesto para roupas limpas#2","Organizador de produtos#2","Varal de chão#2","Cabides#2"]],
+  ["escritorio", "", ["Escrivaninha#2","Cadeira#2","+Estante#2","Gaveteiro#3","+Luminária#2","Organizadores#3","+Porta-canetas#3","+Cadernos#3","+Canetas#3","+Post-its#3","+Grampeador#3","+Tesoura#2","+Fita adesiva#2","+Extensão#2","+Filtro de linha#2","+Carregadores#1"]],
+  ["hall", "", ["Capacho#2","Sapateira#2","Cabideiro#3","Aparador#3","Espelho#3","Bandeja para chaves#3","Porta-cartas#3","Ganchos#2","Cesto para bolsas#3"]],
+  ["limpeza", "", ["Vassoura#1","Pá#1","Rodo#1","Mop#2","Baldes#1","Bacias#2","Panos de chão#1","Panos de microfibra#2","Flanelas#2","Esponjas#2","Escovas#2","Luvas#1","Sacos de lixo#1","Lixeira para cada ambiente#2","Aspirador de pó#2","Organizadores#3","Produtos de limpeza#1"]],
+  ["organizacao", "", ["+Caixas organizadoras#2","Cestos#2","+Organizadores de gaveta#2","Organizadores de armário#2","Etiquetas#3","Cabides#2","Prateleiras#2","Caixas para objetos pequenos#3"]]
 ];
 /* sugestões para cômodos que não estavam nas notas */
 const SEED_EXTRA = [
-  ["varanda", "", ["Cadeiras externas","Mesa pequena","Rede","Vasos#3","Plantas#3","Tapete externo","Luminária","Almofadas","Toldo ou cortina"]],
-  ["gourmet", "", ["Churrasqueira","Mesa","Cadeiras","Kit churrasco","Tábua de carne","Frigobar","Cooler","Luminária"]],
-  ["closet", "", ["Cabides#2","Organizadores de gaveta","Colmeias","Sapateira","Espelho","Cestos","Porta-joias"]]
+  ["varanda", "", ["Cadeiras externas#3","Mesa pequena#3","Rede#3","Vasos#3","Plantas#3","Tapete externo#3","Luminária#2","Almofadas#3","Toldo ou cortina#2"]],
+  ["gourmet", "", ["Churrasqueira#3","Mesa#3","Cadeiras#3","Kit churrasco#3","Tábua de carne#3","Frigobar#3","Cooler#3","Luminária#2"]],
+  ["closet", "", ["Cabides#2","Organizadores de gaveta#2","Colmeias#2","Sapateira#2","Espelho#3","Cestos#2","Porta-joias#3"]]
 ];
 const seedRowsFor = tipo => [...SEED, ...SEED_EXTRA].filter(r => r[0] === tipo);
 const seedCount = tipo => seedRowsFor(tipo).reduce((a, r) => a + r[2].length, 0);
@@ -675,6 +675,7 @@ function makeDemoStore() {
     async delItem(id) { delete casa().items[id]; persist(); },
     async putSettings(o) { const c = casa(); c.settings = { ...c.settings, ...o }; persist(); },
     async seed(list) { const c = casa(); list.forEach(it => c.items[it.id] = it); c.settings.importado = true; persist(); },
+    async patchMany(list) { const c = casa(); list.forEach(({ id, ...r }) => { if (c.items[id]) c.items[id] = { ...c.items[id], ...r }; }); persist(); },
     async getPhotos(id) { return casa().photos[id] || []; },
     async putPhotos(id, arr) { const c = casa(); if (arr.length) c.photos[id] = arr; else delete c.photos[id]; persist(); }
   };
@@ -719,6 +720,13 @@ async function makeFirebaseStore() {
         await b.commit();
       }
       await F.setDoc(casa, { importado: true }, { merge: true });
+    },
+    async patchMany(list) {
+      for (let i = 0; i < list.length; i += 400) {
+        const b = F.writeBatch(db);
+        list.slice(i, i + 400).forEach(({ id, ...r }) => b.set(F.doc(col, id), r, { merge: true }));
+        await b.commit();
+      }
     },
     async getPhotos(id) {
       const snaps = await Promise.all([0, 1, 2].map(i => F.getDoc(foto(id, i)).catch(() => null)));
@@ -1827,6 +1835,25 @@ window.addEventListener("hashchange", navigate);
    INÍCIO
    =================================================================== */
 let unsub = null;
+/* uma vez só, na lista original: todo item sem etapa recebe a etapa sugerida (1, 2 ou 3).
+   quem já tinha etapa fica como está. */
+let migrando = false;
+function migrateEtapas() {
+  if (migrando || !S.loaded || S.casaId !== "nosso-ap" || S.settings.etapasV2 || !S.items.size) return;
+  migrando = true;
+  const sug = new Map(buildSeed().map(it => [it.id, it.etapa]));
+  const list = [];
+  for (const it of S.items.values()) {
+    const e = sug.get(it.id);
+    if (!it.etapa && e) { it.etapa = e; list.push({ id: it.id, etapa: e }); }
+  }
+  S.settings.etapasV2 = true;
+  (list.length ? S.store.patchMany(list) : Promise.resolve())
+    .then(() => S.store.putSettings({ etapasV2: true }))
+    .then(() => { if (list.length) { refresh(); toast(`${plural(list.length, "item ganhou", "itens ganharam")} etapa na Ordem`); } })
+    .catch(err => { console.error(err); S.settings.etapasV2 = false; })
+    .finally(() => { migrando = false; });
+}
 async function start() {
   try { S.store = DEMO ? makeDemoStore() : await makeFirebaseStore(); }
   catch (err) {
@@ -1843,11 +1870,12 @@ async function start() {
       S.items = new Map(); S.settings = {}; S.photos = {}; S.ob = null; S.introDone = false;
       S.authMode = "entrar"; S.authEmail = "";
       applyRooms();
-      let gotItems = false, gotSettings = false;
-      const ready = () => { if (gotItems && gotSettings && !S.loaded) { S.loaded = true; refresh(); } else if (S.loaded) refresh(); };
+      let gotItems = false, gotSettings = false, itemsServer = DEMO;
+      const ready = () => { if (gotItems && gotSettings && !S.loaded) { S.loaded = true; refresh(); } else if (S.loaded) refresh(); if (itemsServer) migrateEtapas(); };
       unsub = S.store.subscribe(S.casaId,
-        arr => {
+        (arr, fromCache) => {
           S.items = new Map(arr.map(i => [i.id, i]));
+          if (!fromCache) itemsServer = true;
           gotItems = true; ready();
         },
         st => { S.settings = st || {}; applyRooms(); gotSettings = true; ready(); },
