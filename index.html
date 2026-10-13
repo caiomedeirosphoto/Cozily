@@ -639,7 +639,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.13-8";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.13-9";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -1595,7 +1595,16 @@ function viewRoom(id) {
 
 /* ---------------- ITEM ---------------- */
 function ofertasDo(it) { const s = slug(it.nome); return S.ofertas.filter(o => slug(o.para || "") === s).sort((a, b) => (a.preco || 0) - (b.preco || 0)); }
-function cupomPara(loja) { return S.cupons.find(c => !loja || c.loja === loja) || null; }
+/* cupom só aparece se tiver a ver com o item (pelo nome ou pelo tópico) */
+const CUPOM_STOP = new Set(["para", "pra", "acima", "todo", "toda", "todos", "loja", "site", "casa", "itens", "produtos", "compras", "linha"]);
+const cupomChaves = c => (Array.isArray(c.palavras) && c.palavras.length ? c.palavras.join(" ") : String(c.titulo || "").replace(/^.*?\b(em|de|no|na|nos|nas)\s+/i, ""))
+  .split(/[^a-zA-ZÀ-ÿ]+/).map(norm).filter(w => w.length >= 4 && !CUPOM_STOP.has(w)).map(w => w.slice(0, 6));
+function cupomPara(it, loja) {
+  if (!it) return null;
+  const words = norm(`${it.nome} ${it.topico || ""}`).split(/[^a-z0-9]+/).filter(Boolean);
+  const fit = S.cupons.filter(c => { const ks = cupomChaves(c); return ks.length && ks.some(k => words.some(w => w.startsWith(k))); });
+  return fit.find(c => loja && c.loja === loja) || fit[0] || null;
+}
 function offerCard(o, opts = {}) {
   const off = o.precoAntes ? Math.round((1 - o.preco / o.precoAntes) * 100) : 0;
   const href = o.url || LOJAS[slug(o.loja || "").replace(/-/g, "")]?.url(o.nome) || "#";
@@ -1630,7 +1639,7 @@ function viewItem(id) {
   if (it.comprado && !gift && it.valorPrevisto && it.valorPago) { const e = it.valorPrevisto - it.valorPago; info.push([e >= 0 ? "Economizaram" : "Passou do previsto", money(Math.abs(e))]); }
   const ofs = ofertasDo(it);
   const best = ofs[0];
-  const cup = cupomPara(best?.loja);
+  const cup = cupomPara(it, best?.loja);
   return `<main class="page no-tabs" style="gap:0">
     <div class="photo-wrap">
       ${photos.length ? `<div class="photos" id="photos">${photos.map((p, i) => `<img src="${p}" alt="Foto ${i + 1} de ${esc(it.nome)}" data-act="viewphoto" data-id="${esc(id)}" data-i="${i}" role="button" tabindex="0">`).join("")}</div>
@@ -1656,10 +1665,10 @@ function viewItem(id) {
         <span class="note" style="background:var(${have >= need ? "--sage" : "--honey"});color:var(${have >= need ? "--sage-ink" : "--honey-ink"})">${have >= need ? "Completinho! Agora é só aproveitar." : have ? `Faltam ${need - have} pra completar. Quase lá!` : `Faltam ${need}. Bora começar?`}</span>
       </section>` : ""}
       ${!ok ? `<section style="display:flex;flex-direction:column;gap:10px">
-        <div class="sec-h" style="align-items:baseline"><h2 style="font-family:Figtree,sans-serif;font-size:15px;font-weight:700">Ver ofertas</h2><span style="font-size:11px;color:var(--muted2);font-weight:500">links de afiliado</span></div>
+        <div class="sec-h" style="align-items:baseline"><h2 style="font-family:Figtree,sans-serif;font-size:15px;font-weight:700">Ver ofertas</h2></div>
         ${best ? offerCard(best, { best: true }) : ""}
         <div class="stores">${["shopee", "amazon", "mercadolivre"].map(k => `<a href="${esc(LOJAS[k].url(it.nome))}" target="_blank" rel="noopener sponsored">${LOJAS[k].nome}</a>`).join("")}</div>
-        ${cup ? `<div class="coupon">${ic("tag", 18, 2)}<span>Cupom <b>${esc(cup.codigo)}</b> ${cup.loja ? "na " + esc(cup.loja) : ""} · ${esc(cup.titulo)}</span><button class="btn primary sm" style="min-height:34px;padding:0 10px;font-size:12px" data-act="copy" data-v="${esc(cup.codigo)}">Copiar</button></div>` : ""}
+        ${cup ? `<div class="coupon">${ic("tag", 18, 2)}<span>Cupom <b>${esc(cup.codigo)}</b> ${cup.loja ? (/^mercado/i.test(cup.loja) ? "no " : "na ") + esc(cup.loja) : ""} · ${esc(cup.titulo)}</span><button class="btn primary sm" style="min-height:34px;padding:0 10px;font-size:12px" data-act="copy" data-v="${esc(cup.codigo)}">Copiar</button></div>` : ""}
       </section>` : ""}
       ${info.length ? `<div class="info">${info.map(([k, v]) => `<div><small>${k}</small><b>${esc(v)}</b></div>`).join("")}</div>` : ""}
       ${it.link ? `<a class="btn ghost block" href="${esc(it.link)}" target="_blank" rel="noopener">${ic("link", 18, 2)} Abrir o link que vocês salvaram</a>` : ""}
@@ -1908,7 +1917,7 @@ function viewAchadinhos() {
         <b style="font-size:16px">${esc(c.titulo || "")}</b>
         <div class="row" style="justify-content:space-between;gap:10px"><span class="small muted">${esc(c.regras || "")}</span>${c.codigo ? `<button class="btn sage sm" data-act="copy" data-v="${esc(c.codigo)}">${ic("copy", 15, 2)} Copiar</button>` : ""}</div>
       </div>`).join("")}</div>` : empty("Nenhum cupom por enquanto", "Quando aparecer cupom bom pras lojas que vocês mais usam, ele fica aqui."))}
-    <p class="small muted center" style="margin:6px 0 0;line-height:1.5">Alguns links são de afiliado: o Cozily pode ganhar uma comissão, sem custo a mais pra vocês. Preços podem mudar na loja.</p>
+    <p class="small muted center" style="margin:6px 0 0;line-height:1.5">Preços podem mudar na loja.</p>
   </main>`;
 }
 
