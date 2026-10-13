@@ -375,6 +375,9 @@ input[type=date].input,input[type=month].input{min-width:0;display:flex;align-it
 .brand h1{font-family:Sora,sans-serif;font-size:32px;font-weight:700;letter-spacing:-.02em}
 .brand p{margin:0;font-size:15px;color:var(--muted);max-width:300px;line-height:1.45}
 .login form{display:flex;flex-direction:column;gap:14px}
+.btn.google{background:var(--card);border-color:var(--line);color:var(--ink);gap:10px}
+.or{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--muted2);font-weight:600}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
 .ob-top{display:flex;align-items:center;gap:14px;min-height:44px}
 .ob-top .steps{flex:1;display:flex;gap:6px}
 .ob-top .steps i{flex:1;height:5px;border-radius:3px;background:var(--line)}
@@ -564,7 +567,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.13-3";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.13-4";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -1021,6 +1024,7 @@ function makeDemoStore() {
       db.session = email; persist(); authCb(userOf(email));
     },
     async logout() { delete db.session; persist(); authCb(null); },
+    async loginGoogle() { throw { code: "demo/google" }; },
     async reset() {},
     async setName(nome) { if (db.session) { db.users[db.session].nome = nome; persist(); } },
     async setPassword(s) { if (db.session) { db.users[db.session].senha = s; persist(); } },
@@ -1081,6 +1085,16 @@ async function makeFirebaseStore() {
       if (nome) try { await A.updateProfile(c.user, { displayName: nome }); } catch {}
     },
     logout: () => A.signOut(auth),
+    async loginGoogle() {
+      const p = new A.GoogleAuthProvider();
+      p.setCustomParameters({ prompt: "select_account" });
+      try { await A.signInWithPopup(auth, p); }
+      catch (err) {
+        const c = err?.code || "";
+        if (c.includes("popup-blocked") || c.includes("operation-not-supported") || c.includes("web-storage-unsupported")) return A.signInWithRedirect(auth, p);
+        throw err;
+      }
+    },
     reset: e => A.sendPasswordResetEmail(auth, e),
     setName: nome => auth.currentUser ? A.updateProfile(auth.currentUser, { displayName: nome }) : null,
     setPassword: s => A.updatePassword(auth.currentUser, s),
@@ -2695,6 +2709,8 @@ function viewLogin() {
     <form id="loginForm" novalidate>
       ${segHtml("authSeg", [["entrar", "Entrar"], ["criar", "Criar conta"]], criar ? "criar" : "entrar").replace(/<button /g, '<button data-act="authmode" ')}
       ${DEMO ? `<span class="demo">${criar ? "Prévia · crie uma conta de teste" : "Prévia · a lista de vocês é caio@exemplo.com"}</span>` : ""}
+      <button class="btn google block lg" type="button" data-act="google" id="gBtn"><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Continuar com Google</button>
+      <span class="or">ou com e-mail</span>
       ${criar ? `<div class="field"><label for="lNome">Seu nome</label><input class="input" id="lNome" autocomplete="given-name" autocapitalize="words" value="${esc(S.authNome || "")}"></div>` : ""}
       <div class="field"><label for="lEmail">E-mail</label><input class="input" id="lEmail" type="email" autocomplete="username" inputmode="email" autocapitalize="off" value="${esc(S.authEmail || "")}" required></div>
       <div class="field"><label for="lSenha">Senha</label><input class="input" id="lSenha" type="password" autocomplete="${criar ? "new-password" : "current-password"}" required>${criar ? `<span class="small muted">Pelo menos 6 caracteres</span>` : ""}</div>
@@ -3034,6 +3050,22 @@ document.addEventListener("click", e => {
   else if (a === "post-install") { if (deferredInstall) { deferredInstall.prompt(); deferredInstall.userChoice.finally(() => { deferredInstall = null; postNext(); }); } else postNext(); }
   else if (a === "os") { S.os = el.dataset.v; rerender(); }
   else if (a === "authmode") { S.authEmail = $("#lEmail")?.value || S.authEmail; S.authNome = $("#lNome")?.value || S.authNome; S.authMode = el.dataset.v; render(null); }
+  else if (a === "google") {
+    const err = $("#lErr"); if (err) err.textContent = "";
+    el.disabled = true;
+    S.ob = null;
+    S.store.loginGoogle().catch(x => {
+      el.disabled = false;
+      const c = x?.code || "";
+      if (c.includes("popup-closed") || c.includes("cancelled-popup")) return;
+      const msg = c === "demo/google" ? "Na prévia o Google não funciona. No app de verdade, sim!"
+        : c.includes("account-exists-with-different-credential") ? "Esse e-mail já tem conta com senha. Entra com e-mail e senha."
+        : c.includes("unauthorized-domain") ? "O endereço do app ainda não está autorizado no Firebase."
+        : c.includes("operation-not-allowed") ? "O login com Google ainda está desligado no Firebase."
+        : c.includes("network") ? "Sem internet no momento." : "Não deu pra entrar com o Google. Tenta de novo?";
+      if (err) err.textContent = msg; else toast(msg);
+    });
+  }
   else if (a === "link-cancel") { S.linkMode = false; history.replaceState(null, "", location.pathname + location.hash); render(null); }
   else if (a === "add-sug") {
     const it = { id: `${el.dataset.room}--${slug(el.dataset.topic || "geral")}--${slug(el.dataset.name)}-${uid()}`, nome: el.dataset.name, comodo: el.dataset.room, topico: el.dataset.topic || "", etapa: +el.dataset.etapa || 0, comprado: false, ordem: Date.now(), criadoEm: Date.now() };
