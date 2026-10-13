@@ -567,7 +567,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.13-4";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.13-5";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -2380,13 +2380,14 @@ function membrosHtml() {
 function juntosBody() {
   return `<div class="card" style="gap:0;padding:4px 16px" id="jList">${membrosHtml()}</div>
     <form id="jForm" class="field"><label for="jEmail">Convidar mais alguém</label>
-      <div class="row"><input class="input grow" id="jEmail" type="email" inputmode="email" autocapitalize="off" placeholder="E-mail da pessoa" autocomplete="off"><button class="btn primary" type="submit" style="min-height:52px">Convidar</button></div></form>
+      <div class="row"><input class="input grow" id="jEmail" type="email" inputmode="email" autocapitalize="off" placeholder="E-mail da pessoa" autocomplete="off"><button class="btn primary" type="submit" style="min-height:52px">Convidar</button></div>
+      <span class="small" style="color:var(--muted2)">Se a pessoa for entrar com o Google, usa o mesmo e-mail da conta Google dela.</span></form>
     <div class="err" id="jErr" role="alert"></div>
     <div id="jOk">${S.lastInvite ? inviteOkHtml(S.lastInvite.email, S.lastInvite.nome) : ""}</div>`;
 }
 function inviteOkHtml(email, nome) {
   return `<div class="tip mist" style="flex-direction:column;gap:10px;padding:14px">
-    <div class="row" style="align-items:flex-start;gap:10px">${ic("mail", 18, 2)}<p><b>Prontinho, convite enviado pra ${esc(nome)}!</b> Às vezes o e-mail se esconde no <b>spam ou lixo eletrônico</b>, então pede pra ${/a$/i.test(nome) ? "ela" : "pessoa"} dar uma olhadinha lá também. O e-mail vem do Cozily e é só tocar no link. Se preferir, dá pra criar a conta no app com esse mesmo e-mail que entra direto na casa.</p></div>
+    <div class="row" style="align-items:flex-start;gap:10px">${ic("mail", 18, 2)}<p><b>Prontinho, convite enviado pra ${esc(nome)}!</b> Às vezes o e-mail se esconde no <b>spam ou lixo eletrônico</b>, então pede pra ${/a$/i.test(nome) ? "ela" : "essa pessoa"} dar uma olhadinha lá também. Também dá pra entrar direto pelo app, com o Google ou criando a conta, usando esse mesmo e-mail.</p></div>
     <button class="btn mist sm" type="button" data-resend="${esc(email)}">Reenviar convite</button>
   </div>`;
 }
