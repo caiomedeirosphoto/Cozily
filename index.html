@@ -546,6 +546,8 @@ body.has-tabs .toast{bottom:calc(var(--bottom) + 104px)}
 .a-more{display:flex;align-items:center;justify-content:space-between;min-height:44px;padding:0 2px;font-size:14px;font-weight:700;color:var(--muted);text-align:left}
 .a-more svg{transition:transform .24s var(--ease)}
 .a-more[aria-expanded="true"] svg{transform:rotate(90deg)}
+.a-more>span{display:flex;align-items:center;gap:8px;min-width:0}
+.a-more-val{font-size:13px;font-weight:600;color:var(--ink2);background:var(--chipbg);border:1px solid var(--line);padding:4px 10px;border-radius:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
 .a-more-box{display:flex;flex-direction:column;gap:12px;margin-top:-6px;animation:rise .28s var(--ease) both}
 .a-more-box[hidden]{display:none}
 .just.flash b{animation:fade .3s ease both}
@@ -637,7 +639,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.13-7";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.13-8";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -2055,12 +2057,12 @@ function openAnotar(defaults = {}) {
     <div class="a-top"><label for="aNome" class="sr">Nome do item</label><input class="input" id="aNome" placeholder="O que vocês precisam?" value="${esc(defaults.name || "")}" autocomplete="off" enterkeyhint="done"><span class="a-photo-wrap" id="aPhoto">${photoBtn()}</span></div>
     <div class="field"><span class="lbl">Onde</span><div class="chips" id="aRooms">${roomChips()}</div></div>
     <div class="field"><span class="lbl">Quando comprar</span><div class="etapas sm" id="aEtapa">${[1, 2, 3].map(n => `<button type="button" class="p${n}" data-v="${n}" aria-pressed="false"><b>${n}</b> · ${ETAPAS[n].curto}</button>`).join("")}</div></div>
-    <button type="button" class="a-more" data-more-toggle aria-expanded="false" aria-controls="aMore">Mais detalhes (situação, valor, tópico)${ic("chev", 16, 2.4)}</button>
+    <div class="field"><span class="lbl">Situação</span>${segHtml("aSit", [[0, "Falta"], [1, ic("bag", 16, 2) + " Compramos"], [2, ic("gift", 16, 2) + " Presente"]], 0)}</div>
+    <div class="field" id="aValWrap"><label for="aVal" id="aValLbl">Valor previsto</label><input class="input" id="aVal" inputmode="decimal" placeholder="R$ 0,00" autocomplete="off"></div>
+    <div class="field hidden" id="aDeWrap"><label for="aDe">Quem deu</label><input class="input" id="aDe" list="giversDl" placeholder="Ex.: Tia Ana, padrinhos…" autocomplete="off" autocapitalize="words">${giversDl()}</div>
+    <button type="button" class="a-more" data-more-toggle aria-expanded="false" aria-controls="aMore"><span>Tópico <span class="a-more-val" id="aTopicNow">${esc(st.topic || "Outros")}</span></span>${ic("chev", 16, 2.4)}</button>
     <div class="a-more-box" id="aMore" hidden>
-      ${segHtml("aSit", [[0, "Falta"], [1, ic("bag", 16, 2) + " Compramos"], [2, ic("gift", 16, 2) + " Presente"]], 0)}
-      <div class="field" id="aValWrap"><label for="aVal" id="aValLbl" class="sr">Valor previsto</label><input class="input" id="aVal" inputmode="decimal" placeholder="Valor previsto (R$ 0,00)" autocomplete="off"></div>
-      <div class="field hidden" id="aDeWrap"><label for="aDe">Quem deu</label><input class="input" id="aDe" list="giversDl" placeholder="Ex.: Tia Ana, padrinhos…" autocomplete="off" autocapitalize="words">${giversDl()}</div>
-      <div class="field"><span class="lbl">Tópico</span><div class="wrapchips" id="aTopics">${topicChips()}</div><input class="input hidden" id="aNewTopic" placeholder="Nome do tópico (ex.: Eletrodomésticos)"></div>
+      <div class="wrapchips" id="aTopics">${topicChips()}</div><input class="input hidden" id="aNewTopic" placeholder="Nome do tópico (ex.: Eletrodomésticos)">
     </div>
     <div class="err" id="aErr" role="alert"></div>
     <button class="btn primary block lg" type="button" data-add>Anotar</button>
@@ -2072,10 +2074,10 @@ function openAnotar(defaults = {}) {
       const selRoom = $('#aRooms [aria-pressed="true"]', ov), rbox = $("#aRooms", ov);
       if (selRoom && rbox) rbox.scrollLeft = Math.max(0, selRoom.offsetLeft - rbox.offsetLeft - 20);
       setTimeout(() => nome.focus(), 380);
-      $("#aRooms", ov).onclick = e => { const b = e.target.closest("[data-room]"); if (!b) return; st.room = b.dataset.room; st.topic = topicsOf(st.room)[0] ?? ""; st.newTopic = false; $$("[data-room]", ov).forEach(x => x.setAttribute("aria-pressed", x === b)); $("#aTopics", ov).innerHTML = topicChips(); $("#aNewTopic", ov).classList.add("hidden"); };
-      $("#aTopics", ov).onclick = e => { const b = e.target.closest("[data-topic]"); if (!b) return; if (b.dataset.topic === "__new") { st.newTopic = true; $("#aNewTopic", ov).classList.remove("hidden"); $("#aNewTopic", ov).focus(); } else { st.newTopic = false; st.topic = b.dataset.topic; $("#aNewTopic", ov).classList.add("hidden"); } $("#aTopics", ov).innerHTML = topicChips(); };
+      $("#aRooms", ov).onclick = e => { const b = e.target.closest("[data-room]"); if (!b) return; st.room = b.dataset.room; st.topic = topicsOf(st.room)[0] ?? ""; st.newTopic = false; $$("[data-room]", ov).forEach(x => x.setAttribute("aria-pressed", x === b)); $("#aTopics", ov).innerHTML = topicChips(); $("#aNewTopic", ov).classList.add("hidden"); $("#aTopicNow", ov).textContent = st.topic || "Outros"; };
+      $("#aTopics", ov).onclick = e => { const b = e.target.closest("[data-topic]"); if (!b) return; if (b.dataset.topic === "__new") { st.newTopic = true; $("#aNewTopic", ov).classList.remove("hidden"); $("#aNewTopic", ov).focus(); } else { st.newTopic = false; st.topic = b.dataset.topic; $("#aNewTopic", ov).classList.add("hidden"); } $("#aTopics", ov).innerHTML = topicChips(); $("#aTopicNow", ov).textContent = st.newTopic ? "Novo" : (st.topic || "Outros"); };
       $("#aEtapa", ov).onclick = e => { const b = e.target.closest("button"); if (!b) return; st.etapa = st.etapa === +b.dataset.v ? 0 : +b.dataset.v; $$("button", $("#aEtapa", ov)).forEach(x => x.setAttribute("aria-pressed", +x.dataset.v === st.etapa)); };
-      $("#aSit", ov).onclick = e => { const b = e.target.closest("button"); if (!b) return; st.sit = +b.dataset.v; pickSeg($("#aSit", ov), st.sit); $("#aValWrap", ov).classList.toggle("hidden", st.sit === 2); $("#aDeWrap", ov).classList.toggle("hidden", st.sit !== 2); $("#aVal", ov).placeholder = st.sit === 1 ? "Valor pago (R$ 0,00)" : "Valor previsto (R$ 0,00)"; $("#aValLbl", ov).textContent = st.sit === 1 ? "Valor pago" : "Valor previsto"; };
+      $("#aSit", ov).onclick = e => { const b = e.target.closest("button"); if (!b) return; st.sit = +b.dataset.v; pickSeg($("#aSit", ov), st.sit); $("#aValWrap", ov).classList.toggle("hidden", st.sit === 2); $("#aDeWrap", ov).classList.toggle("hidden", st.sit !== 2); $("#aValLbl", ov).textContent = st.sit === 1 ? "Valor pago" : "Valor previsto"; };
       $("[data-more-toggle]", ov).onclick = e => { st.more = !st.more; const b = e.currentTarget; b.setAttribute("aria-expanded", st.more); $("#aMore", ov).hidden = !st.more; };
       const pw = $("#aPhoto", ov);
       pw.onclick = e => {
@@ -2112,7 +2114,7 @@ function openAnotar(defaults = {}) {
     S.items.set(it.id, it); write(S.store.putItem(it));
     if (photo) write(S.store.putPhotos(it.id, [photo]), "A foto não salvou. Tenta de novo?");
     S.lastRoom = st.room; S.dirty = true;
-    if (st.newTopic) { st.newTopic = false; st.topic = topico; $("#aNewTopic", ov).value = ""; $("#aNewTopic", ov).classList.add("hidden"); $("#aTopics", ov).innerHTML = topicChips(); }
+    if (st.newTopic) { st.newTopic = false; st.topic = topico; $("#aNewTopic", ov).value = ""; $("#aNewTopic", ov).classList.add("hidden"); $("#aTopics", ov).innerHTML = topicChips(); $("#aTopicNow", ov).textContent = topico; }
     st.just.push(nome);
     nomeEl.value = ""; $("#aVal", ov).value = ""; $("#aDe", ov).value = ""; st.photo = null; $("#aPhoto", ov).innerHTML = photoBtn();
     const j = $("#aJust", ov); j.innerHTML = hint(); j.classList.remove("flash"); void j.offsetWidth; j.classList.add("flash");
