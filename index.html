@@ -59,6 +59,7 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%}
+#app{overflow-x:hidden;overflow-x:clip}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Figtree,system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.4;-webkit-font-smoothing:antialiased;overscroll-behavior-y:none}
 a{color:inherit;text-decoration:none}
 button,input,select,textarea{font:inherit;color:inherit}
@@ -106,7 +107,8 @@ h1,h2,h3{margin:0}
 .mini3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .mini3 a,.mini3 div{background:var(--hero-glass);border-radius:16px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
 .mini3 span{font-size:12px;color:var(--hero-mut)}
-.mini3 b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini3 b{font-size:15px;overflow-wrap:anywhere;line-height:1.25}
+@media (max-width:360px){.mini3 b{font-size:13px}.mini3 a,.mini3 div{padding:9px 10px}}
 .bar{height:5px;border-radius:3px;background:var(--line2);overflow:hidden}
 .bar i{display:block;height:100%;width:0;background:var(--taupe);border-radius:3px;transition:width .9s var(--ease)}
 .bar.thick{height:6px}
@@ -138,6 +140,7 @@ h1,h2,h3{margin:0}
 .tile.alt{background:var(--tile2)}
 .tile.lg{width:58px;height:58px;border-radius:18px}
 .search{display:flex;align-items:center;gap:10px;min-height:48px;padding:0 16px;background:var(--soft);border-radius:16px;color:var(--muted2);font-size:16px}
+a.search span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .search input{flex:1;min-width:0;border:0;background:transparent;outline:none;font-size:16px;color:var(--ink);height:48px}
 .search input::placeholder{color:var(--muted2)}
 .search input::-webkit-search-cancel-button{display:none}
@@ -561,7 +564,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.13-2";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.13-3";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -1156,7 +1159,10 @@ function caixa() {
   const guardado = sum(S.movs, m => m.tipo === "in" ? m.valor : -m.valor);
   const depositos = sum(S.movs.filter(m => m.tipo === "in"), m => m.valor);
   const gasto = sum(comprasItens(), i => i.valorPago);
-  return { guardado, depositos, gasto, disp: guardado - gasto };
+  /* só as compras feitas depois que a caixinha começou saem dela; as de antes ficam de fora da conta */
+  const inicio = S.movs.map(m => m.data || "").filter(Boolean).sort()[0] || null;
+  const gastoCaixa = inicio ? sum(comprasItens().filter(i => (i.data || "") >= inicio), i => i.valorPago) : 0;
+  return { guardado, depositos, gasto, gastoCaixa, antes: gasto - gastoCaixa, inicio, disp: guardado - gastoCaixa };
 }
 function ritmo() {
   /* média guardada por mês nos últimos 3 meses (contando o atual) */
@@ -1596,10 +1602,11 @@ function viewFinancas() {
       <div><span class="mut" style="font-size:13px">Disponível agora</span><div class="mid" style="font-size:34px">${money0(cx.disp)}</div></div>
       <div class="two" style="gap:8px">
         <div style="background:var(--hero-glass);border-radius:16px;padding:10px 12px"><span class="mut" style="font-size:12px">Guardado</span><b style="display:block;font-size:16px">${money0(cx.guardado)}</b></div>
-        <div style="background:var(--hero-glass);border-radius:16px;padding:10px 12px"><span class="mut" style="font-size:12px">Gasto em compras</span><b style="display:block;font-size:16px">${money0(cx.gasto)}</b></div>
+        <div style="background:var(--hero-glass);border-radius:16px;padding:10px 12px"><span class="mut" style="font-size:12px">Gasto em compras</span><b style="display:block;font-size:16px">${money0(cx.gastoCaixa)}</b></div>
       </div>
       ${meta ? `<div class="hbar"><i data-w="${pMeta}"></i></div>
       <span style="font-size:13px;color:var(--hero-chip);line-height:1.45">${cx.guardado >= meta ? "Vocês bateram a meta! Que orgulho." : `Vocês já juntaram ${pMeta}% da meta!${rt && quandoChega ? ` No ritmo de ${money0(rt)} por mês, chegam lá em ${monthShort(quandoChega)} ${quandoChega.slice(0, 4)}.` : " Guardando um pouquinho todo mês, chega rapidinho."}`}</span>` : `<span style="font-size:13px;color:var(--hero-chip)">Que tal definir uma meta? Fica mais gostoso ver a caixinha enchendo.</span>`}
+      ${cx.antes > 0 ? `<span style="font-size:12px;color:var(--hero-mut);line-height:1.45">${cx.inicio ? `As compras de antes de ${fmtDate(cx.inicio)} (${money0(cx.antes)}) não saem da caixinha.` : `Toca em “Guardar” pra começar a caixinha. O que vocês já compraram (${money0(cx.antes)}) não entra na conta.`}</span>` : ""}
       <div class="btns2"><button class="btn sage" data-act="guardar" data-v="in">${ic("in", 18, 2.2)} Guardar</button><button class="btn" style="background:var(--hero-glass);color:var(--hero-ink)" data-act="guardar" data-v="out">${ic("out", 18, 2.2)} Tirar</button></div>
     </section>
     <section class="card" style="gap:6px">
