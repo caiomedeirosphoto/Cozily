@@ -10,14 +10,16 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Cozily">
 <meta name="theme-color" content="#F6F2EC" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#171513" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#141414" media="(prefers-color-scheme: dark)">
 <meta name="format-detection" content="telephone=no">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap">
+<script>(function(){try{var t=localStorage.getItem("cozily-tema");if(t==="claro")document.documentElement.setAttribute("data-theme","light");else if(t==="escuro")document.documentElement.setAttribute("data-theme","dark")}catch(e){}})()</script>
 <style>
 :root{
   --bg:#F6F2EC; --card:#FFFFFF; --soft:#ECE5DA; --tile:#EDE5D9; --tile2:#E6E4E1; --chipbg:#F3EEE6;
@@ -32,31 +34,47 @@
   --lav:#E9E2EE; --lav-ink:#5E4B6E; --lav-fill:#8C79A0;
   --e1:#F1E4D6; --e1-ink:#76502F; --e2:#E4E7E7; --e2-ink:#45535A; --e3:#ECE7E1; --e3-ink:#5C5248;
   --spent:#CBBBA6; --danger:#A2453B; --overlay:rgba(42,40,38,.45);
-  --tabbar:rgba(255,255,255,.92); --field:#FFFFFF;
+  --tabbar:rgba(255,255,255,.92); --field:#FFFFFF; --seg-on:#FFFFFF;
   --shadow:0 1px 2px rgba(42,40,38,.04), 0 8px 24px rgba(42,40,38,.06);
   --top:env(safe-area-inset-top,0px); --bottom:env(safe-area-inset-bottom,0px);
-  --ease:cubic-bezier(.22,1,.36,1);
+  --ease:cubic-bezier(.22,1,.36,1); --t-press:120ms; --t-screen:320ms; --t-sheet:360ms; --t-dim:200ms; --t-close:240ms; --t-toast:260ms;
   color-scheme:light;
 }
-@media (prefers-color-scheme: dark){
-  :root{
-    --bg:#171513; --card:#211E1B; --soft:#2B2723; --tile:#2E2A25; --tile2:#2A2826; --chipbg:#2B2723;
-    --line:#37322C; --line2:#2F2B26; --line3:#2B2722;
-    --ink:#F1EBE2; --ink2:#DCD3C7; --muted:#B3AA9E; --muted2:#A39A8E; --faint:#8C8378; --taupe:#B39E85; --ring-off:#4A433B;
-    --g:#E3D4BF; --g-ink:#22201D;
-    --hero:#2A2622; --hero-ink:#F6F2EC; --hero-mut:#BFB5A8; --hero-chip:#E3D4BF; --hero-bar:#D6C5AE; --hero-glass:rgba(255,255,255,.06); --hero-track:rgba(255,255,255,.12); --hero-bd:#3A352F;
-    --sage:#26332A; --sage-ink:#B7D2B2; --sage-dk:#7FA383; --sage-bd:#3A4C3D;
-    --rose:#3A2522; --rose-ink:#EDB4AA; --rose-bar:#A86A60;
-    --honey:#3A2E22; --honey-ink:#E6C59C; --honey-bar:#C79E6A;
-    --mist:#233039; --mist-ink:#B3C7D8; --mist-btn:#3D5466; --mist-btn-ink:#E4EEF6;
-    --lav:#30283A; --lav-ink:#D3C3E3; --lav-fill:#9E8BB4;
-    --e1:#3A2E22; --e1-ink:#E6C59C; --e2:#283033; --e2-ink:#B5C4CA; --e3:#302B26; --e3-ink:#D2C5B8;
-    --spent:#6E6254; --danger:#E08A7E; --overlay:rgba(0,0,0,.6);
-    --tabbar:rgba(33,30,27,.92); --field:#1C1A17;
-    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+    --bg:#141414; --card:#1E1E1E; --soft:#262626; --tile:#2A2A2A; --tile2:#262626; --chipbg:#262626;
+    --line:#333333; --line2:#2A2A2A; --line3:#262626;
+    --ink:#F3F0EB; --ink2:#DAD6D0; --muted:#A8A39C; --muted2:#8F8A84; --faint:#7D7974; --taupe:#C9B79F; --ring-off:#4A4A4A;
+    --g:#EDE5D9; --g-ink:#161616;
+    --hero:#232323; --hero-ink:#F6F2EC; --hero-mut:#A8A39C; --hero-chip:#E3D4BF; --hero-bar:#E3D4BF; --hero-glass:rgba(255,255,255,.05); --hero-track:rgba(255,255,255,.1); --hero-bd:#2E2E2E;
+    --sage:#1E2A22; --sage-ink:#A6CFAE; --sage-dk:#74A17C; --sage-bd:#2B3A30;
+    --rose:#2F1E1D; --rose-ink:#EDB0A6; --rose-bar:#A86A60;
+    --honey:#2C251C; --honey-ink:#E6C79F; --honey-bar:#C79E6A;
+    --mist:#1A2530; --mist-ink:#AFC6DA; --mist-btn:#34495B; --mist-btn-ink:#E4EEF6;
+    --lav:#26202C; --lav-ink:#D0C0E0; --lav-fill:#9E8BB4;
+    --e1:#2C251C; --e1-ink:#E6C79F; --e2:#222829; --e2-ink:#B7C6CB; --e3:#2A2A2A; --e3-ink:#D8D2CA;
+    --spent:#57534E; --danger:#E08A7E; --overlay:rgba(0,0,0,.6);
+    --tabbar:rgba(28,28,28,.94); --field:#191919; --seg-on:#383838;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.28);
+    color-scheme:dark;
+  }}
+:root[data-theme="dark"]{
+    --bg:#141414; --card:#1E1E1E; --soft:#262626; --tile:#2A2A2A; --tile2:#262626; --chipbg:#262626;
+    --line:#333333; --line2:#2A2A2A; --line3:#262626;
+    --ink:#F3F0EB; --ink2:#DAD6D0; --muted:#A8A39C; --muted2:#8F8A84; --faint:#7D7974; --taupe:#C9B79F; --ring-off:#4A4A4A;
+    --g:#EDE5D9; --g-ink:#161616;
+    --hero:#232323; --hero-ink:#F6F2EC; --hero-mut:#A8A39C; --hero-chip:#E3D4BF; --hero-bar:#E3D4BF; --hero-glass:rgba(255,255,255,.05); --hero-track:rgba(255,255,255,.1); --hero-bd:#2E2E2E;
+    --sage:#1E2A22; --sage-ink:#A6CFAE; --sage-dk:#74A17C; --sage-bd:#2B3A30;
+    --rose:#2F1E1D; --rose-ink:#EDB0A6; --rose-bar:#A86A60;
+    --honey:#2C251C; --honey-ink:#E6C79F; --honey-bar:#C79E6A;
+    --mist:#1A2530; --mist-ink:#AFC6DA; --mist-btn:#34495B; --mist-btn-ink:#E4EEF6;
+    --lav:#26202C; --lav-ink:#D0C0E0; --lav-fill:#9E8BB4;
+    --e1:#2C251C; --e1-ink:#E6C79F; --e2:#222829; --e2-ink:#B7C6CB; --e3:#2A2A2A; --e3-ink:#D8D2CA;
+    --spent:#57534E; --danger:#E08A7E; --overlay:rgba(0,0,0,.6);
+    --tabbar:rgba(28,28,28,.94); --field:#191919; --seg-on:#383838;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.28);
     color-scheme:dark;
   }
-}
+/* tema escolhido: claro força as cores claras mesmo com o celular no escuro */
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%}
 #app{overflow-x:hidden;overflow-x:clip}
@@ -103,14 +121,14 @@ h1,h2,h3{margin:0}
 .big{font-family:Sora,sans-serif;font-size:44px;font-weight:700;letter-spacing:-.03em;line-height:1}
 .mid{font-family:Sora,sans-serif;font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
 .hbar{height:8px;border-radius:4px;background:var(--hero-track);overflow:hidden}
-.hbar i{display:block;height:100%;width:0;background:var(--hero-bar);border-radius:4px;transition:width 1s var(--ease)}
+.hbar i{display:block;height:100%;width:0;background:var(--hero-bar);border-radius:4px;transition:width .8s var(--ease)}
 .mini3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .mini3 a,.mini3 div{background:var(--hero-glass);border-radius:16px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
 .mini3 span{font-size:12px;color:var(--hero-mut)}
 .mini3 b{font-size:15px;overflow-wrap:anywhere;line-height:1.25}
 @media (max-width:360px){.mini3 b{font-size:13px}.mini3 a,.mini3 div{padding:9px 10px}}
 .bar{height:5px;border-radius:3px;background:var(--line2);overflow:hidden}
-.bar i{display:block;height:100%;width:0;background:var(--taupe);border-radius:3px;transition:width .9s var(--ease)}
+.bar i{display:block;height:100%;width:0;background:var(--taupe);border-radius:3px;transition:width .8s var(--ease)}
 .bar.thick{height:6px}
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 
@@ -120,15 +138,17 @@ h1,h2,h3{margin:0}
 .feat.lav{background:var(--lav);color:var(--lav-ink)}
 .feat .ftop{display:flex;align-items:center;justify-content:space-between;gap:6px}
 .feat .fic{width:34px;height:34px;border-radius:11px;background:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center}
-@media (prefers-color-scheme: dark){.feat .fic{background:rgba(255,255,255,.08)}}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .feat .fic{background:rgba(255,255,255,.08)}}
+:root[data-theme="dark"] .feat .fic{background:rgba(255,255,255,.08)}
 .feat .badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:8px;color:#fff;white-space:nowrap}
 .feat.sage .badge{background:#34503B}.feat.lav .badge{background:#5E4B6E}
 .feat b.t{font-family:Sora,sans-serif;font-size:16px;color:var(--ink);display:block}
 .feat .d{font-size:12px;line-height:1.35}
 .feat .go{margin-top:auto;font-size:13px;font-weight:700;display:flex;align-items:center;gap:4px}
 .feat .fbar{height:5px;border-radius:3px;background:rgba(255,255,255,.7);overflow:hidden}
-.feat .fbar i{display:block;height:100%;background:var(--lav-fill);width:0;transition:width .9s var(--ease)}
-@media (prefers-color-scheme: dark){.feat .fbar{background:rgba(255,255,255,.12)}}
+.feat .fbar i{display:block;height:100%;background:var(--lav-fill);width:0;transition:width .8s var(--ease)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .feat .fbar{background:rgba(255,255,255,.12)}}
+:root[data-theme="dark"] .feat .fbar{background:rgba(255,255,255,.12)}
 
 /* cômodos */
 .room-card{background:var(--card);border:1px solid var(--line2);border-radius:22px;padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
@@ -148,7 +168,7 @@ a.search span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-widt
 /* segmentado e chips */
 .seg{display:flex;background:var(--soft);border-radius:14px;padding:4px;gap:2px}
 .seg button{flex:1;min-height:38px;border-radius:11px;font-size:14px;font-weight:700;color:var(--muted2);display:flex;align-items:center;justify-content:center;gap:6px;padding:0 6px}
-.seg button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.seg button[aria-pressed="true"]{background:var(--seg-on);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.06)}
 .chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -20px;padding:0 20px}
 .chips::-webkit-scrollbar{display:none}
 .chip{flex:none;height:38px;padding:0 14px;border-radius:19px;border:1px solid var(--line);background:var(--card);font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
@@ -293,7 +313,8 @@ a.search span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-widt
 .photos img{flex:none;width:100%;height:100%;object-fit:cover;scroll-snap-align:center;cursor:zoom-in}
 .photo-empty{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--taupe)}
 .photo-empty button{min-height:40px;padding:0 14px;border-radius:12px;background:rgba(255,255,255,.7);color:var(--ink);font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
-@media (prefers-color-scheme: dark){.photo-empty button{background:rgba(255,255,255,.08)}}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .photo-empty button{background:rgba(255,255,255,.08)}}
+:root[data-theme="dark"] .photo-empty button{background:rgba(255,255,255,.08)}
 .float-bar{position:absolute;left:20px;right:20px;top:calc(var(--top) + 14px);display:flex;justify-content:space-between}
 .float-bar .icon-btn{border:0;box-shadow:0 2px 10px rgba(0,0,0,.12)}
 .dots{position:absolute;bottom:38px;left:0;right:0;display:flex;justify-content:center;gap:6px}
@@ -327,10 +348,10 @@ a.search span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-widt
 .fab{width:56px;height:56px;margin-top:-22px;border-radius:20px;background:var(--g);color:var(--g-ink);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(46,43,40,.25)}
 
 /* folhas */
-.overlay{position:fixed;inset:0;z-index:50;background:var(--overlay);display:flex;align-items:flex-end;justify-content:center;animation:fade .25s ease both}
-.overlay.closing{animation:fadeOut .28s ease both}
-.overlay.closing .sheet{animation:sheetOut .28s ease-in both}
-.sheet{width:100%;max-width:560px;max-height:calc(100vh - var(--top) - 24px);background:var(--bg);border-radius:26px 26px 0 0;display:flex;flex-direction:column;animation:sheetIn .38s var(--ease) both}
+.overlay{position:fixed;inset:0;z-index:50;background:var(--overlay);display:flex;align-items:flex-end;justify-content:center;animation:fade var(--t-dim) ease both}
+.overlay.closing{animation:fadeOut var(--t-close) ease both}
+.overlay.closing .sheet{animation:sheetOut var(--t-close) cubic-bezier(.4,0,1,1) both}
+.sheet{width:100%;max-width:560px;max-height:calc(100vh - var(--top) - 24px);background:var(--bg);border-radius:26px 26px 0 0;display:flex;flex-direction:column;animation:sheetIn var(--t-sheet) var(--ease) both;will-change:transform}
 .sheet-head{padding:8px 16px 0;flex:none;touch-action:none}
 .grab{display:block;width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 6px}
 .sheet-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:48px}
@@ -374,6 +395,9 @@ input[type=date].input,input[type=month].input{min-width:0;display:flex;align-it
 .brand{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px}
 .brand .logo{width:76px;height:76px;border-radius:22px;background:#2E2B28;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 24px rgba(46,43,40,.2)}
 .brand h1{font-family:Sora,sans-serif;font-size:32px;font-weight:700;letter-spacing:-.02em}
+.brand h1.wordmark{font-size:36px;letter-spacing:-.035em}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .brand .logo{background:#262626;box-shadow:0 0 0 1px #333333}}
+:root[data-theme="dark"] .brand .logo{background:#262626;box-shadow:0 0 0 1px #333333}
 .brand p{margin:0;font-size:15px;color:var(--muted);max-width:300px;line-height:1.45}
 .login form{display:flex;flex-direction:column;gap:14px}
 .btn.google{background:var(--card);border-color:var(--line);color:var(--ink);gap:10px}
@@ -436,15 +460,21 @@ input[type=date].input,input[type=month].input{min-width:0;display:flex;align-it
 .frow .ft b{font-size:14px}.frow .ft span{font-size:13px;color:var(--muted)}
 
 /* tour */
-.tour{position:fixed;inset:0;z-index:60;background:rgba(42,40,38,.55);animation:fade .25s ease both}
+.tour{position:fixed;inset:0;z-index:60;background:rgba(42,40,38,.55);animation:fade var(--t-dim) ease both}
 .tour .ring{position:absolute;border-radius:50%;box-shadow:0 0 0 4px #F6F2EC;background:rgba(246,242,236,.12);transition:left .3s var(--ease),width .3s,height .3s,bottom .3s}
 .tour .box{position:absolute;left:16px;right:16px;max-width:488px;margin:0 auto;background:#FBF9F6;color:#2A2826;border-radius:24px;padding:18px;display:flex;flex-direction:column;gap:10px;box-shadow:0 12px 30px rgba(0,0,0,.2)}
-@media (prefers-color-scheme: dark){.tour .box{background:#2A2622;color:#F1EBE2}.tour .ring{box-shadow:0 0 0 4px #E3D4BF}}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tour .box{background:#1E1E1E;color:#F3F0EB}
+:root:not([data-theme="light"]) .tour .ring{box-shadow:0 0 0 4px #E3D4BF}}
+:root[data-theme="dark"] .tour .box{background:#1E1E1E;color:#F3F0EB}
+:root[data-theme="dark"] .tour .ring{box-shadow:0 0 0 4px #E3D4BF}
 .tour .arrow{position:absolute;width:20px;height:20px;background:inherit;transform:rotate(45deg);border-radius:3px;bottom:-8px}
 .tour .dots{position:static;justify-content:flex-start;gap:5px}
 .tour .dots i{height:6px;border-radius:3px;background:#D6CDBF;width:6px}
 .tour .dots i.on{width:18px;background:#2E2B28}
-@media (prefers-color-scheme: dark){.tour .dots i.on{background:#E3D4BF}.tour .dots i{background:#4A433B}}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tour .dots i.on{background:#E3D4BF}
+:root:not([data-theme="light"]) .tour .dots i{background:#4A4A4A}}
+:root[data-theme="dark"] .tour .dots i.on{background:#E3D4BF}
+:root[data-theme="dark"] .tour .dots i{background:#4A4A4A}
 
 /* foto em tela cheia */
 .viewer{position:fixed;inset:0;z-index:90;background:#000;display:flex;flex-direction:column;animation:fade .2s ease both}
@@ -468,17 +498,30 @@ input[type=date].input,input[type=month].input{min-width:0;display:flex;align-it
 .gitem .wl{align-self:flex-start;padding:4px 0;font-size:12px;font-weight:700;color:var(--ink2);text-decoration:underline}
 
 /* toast */
-.toast{position:fixed;left:16px;right:16px;bottom:calc(var(--bottom) + 16px);max-width:488px;margin:0 auto;z-index:80;background:var(--ink);color:var(--bg);border-radius:16px;padding:10px 8px 10px 16px;min-height:52px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.25);overflow:hidden;animation:toastIn .38s var(--ease) both}
+.toast{position:fixed;left:16px;right:16px;bottom:calc(var(--bottom) + 16px);max-width:488px;margin:0 auto;z-index:80;background:var(--ink);color:var(--bg);border-radius:16px;padding:10px 8px 10px 16px;min-height:52px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.25);overflow:hidden;animation:toastIn var(--t-toast) var(--ease) both}
 body.has-tabs .toast{bottom:calc(var(--bottom) + 104px)}
 .toast{pointer-events:none}.toast span{min-width:0}
+.toast .tx{flex:1;display:flex;flex-direction:column;gap:1px;line-height:1.3}
+.toast .tx b{font-size:14px;font-weight:700}
+.toast .tx span{font-weight:500}
+.toast.ok{background:var(--sage);color:var(--sage-ink);border:1px solid var(--sage-bd);box-shadow:0 10px 28px rgba(0,0,0,.14);padding-left:12px}
+.toast.ok .tk{width:28px;height:28px;border-radius:50%;background:var(--sage-dk);color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+.toast.ok .tk svg path{stroke-dasharray:24;animation:draw .3s .12s ease-out both}
+.toast.ok button{background:var(--card);color:var(--sage-ink);min-height:40px;padding:0 14px;border-radius:12px}
+.toast.ok i{background:var(--sage-dk);opacity:.35}
+.toast.top{top:calc(var(--top) + 14px);bottom:auto!important;animation-name:toastInTop}
+.toast.top.out{animation-name:toastOutTop}
+@keyframes toastInTop{from{opacity:0;transform:translateY(-16px)}}
+@keyframes toastOutTop{to{opacity:0;transform:translateY(-12px)}}
 .toast button{pointer-events:auto}
 .toast button{flex:none;padding:0 10px;min-height:36px;border-radius:10px;color:var(--hero-bar);font-weight:700}
-@media (prefers-color-scheme: dark){.toast button{color:#6E8F72}}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .toast button{color:#6E8F72}}
+:root[data-theme="dark"] .toast button{color:#6E8F72}
 .toast i{position:absolute;left:0;bottom:0;height:3px;background:var(--taupe);opacity:.7;animation:toastTime linear both}
-.toast.out{animation:toastOut .25s ease-in both}
+.toast.out{animation:toastOut .2s ease-in both}
 @keyframes toastTime{from{width:100%}to{width:0}}
-@keyframes toastOut{to{opacity:0;transform:translateY(20px)}}
-@keyframes toastIn{from{opacity:0;transform:translateY(24px)}}
+@keyframes toastOut{to{opacity:0;transform:translateY(12px)}}
+@keyframes toastIn{from{opacity:0;transform:translateY(16px)}}
 .demo{align-self:flex-start;font-size:12px;font-weight:700;color:var(--honey-ink);background:var(--honey);border-radius:10px;padding:5px 10px}
 .loading{min-height:100vh;display:flex;align-items:center;justify-content:center}
 .spinner{width:28px;height:28px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--taupe);animation:spin .8s linear infinite}
@@ -487,57 +530,83 @@ body.has-tabs .toast{bottom:calc(var(--bottom) + 104px)}
 .empty b{color:var(--ink);font-size:16px}
 .empty span{font-size:14px;line-height:1.45;max-width:320px}
 
+/* anotar: cartão compacto */
+.sheet.compact .sheet-body{gap:14px}
+.a-top{display:flex;gap:10px;align-items:stretch}
+.a-top .input{flex:1;min-width:0;font-size:18px;font-weight:600;min-height:56px}
+.a-photo-wrap{position:relative;flex:none;display:flex}
+.a-photo{width:56px;height:56px;border-radius:16px;border:1.5px dashed var(--line);background:var(--card);color:var(--muted);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:0}
+.a-photo.has{border:0}
+.a-photo img{width:100%;height:100%;object-fit:cover;animation:fade .2s ease both}
+.a-photo .spinner{width:22px;height:22px;border-width:2.5px}
+.a-photo-rm{position:absolute;top:-6px;right:-6px;width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--bg);display:flex;align-items:center;justify-content:center;border:2px solid var(--bg)}
+.a-photo-rm::before{content:"";position:absolute;inset:-10px}
+.etapas.sm button{min-height:42px;flex-direction:row;gap:3px;font-size:13px;font-weight:700}
+.etapas.sm button b{font-size:13px}
+.a-more{display:flex;align-items:center;justify-content:space-between;min-height:44px;padding:0 2px;font-size:14px;font-weight:700;color:var(--muted);text-align:left}
+.a-more svg{transition:transform .24s var(--ease)}
+.a-more[aria-expanded="true"] svg{transform:rotate(90deg)}
+.a-more-box{display:flex;flex-direction:column;gap:12px;margin-top:-6px;animation:rise .28s var(--ease) both}
+.a-more-box[hidden]{display:none}
+.just.flash b{animation:fade .3s ease both}
+.sheet.compact .err:empty{display:none}
+html.theme-fade,html.theme-fade *{transition:background-color .3s ease,color .3s ease,border-color .3s ease!important}
+
+.tip.bye{animation:byeOut .2s ease-in both}.tour.bye{animation:fadeOut .2s ease both}
+@keyframes byeOut{to{opacity:0;transform:scale(.97)}}
+
 /* transições de tela */
-.enter-push{animation:push .38s var(--ease) both}
-.enter-pop{animation:popIn .32s var(--ease) both}
-.enter-fade{animation:fade .3s ease both}
-@keyframes push{from{opacity:0;transform:translateX(28px)}}
-@keyframes popIn{from{opacity:0;transform:translateX(-20px)}}
-.stagger>*{animation:rise .5s var(--ease) both;animation-delay:calc(var(--i,0) * 35ms)}
-@keyframes rise{from{opacity:0;transform:translateY(10px)}}
+.enter-push{animation:push var(--t-screen) var(--ease) both}
+.enter-pop{animation:popIn var(--t-screen) var(--ease) both}
+.enter-fade{animation:fade var(--t-screen) ease both}
+@keyframes push{from{opacity:0;transform:translateX(24px)}}
+@keyframes popIn{from{opacity:0;transform:translateX(-24px)}}
+.stagger>*{animation:rise .36s var(--ease) both;animation-delay:calc(min(var(--i,8),8) * 30ms)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}}
 /* animações leves */
-.btn,.chip,.icon-btn,.fab,.tab,.seg button,.etapas button,.pickrow button,.opt,.choice,.stage,.room-card,.feat,.offer,.stores a,.istep,.mov,.add-inline,.sug button,.mini3 a,a.hero,a.search,.chk,.mrow>button,.sgroom .sh button,.gitem .btn{transition:transform .18s var(--ease),background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease}
-.btn:active,.chip:active,.icon-btn:active,.seg button:active,.etapas button:active,.pickrow button:active,.opt:active,.choice:active,.stores a:active,.sug button:active,.mini3 a:active{transform:scale(.96)}
+.btn,.chip,.icon-btn,.fab,.tab,.seg button,.etapas button,.pickrow button,.opt,.choice,.stage,.room-card,.feat,.offer,.stores a,.istep,.mov,.add-inline,.sug button,.mini3 a,a.hero,a.search,.chk,.mrow>button,.sgroom .sh button,.gitem .btn{transition:transform var(--t-press) var(--ease),background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,opacity .2s ease}
+.btn:active,.chip:active,.icon-btn:active,.seg button:active,.etapas button:active,.pickrow button:active,.opt:active,.choice:active,.stores a:active,.sug button:active,.mini3 a:active,.a-photo:active,.a-more:active,.toast button:active,.item-main:active .chk span{transform:scale(.96)}
 .room-card:active,.feat:active,.offer:active,.stage:active,a.hero:active,a.search:active,.istep:active{transform:scale(.98)}
 .fab:active{transform:scale(.92) rotate(90deg)}
 .tab:active{transform:translateY(1px) scale(.94)}
 .chk:active span{transform:scale(.85)}
 .mrow>button:active .box{transform:scale(.85)}
 .mrow .box{transition:background .2s,border-color .2s,transform .2s var(--ease)}
-.item-main:active,.mov:active,.add-inline:active{opacity:.7}
-.tab[aria-current="page"] svg{animation:tabPop .45s var(--ease)}
+.mov:active,.add-inline:active{opacity:.7}
+.item-main{transition:opacity .2s ease}.item-main:active{opacity:.75}
+.tab[aria-current="page"] svg{animation:tabPop .3s var(--ease)}
 @keyframes tabPop{40%{transform:translateY(-3px) scale(1.12)}}
-.icon-btn .dot{animation:dotPulse 2.4s ease-in-out infinite}
-@keyframes dotPulse{0%,100%{box-shadow:0 0 0 0 rgba(162,69,59,.45)}60%{box-shadow:0 0 0 6px rgba(162,69,59,0)}}
-.item.pop .chk span{animation:pop .5s var(--ease)}
-.item.pop .chk svg path,.mrow.pop .box svg path{stroke-dasharray:24;animation:draw .38s .08s ease-out both}
+.icon-btn .dot::after{content:"";position:absolute;inset:-2px;border-radius:50%;background:var(--danger);animation:dotPulse 2.4s ease-out infinite}
+@keyframes dotPulse{0%{transform:scale(1);opacity:.45}60%,100%{transform:scale(2.2);opacity:0}}
+.item.pop .chk span{animation:pop .3s var(--ease)}
+.item.pop .chk svg path,.mrow.pop .box svg path{stroke-dasharray:24;animation:draw .3s .06s ease-out both}
 @keyframes draw{from{stroke-dashoffset:24}}
-.item.pop{animation:rowGlow .9s ease-out}
+.item.pop{animation:rowGlow .8s ease-out}
 @keyframes rowGlow{0%{background:var(--sage)}100%{background:transparent}}
 .item.gift.pop{animation-name:rowGlowLav}
 @keyframes rowGlowLav{0%{background:var(--lav)}100%{background:transparent}}
-.mrow.pop .box{animation:pop .45s var(--ease)}
-.page.enter-fade>*,.page.enter-push>*,.guest.enter-fade>*{animation:rise .5s var(--ease) both}
-.page.enter-fade>*:nth-child(2),.page.enter-push>*:nth-child(2),.guest>*:nth-child(2){animation-delay:40ms}
-.page.enter-fade>*:nth-child(3),.page.enter-push>*:nth-child(3),.guest>*:nth-child(3){animation-delay:80ms}
-.page.enter-fade>*:nth-child(4),.page.enter-push>*:nth-child(4){animation-delay:120ms}
-.page.enter-fade>*:nth-child(5),.page.enter-push>*:nth-child(5){animation-delay:160ms}
-.page.enter-fade>*:nth-child(6),.page.enter-push>*:nth-child(6){animation-delay:200ms}
-.page.enter-fade>*:nth-child(n+7),.page.enter-push>*:nth-child(n+7){animation-delay:240ms}
-.hero .chip-glass{animation:float 5s ease-in-out infinite}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+.mrow.pop .box{animation:pop .3s var(--ease)}
+.page.enter-fade>*,.page.enter-push>*,.guest.enter-fade>*{animation:rise .36s var(--ease) both}
+.page.enter-fade>*:nth-child(2),.page.enter-push>*:nth-child(2),.guest>*:nth-child(2){animation-delay:30ms}
+.page.enter-fade>*:nth-child(3),.page.enter-push>*:nth-child(3),.guest>*:nth-child(3){animation-delay:60ms}
+.page.enter-fade>*:nth-child(4),.page.enter-push>*:nth-child(4){animation-delay:90ms}
+.page.enter-fade>*:nth-child(5),.page.enter-push>*:nth-child(5){animation-delay:120ms}
+.page.enter-fade>*:nth-child(6),.page.enter-push>*:nth-child(6){animation-delay:150ms}
+.page.enter-fade>*:nth-child(7),.page.enter-push>*:nth-child(7){animation-delay:180ms}
+.page.enter-fade>*:nth-child(n+8),.page.enter-push>*:nth-child(n+8){animation-delay:210ms}
 .feat .fic{transition:transform .3s var(--ease)}
 .feat:active .fic{transform:rotate(-8deg) scale(1.08)}
-.sheet-body>*{animation:rise .4s var(--ease) both;animation-delay:.08s}
-.tour .box{animation:rise .35s var(--ease) both}
+.sheet-body>*{animation:rise .3s var(--ease) both;animation-delay:60ms}
+.tour .box{animation:rise .32s var(--ease) both}
 .tour .ring{animation:ringPulse 1.8s ease-in-out infinite}
 @keyframes ringPulse{0%,100%{box-shadow:0 0 0 4px #F6F2EC}50%{box-shadow:0 0 0 7px rgba(246,242,236,.75)}}
-.empty b{animation:rise .5s var(--ease) both}
+.empty b{animation:rise .36s var(--ease) both}
 .switch i{transition:transform .25s var(--ease)}
 .big,.mid{font-variant-numeric:tabular-nums}
 
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0ms!important;transition-duration:.01ms!important}
+  html.theme-fade,html.theme-fade *{transition:none!important}
 }
 </style>
 </head>
@@ -568,7 +637,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.13-6";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.13-7";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -833,10 +902,33 @@ const IC = {
   dl: '<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
   phone: '<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/>',
   receipt: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/>',
-  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>'
+  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  auto: '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/>',
+  sun: '<circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  moon: '<path d="M20.5 13.5A8.5 8.5 0 1 1 10.5 3.5a6.5 6.5 0 0 0 10 10z"/>'
 };
 const ic = (n, s = 22, w = 1.8) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n] || ""}</svg>`;
-const LOGO = (s = 40) => `<svg width="${s}" height="${s}" viewBox="0 0 64 64" fill="none" aria-hidden="true"><path d="M12 29 32 12l20 17v21a3 3 0 0 1-3 3H15a3 3 0 0 1-3-3z" stroke="#F6F2EC" stroke-width="4.5" stroke-linejoin="round"/><path d="M23 36l6.5 6.5L42 30" stroke="#D6C5AE" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="47" cy="17" r="4.2" fill="#B39E85"/></svg>`;
+const LOGO = (s = 40) => `<svg width="${s}" height="${s}" viewBox="0 0 100 100" fill="none" aria-hidden="true"><path d="M75 37L50 16 25 37v33a15 15 0 0 0 15 15h35" stroke="#F6F2EC" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/><circle cx="60" cy="58" r="10.5" fill="#E3D4BF"/></svg>`;
+
+/* ---------------- tema (por aparelho) ---------------- */
+const TEMA_KEY = "cozily-tema";
+const getTema = () => { try { return localStorage.getItem(TEMA_KEY) || "auto"; } catch (e) { return "auto"; } };
+const mqDark = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+function applyTema(t = getTema()) {
+  const r = document.documentElement;
+  if (t === "claro") r.setAttribute("data-theme", "light");
+  else if (t === "escuro") r.setAttribute("data-theme", "dark");
+  else r.removeAttribute("data-theme");
+  const dark = t === "escuro" || (t === "auto" && mqDark?.matches);
+  document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.setAttribute("content", dark ? "#141414" : "#F6F2EC"));
+}
+function setTema(t) {
+  try { localStorage.setItem(TEMA_KEY, t); } catch (e) {}
+  const r = document.documentElement; r.classList.add("theme-fade"); applyTema(t);
+  clearTimeout(setTema._t); setTema._t = setTimeout(() => r.classList.remove("theme-fade"), 360);
+}
+mqDark?.addEventListener?.("change", () => applyTema());
+applyTema();
 
 /* ---------------- utilidades ---------------- */
 const $ = (s, el = document) => el.querySelector(s);
@@ -1163,7 +1255,22 @@ const topicsOf = id => { const t = []; inRoom(id).forEach(i => { if (!t.includes
 const done = list => list.filter(isDone).length;
 const meuNome = () => (S.user?.nome || "").trim();
 const nomesCasa = () => S.settings.nomes || (S.casaId === "nosso-ap" ? NOMES_PADRAO : meuNome());
-const tipKey = k => `cozily-tip-${S.user?.uid || "x"}-${k}`;
+/* guia de boas-vindas: só pra conta recém-criada (salvo na conta, não no aparelho) */
+const GUIA_DIAS = 3;
+const guiaKey = () => `guia_${S.user?.uid || "x"}`;
+const guiaNovo = () => ({ [guiaKey()]: { em: Date.now(), tour: 0, x: [] } });
+function guia() {
+  const g = S.user && S.settings?.[guiaKey()];
+  if (!g || !g.em || Date.now() - g.em > GUIA_DIAS * 864e5) return null;
+  return g;
+}
+function guiaSet(patch) {
+  const g = S.settings?.[guiaKey()]; if (!g) return;
+  const n = { ...g, ...patch };
+  S.settings = { ...S.settings, [guiaKey()]: n };
+  write(S.store.putSettings({ [guiaKey()]: n }));
+}
+const tipVisivel = k => { const g = guia(); return !!g && !(g.x || []).includes(k); };
 
 /* ===================================================================
    CONTAS (caixinha, mercado, presentes)
@@ -1302,7 +1409,7 @@ function finish(app, mode, r, animate) {
 function countUp(el) {
   const end = +el.dataset.count || 0, suf = el.dataset.suf || "";
   if (!end || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
-  const t0 = performance.now(), dur = 900;
+  const t0 = performance.now(), dur = 800;
   const step = t => { const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3); el.textContent = Math.round(end * e) + suf; if (k < 1) requestAnimationFrame(step); };
   el.textContent = "0" + suf; requestAnimationFrame(step);
 }
@@ -1353,7 +1460,7 @@ const backBtn = (fb = "#/") => `<button class="icon-btn" data-act="back" data-fb
 const tile = (r, lg) => `<span class="tile ${r.alt ? "alt" : ""} ${lg ? "lg" : ""}">${ic(r.icon, lg ? 28 : 21, 1.8)}</span>`;
 const etapaPill = (e, lg) => e ? `<span class="pill e${e} ${lg ? "lg" : ""}">Etapa ${e}${lg ? " · " + ETAPAS[e].curto : ""}</span>` : "";
 function tipCard(key, text, color = "lav", icon = "bulb") {
-  if (ls.get(tipKey(key))) return "";
+  if (!tipVisivel(key)) return "";
   return `<div class="tip ${color}" data-tip="${key}">${ic(icon, 18, 2)}<p>${text}</p><button class="x" data-act="tip-x" data-v="${key}" aria-label="Fechar dica">${ic("x", 16, 2.2)}</button></div>`;
 }
 const empty = (t, s = "", extra = "") => `<div class="empty"><b>${t}</b>${s ? `<span>${s}</span>` : ""}${extra}</div>`;
@@ -1911,7 +2018,7 @@ function openSheet(title, bodyHtml, { saveLabel, cancelLabel = "Cancelar", onSav
       ov.remove(); if (!document.querySelector(".overlay")) document.body.style.overflow = "";
       onClose && onClose();
       if (S.dirty) { S.dirty = false; refresh(); }
-    }, 280);
+    }, 240);
   };
   ov.addEventListener("click", e => { if (e.target === ov) close(); });
   $("[data-x]", ov).onclick = close;
@@ -1931,57 +2038,94 @@ const pickSeg = (box, v) => $$("button", box).forEach(b => b.setAttribute("aria-
 const giversDl = () => `<datalist id="giversDl">${givers().map(g => `<option value="${esc(g)}"></option>`).join("")}</datalist>`;
 const giverChips = () => { const g = givers().slice(0, 6); return g.length ? `<div class="wrapchips" id="gChips">${g.map(x => `<button type="button" class="chip" style="height:34px" data-g="${esc(x)}">${esc(x)}</button>`).join("")}</div>` : ""; };
 
-/* ---------------- ANOTAR ---------------- */
+/* ---------------- ANOTAR (cartão compacto) ---------------- */
 function openAnotar(defaults = {}) {
   const st = {
     room: defaults.room && ROOM[defaults.room] ? defaults.room : (S.route?.name === "room" && ROOM[S.route.id] ? S.route.id : (S.lastRoom && ROOM[S.lastRoom] ? S.lastRoom : ROOMS[0]?.id)),
-    topic: defaults.topic, etapa: 0, sit: 0, just: [], newTopic: false
+    topic: defaults.topic, etapa: 0, sit: 0, just: [], newTopic: false, more: false, photo: null, busy: false
   };
   if (st.topic === undefined || st.topic === null) st.topic = topicsOf(st.room)[0] ?? "";
   const roomChips = () => ROOMS.map(r => `<button type="button" class="chip" data-room="${esc(r.id)}" aria-pressed="${r.id === st.room}">${esc(r.nome)}</button>`).join("");
   const topicChips = () => { const ts = topicsOf(st.room); if (st.topic && !ts.includes(st.topic)) ts.push(st.topic); return ts.map(t => `<button type="button" class="chip" style="height:34px" data-topic="${esc(t)}" aria-pressed="${!st.newTopic && t === st.topic}">${esc(t || "Outros")}</button>`).join("") + `<button type="button" class="chip" style="height:34px" data-topic="__new" aria-pressed="${st.newTopic}">+ Novo</button>`; };
+  const photoBtn = () => st.photo
+    ? `<button type="button" class="a-photo has" data-photo aria-label="Trocar a foto"><img src="${st.photo}" alt=""></button><button type="button" class="a-photo-rm" data-photo-rm aria-label="Tirar a foto">${ic("x", 12, 3)}</button>`
+    : `<button type="button" class="a-photo" data-photo aria-label="Colocar foto">${ic("camera", 24, 1.8)}</button>`;
+  const hint = () => st.just.length ? `Acabou de anotar: <b>${st.just.slice(-3).map(esc).join(" · ")}</b>` : "O cartão fica aberto pra anotar outro em seguida";
   openSheet("Anotar", `
-    <div class="field"><label for="aNome" class="sr">Nome do item</label><input class="input" id="aNome" placeholder="O que vocês precisam?" value="${esc(defaults.name || "")}" autocomplete="off" enterkeyhint="done" style="font-size:18px;min-height:56px"></div>
+    <div class="a-top"><label for="aNome" class="sr">Nome do item</label><input class="input" id="aNome" placeholder="O que vocês precisam?" value="${esc(defaults.name || "")}" autocomplete="off" enterkeyhint="done"><span class="a-photo-wrap" id="aPhoto">${photoBtn()}</span></div>
     <div class="field"><span class="lbl">Onde</span><div class="chips" id="aRooms">${roomChips()}</div></div>
-    <div class="field"><span class="lbl">Tópico</span><div class="wrapchips" id="aTopics">${topicChips()}</div><input class="input hidden" id="aNewTopic" placeholder="Nome do tópico (ex.: Eletrodomésticos)"></div>
-    <div class="field"><span class="lbl">Quando comprar</span><div class="etapas" id="aEtapa">${[1, 2, 3].map(n => `<button type="button" class="p${n}" data-v="${n}" aria-pressed="false"><b>${n}</b>${ETAPAS[n].btn}</button>`).join("")}</div></div>
-    <div class="field"><span class="lbl">Situação</span>${segHtml("aSit", [[0, "Falta"], [1, ic("bag", 16, 2) + " Compramos"], [2, ic("gift", 16, 2) + " Presente"]], 0)}</div>
-    <div class="field" id="aValWrap"><label for="aVal" id="aValLbl">Valor previsto</label><input class="input" id="aVal" inputmode="decimal" placeholder="R$ 0,00" autocomplete="off"></div>
-    <div class="field hidden" id="aDeWrap"><label for="aDe">Quem deu</label><input class="input" id="aDe" list="giversDl" placeholder="Ex.: Tia Ana, padrinhos…" autocomplete="off" autocapitalize="words">${giversDl()}</div>
+    <div class="field"><span class="lbl">Quando comprar</span><div class="etapas sm" id="aEtapa">${[1, 2, 3].map(n => `<button type="button" class="p${n}" data-v="${n}" aria-pressed="false"><b>${n}</b> · ${ETAPAS[n].curto}</button>`).join("")}</div></div>
+    <button type="button" class="a-more" data-more-toggle aria-expanded="false" aria-controls="aMore">Mais detalhes (situação, valor, tópico)${ic("chev", 16, 2.4)}</button>
+    <div class="a-more-box" id="aMore" hidden>
+      ${segHtml("aSit", [[0, "Falta"], [1, ic("bag", 16, 2) + " Compramos"], [2, ic("gift", 16, 2) + " Presente"]], 0)}
+      <div class="field" id="aValWrap"><label for="aVal" id="aValLbl" class="sr">Valor previsto</label><input class="input" id="aVal" inputmode="decimal" placeholder="Valor previsto (R$ 0,00)" autocomplete="off"></div>
+      <div class="field hidden" id="aDeWrap"><label for="aDe">Quem deu</label><input class="input" id="aDe" list="giversDl" placeholder="Ex.: Tia Ana, padrinhos…" autocomplete="off" autocapitalize="words">${giversDl()}</div>
+      <div class="field"><span class="lbl">Tópico</span><div class="wrapchips" id="aTopics">${topicChips()}</div><input class="input hidden" id="aNewTopic" placeholder="Nome do tópico (ex.: Eletrodomésticos)"></div>
+    </div>
     <div class="err" id="aErr" role="alert"></div>
-    <button class="btn primary block lg" type="button" data-more>Anotar e continuar</button>
-    <p class="just hidden" id="aJust"></p>`, {
-    saveLabel: "Salvar", cancelLabel: "Fechar",
+    <button class="btn primary block lg" type="button" data-add>Anotar</button>
+    <p class="just" id="aJust">${hint()}</p>`, {
+    cancelLabel: "Fechar",
     onMount(ov) {
+      ov.querySelector(".sheet").classList.add("compact");
       const nome = $("#aNome", ov);
+      const selRoom = $('#aRooms [aria-pressed="true"]', ov), rbox = $("#aRooms", ov);
+      if (selRoom && rbox) rbox.scrollLeft = Math.max(0, selRoom.offsetLeft - rbox.offsetLeft - 20);
       setTimeout(() => nome.focus(), 380);
-      $("#aRooms", ov).onclick = e => { const b = e.target.closest("[data-room]"); if (!b) return; st.room = b.dataset.room; st.topic = topicsOf(st.room)[0] ?? ""; st.newTopic = false; $("#aRooms", ov).innerHTML = roomChips(); $("#aTopics", ov).innerHTML = topicChips(); $("#aNewTopic", ov).classList.add("hidden"); };
+      $("#aRooms", ov).onclick = e => { const b = e.target.closest("[data-room]"); if (!b) return; st.room = b.dataset.room; st.topic = topicsOf(st.room)[0] ?? ""; st.newTopic = false; $$("[data-room]", ov).forEach(x => x.setAttribute("aria-pressed", x === b)); $("#aTopics", ov).innerHTML = topicChips(); $("#aNewTopic", ov).classList.add("hidden"); };
       $("#aTopics", ov).onclick = e => { const b = e.target.closest("[data-topic]"); if (!b) return; if (b.dataset.topic === "__new") { st.newTopic = true; $("#aNewTopic", ov).classList.remove("hidden"); $("#aNewTopic", ov).focus(); } else { st.newTopic = false; st.topic = b.dataset.topic; $("#aNewTopic", ov).classList.add("hidden"); } $("#aTopics", ov).innerHTML = topicChips(); };
       $("#aEtapa", ov).onclick = e => { const b = e.target.closest("button"); if (!b) return; st.etapa = st.etapa === +b.dataset.v ? 0 : +b.dataset.v; $$("button", $("#aEtapa", ov)).forEach(x => x.setAttribute("aria-pressed", +x.dataset.v === st.etapa)); };
-      $("#aSit", ov).onclick = e => { const b = e.target.closest("button"); if (!b) return; st.sit = +b.dataset.v; pickSeg($("#aSit", ov), st.sit); $("#aValWrap", ov).classList.toggle("hidden", st.sit === 2); $("#aDeWrap", ov).classList.toggle("hidden", st.sit !== 2); $("#aValLbl", ov).textContent = st.sit === 1 ? "Valor pago" : "Valor previsto"; };
-      $("[data-more]", ov).onclick = () => { if (saveOne(ov)) { nome.value = ""; $("#aVal", ov).value = ""; $("#aDe", ov).value = ""; nome.focus(); } };
-      nome.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); $("[data-more]", ov).click(); } });
-    },
-    onSave(ov) {
-      if (!$("#aNome", ov).value.trim()) return st.just.length ? true : (($("#aErr", ov).textContent = "Escreve o nome do item."), false);
-      return saveOne(ov);
+      $("#aSit", ov).onclick = e => { const b = e.target.closest("button"); if (!b) return; st.sit = +b.dataset.v; pickSeg($("#aSit", ov), st.sit); $("#aValWrap", ov).classList.toggle("hidden", st.sit === 2); $("#aDeWrap", ov).classList.toggle("hidden", st.sit !== 2); $("#aVal", ov).placeholder = st.sit === 1 ? "Valor pago (R$ 0,00)" : "Valor previsto (R$ 0,00)"; $("#aValLbl", ov).textContent = st.sit === 1 ? "Valor pago" : "Valor previsto"; };
+      $("[data-more-toggle]", ov).onclick = e => { st.more = !st.more; const b = e.currentTarget; b.setAttribute("aria-expanded", st.more); $("#aMore", ov).hidden = !st.more; };
+      const pw = $("#aPhoto", ov);
+      pw.onclick = e => {
+        if (e.target.closest("[data-photo-rm]")) { st.photo = null; pw.innerHTML = photoBtn(); return; }
+        if (!e.target.closest("[data-photo]")) return;
+        const fp = $("#filepick"); fp.value = "";
+        fp.onchange = async () => {
+          const f = fp.files[0]; if (!f) return;
+          pw.innerHTML = `<span class="a-photo"><span class="spinner"></span></span>`;
+          try { st.photo = await processPhoto(f); } catch (err) { toast(err.message || "Não deu pra usar essa foto"); }
+          pw.innerHTML = photoBtn();
+        };
+        fp.click();
+      };
+      $("[data-add]", ov).onclick = () => saveOne(ov);
+      nome.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); saveOne(ov); } });
     }
   });
-  function saveOne(ov) {
-    const nome = $("#aNome", ov).value.trim();
-    if (!nome) { $("#aErr", ov).textContent = "Escreve o nome do item."; $("#aNome", ov).focus(); return false; }
+  async function saveOne(ov) {
+    if (st.busy) return false;
+    const nomeEl = $("#aNome", ov), nome = nomeEl.value.trim();
+    if (!nome) { $("#aErr", ov).textContent = "Escreve o nome do item."; nomeEl.focus(); return false; }
     let topico = st.newTopic ? $("#aNewTopic", ov).value.trim() : st.topic;
-    if (st.newTopic && !topico) { $("#aErr", ov).textContent = "Escreve o nome do tópico novo."; return false; }
+    if (st.newTopic && !topico) { $("#aErr", ov).textContent = "Escreve o nome do tópico novo."; if (!st.more) $("[data-more-toggle]", ov).click(); return false; }
     $("#aErr", ov).textContent = "";
+    st.busy = true;
     const v = parseMoney($("#aVal", ov).value);
     const it = { id: `${st.room}--${slug(topico || "geral")}--${slug(nome)}-${uid()}`, nome, comodo: st.room, topico: topico || "", etapa: st.etapa, comprado: st.sit > 0, presente: st.sit === 2, ordem: Date.now(), criadoEm: Date.now(), atualizadoEm: Date.now() };
     if (st.sit === 0 && v) it.valorPrevisto = v;
     if (st.sit === 1) { it.valorPago = v; it.data = today(); }
     if (st.sit === 2) { it.presenteDe = $("#aDe", ov).value.trim() || null; it.data = today(); }
-    S.items.set(it.id, it); write(S.store.putItem(it)); S.lastRoom = st.room; S.dirty = true;
+    const photo = st.photo;
+    if (photo) { try { it.thumb = await thumbFrom(photo); } catch (e) {} S.photos[it.id] = [photo]; }
+    S.items.set(it.id, it); write(S.store.putItem(it));
+    if (photo) write(S.store.putPhotos(it.id, [photo]), "A foto não salvou. Tenta de novo?");
+    S.lastRoom = st.room; S.dirty = true;
     if (st.newTopic) { st.newTopic = false; st.topic = topico; $("#aNewTopic", ov).value = ""; $("#aNewTopic", ov).classList.add("hidden"); $("#aTopics", ov).innerHTML = topicChips(); }
     st.just.push(nome);
-    const j = $("#aJust", ov); j.classList.remove("hidden"); j.innerHTML = `Acabou de anotar: <b>${st.just.slice(-4).map(esc).join(" · ")}</b>`;
+    nomeEl.value = ""; $("#aVal", ov).value = ""; $("#aDe", ov).value = ""; st.photo = null; $("#aPhoto", ov).innerHTML = photoBtn();
+    const j = $("#aJust", ov); j.innerHTML = hint(); j.classList.remove("flash"); void j.offsetWidth; j.classList.add("flash");
+    nomeEl.focus();
+    st.busy = false;
+    const roomNome = ROOM[st.room]?.nome || "a lista";
+    toast(`${nome} foi pra ${roomNome}`, "Desfazer", () => {
+      purgeItem(it.id);
+      st.just = st.just.filter((x, i) => !(x === nome && i === st.just.lastIndexOf(nome)));
+      if (document.body.contains(ov)) { $("#aJust", ov).innerHTML = hint(); if (!nomeEl.value) { nomeEl.value = nome; nomeEl.focus(); } S.dirty = true; }
+      else refresh();
+      toast("Desfeito, o item saiu da lista", null, null, 2200, { ok: true });
+    }, 5000, { ok: true, title: "Anotado!" });
     return true;
   }
 }
@@ -2448,6 +2592,7 @@ function openJuntos() {
 }
 
 /* ---------------- AJUSTES ---------------- */
+const temaNota = t => t === "claro" ? "Sempre claro, mesmo com o celular no modo escuro." : t === "escuro" ? "Sempre escuro, mesmo com o celular no modo claro." : "Segue o modo do celular.";
 function openSettings() {
   const legacy = S.casaId === "nosso-ap";
   const entrega = S.settings.entrega === undefined ? (legacy ? ENTREGA_PADRAO : "") : (S.settings.entrega || "");
@@ -2457,6 +2602,7 @@ function openSettings() {
   const row = (attr, icon, label, sub = "") => `<button class="item" style="width:100%;text-align:left;min-height:56px" ${attr}><span class="tile" style="width:36px;height:36px;border-radius:11px">${ic(icon, 18, 2)}</span><span class="item-txt grow"><span class="item-name">${label}</span>${sub ? `<span class="meta">${sub}</span>` : ""}</span>${ic("chev", 16, 2)}</button>`;
   openSheet("Ajustes", `
     <div class="field"><label for="sCasa">Nome da casa</label><input class="input" id="sCasa" value="${esc(S.settings.nomeCasa || (legacy ? CASA_PADRAO : ""))}" placeholder="Nossa casa"></div>
+    <div class="field"><span class="lbl" id="temaLbl">Aparência</span><div class="seg" role="group" aria-labelledby="temaLbl" id="sTema">${[["auto", "auto", "Automático"], ["claro", "sun", "Claro"], ["escuro", "moon", "Escuro"]].map(([k, icn, l]) => `<button type="button" data-tema="${k}" aria-pressed="${getTema() === k}">${ic(icn, 16, 2)}${l}</button>`).join("")}</div><span class="small muted" id="temaNota">${temaNota(getTema())}</span></div>
     <div class="field"><label for="sNomes">Nomes na saudação</label><input class="input" id="sNomes" value="${esc(nomesCasa())}" placeholder="Ex.: Ana e Léo"></div>
     <div class="two">
       <div class="field"><label for="sSit">Em que pé está</label><select class="input" id="sSit">${[["obra", "Na planta ou em obra"], ["chaves", "Esperando as chaves"], ["morando", "Já moramos"]].map(([k, l]) => `<option value="${k}" ${k === sit ? "selected" : ""}>${l}</option>`).join("")}</select></div>
@@ -2480,6 +2626,11 @@ function openSettings() {
     saveLabel: "Salvar",
     onMount(ov, close) {
       $("[data-out]", ov).onclick = async () => { close(); await S.store.logout(); };
+      $$("[data-tema]", ov).forEach(bt => bt.onclick = () => {
+        const t = bt.dataset.tema; setTema(t);
+        $$("[data-tema]", ov).forEach(x => x.setAttribute("aria-pressed", String(x === bt)));
+        $("#temaNota", ov).textContent = temaNota(t);
+      });
       ov.addEventListener("click", e => {
         const g = e.target.closest("[data-go]"); if (!g) return;
         const k = g.dataset.go; close();
@@ -2650,15 +2801,18 @@ async function loadPhotos(id) {
   if (S.route?.name === "item" && S.route.id === id) refresh();
 }
 let toastTimer;
-function toast(msg, actionLabel, action, ms = 3400) {
+function toast(msg, actionLabel, action, ms = 3400, opt = {}) {
   document.querySelector(".toast")?.remove();
   clearTimeout(toastTimer);
   const t = document.createElement("div");
-  t.className = "toast"; t.setAttribute("role", "status");
-  t.innerHTML = `<span>${esc(msg)}</span>${actionLabel ? `<button>${esc(actionLabel)}</button><i style="animation-duration:${ms}ms"></i>` : ""}`;
-  if (actionLabel) $("button", t).onclick = () => { t.remove(); action(); };
+  const top = !!document.querySelector(".overlay:not(.closing)");
+  t.className = "toast" + (opt.ok ? " ok" : "") + (top ? " top" : ""); t.setAttribute("role", "status");
+  t.innerHTML = (opt.ok ? `<span class="tk" aria-hidden="true">${ic("check", 16, 3)}</span>` : "")
+    + `<span class="tx">${opt.title ? `<b>${esc(opt.title)}</b>` : ""}<span>${esc(msg)}</span></span>`
+    + (actionLabel ? `<button type="button">${esc(actionLabel)}</button><i style="animation-duration:${ms}ms"></i>` : "");
+  if (actionLabel) $("button", t).onclick = () => { clearTimeout(toastTimer); t.remove(); action(); };
   document.body.appendChild(t);
-  toastTimer = setTimeout(() => { t.classList.add("out"); setTimeout(() => t.remove(), 260); }, ms);
+  toastTimer = setTimeout(() => { t.classList.add("out"); setTimeout(() => t.remove(), 220); }, ms);
 }
 
 /* avisos no celular */
@@ -2707,7 +2861,7 @@ const isStandalone = () => window.matchMedia?.("(display-mode: standalone)").mat
 function viewLogin() {
   const criar = S.authMode === "criar";
   return `<div class="login">
-    <div class="brand"><div class="logo">${LOGO(46)}</div><h1>Cozily</h1><p>Monte sua casa nova item por item, do primeiro garfo ao último quadro.</p></div>
+    <div class="brand"><div class="logo">${LOGO(46)}</div><h1 class="wordmark">cozily</h1><p>Monte sua casa nova item por item, do primeiro garfo ao último quadro.</p></div>
     <form id="loginForm" novalidate>
       ${segHtml("authSeg", [["entrar", "Entrar"], ["criar", "Criar conta"]], criar ? "criar" : "entrar").replace(/<button /g, '<button data-act="authmode" ')}
       ${DEMO ? `<span class="demo">${criar ? "Prévia · crie uma conta de teste" : "Prévia · a lista de vocês é caio@exemplo.com"}</span>` : ""}
@@ -2855,7 +3009,7 @@ async function finishOnboarding(btn) {
   const o = obState();
   const comodos = [...obRooms(), ...CASA_TODA].map(({ id, nome, tipo }) => ({ id, nome, tipo }));
   const mem = (S.settings.membros || []).length;
-  const settings = { onboarded: true, importado: true, criadoEm: Date.now(), comodos, comecouDoZero: o.mode !== "sug", v3: true, moradores: o.sozinho ? 1 : Math.max(2, mem) };
+  const settings = { ...guiaNovo(), onboarded: true, importado: true, criadoEm: Date.now(), comodos, comecouDoZero: o.mode !== "sug", v3: true, moradores: o.sozinho ? 1 : Math.max(2, mem) };
   const items = o.mode === "sug" ? buildSeedFor(comodos.filter(r => !o.off[r.id])) : [];
   if (btn) { btn.disabled = true; btn.textContent = "Montando a casa…"; }
   S.settings = { ...S.settings, ...settings };
@@ -2970,7 +3124,8 @@ const TOUR = [
   ["financas", "wallet", "A caixinha da casa", "Guarda dinheiro, define uma meta e vê quanto já saiu em compras. Tudo somado sozinho.", ["--lav", "--lav-ink"]]
 ];
 function maybeTour() {
-  if (S.tourOpen || ls.get(`cozily-tour-${S.user?.uid}`) || document.querySelector(".overlay")) return;
+  const g = guia();
+  if (!g || g.tour || S.tourOpen || document.querySelector(".overlay")) return;
   setTimeout(() => { if (S.route?.name === "home" && !S.post?.length && !S.tourOpen && !$("#tabbar").classList.contains("hide") && !document.querySelector(".tour,.overlay")) openTour(0); }, 900);
 }
 function openTour(step) {
@@ -3000,7 +3155,7 @@ function openTour(step) {
     else closeTour();
   };
 }
-function closeTour() { ls.set(`cozily-tour-${S.user?.uid}`, 1); S.tourOpen = false; document.querySelector(".tour")?.remove(); }
+function closeTour() { guiaSet({ tour: 1 }); S.tourOpen = false; const t = document.querySelector(".tour"); if (t) { t.classList.add("bye"); setTimeout(() => t.remove(), 220); } }
 
 /* ===================================================================
    EVENTOS
@@ -3025,7 +3180,7 @@ document.addEventListener("click", e => {
   else if (a === "stage") { S.stage = +el.dataset.v; rerender(); }
   else if (a === "stage-go") S.stage = +el.dataset.v;
   else if (a === "qfilter") { S.qFilter = el.dataset.v; $$("[data-act=qfilter]").forEach(b => b.setAttribute("aria-pressed", b === el)); $("#qres").innerHTML = buscaHtml(); }
-  else if (a === "tip-x") { ls.set(tipKey(el.dataset.v), 1); el.closest(".tip")?.remove(); }
+  else if (a === "tip-x") { const g = guia(); if (g) guiaSet({ x: [...new Set([...(g.x || []), el.dataset.v])] }); const t = el.closest(".tip"); if (t) { t.classList.add("bye"); setTimeout(() => t.remove(), 220); } }
   else if (a === "copy") copyText(el.dataset.v, el.dataset.ok || "Copiado!");
   else if (a === "guardar") openGuardar(el.dataset.v);
   else if (a === "mov-edit") { const m = S.movs.find(x => x.id === id); if (m) openGuardar(m.tipo, m); }
@@ -3270,6 +3425,7 @@ function ensureMembro() {
     const nome = meuNome() || email.split("@")[0];
     patch.membrosOk = [...new Set([...(st.membrosOk || []), email])];
     patch.chegadas = [...(st.chegadas || []), { email, nome, em: Date.now() }];
+    Object.assign(patch, guiaNovo());
     if (st.nomes && !norm(st.nomes).includes(norm(nome))) patch.nomes = st.nomes + " e " + nome;
     S.post = isStandalone() ? ["avisos"] : ["avisos", "instalar"];
     setTimeout(() => toast(`Bem-vindo(a) ao ${st.nomeCasa || "Cozily"}!`), 600);
