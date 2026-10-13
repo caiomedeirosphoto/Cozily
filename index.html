@@ -488,6 +488,47 @@ body.has-tabs .toast{bottom:calc(var(--bottom) + 104px)}
 @keyframes popIn{from{opacity:0;transform:translateX(-20px)}}
 .stagger>*{animation:rise .5s var(--ease) both;animation-delay:calc(var(--i,0) * 35ms)}
 @keyframes rise{from{opacity:0;transform:translateY(10px)}}
+/* animações leves */
+.btn,.chip,.icon-btn,.fab,.tab,.seg button,.etapas button,.pickrow button,.opt,.choice,.stage,.room-card,.feat,.offer,.stores a,.istep,.mov,.add-inline,.sug button,.mini3 a,a.hero,a.search,.chk,.mrow>button,.sgroom .sh button,.gitem .btn{transition:transform .18s var(--ease),background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease}
+.btn:active,.chip:active,.icon-btn:active,.seg button:active,.etapas button:active,.pickrow button:active,.opt:active,.choice:active,.stores a:active,.sug button:active,.mini3 a:active{transform:scale(.96)}
+.room-card:active,.feat:active,.offer:active,.stage:active,a.hero:active,a.search:active,.istep:active{transform:scale(.98)}
+.fab:active{transform:scale(.92) rotate(90deg)}
+.tab:active{transform:translateY(1px) scale(.94)}
+.chk:active span{transform:scale(.85)}
+.mrow>button:active .box{transform:scale(.85)}
+.mrow .box{transition:background .2s,border-color .2s,transform .2s var(--ease)}
+.item-main:active,.mov:active,.add-inline:active{opacity:.7}
+.tab[aria-current="page"] svg{animation:tabPop .45s var(--ease)}
+@keyframes tabPop{40%{transform:translateY(-3px) scale(1.12)}}
+.icon-btn .dot{animation:dotPulse 2.4s ease-in-out infinite}
+@keyframes dotPulse{0%,100%{box-shadow:0 0 0 0 rgba(162,69,59,.45)}60%{box-shadow:0 0 0 6px rgba(162,69,59,0)}}
+.item.pop .chk span{animation:pop .5s var(--ease)}
+.item.pop .chk svg path,.mrow.pop .box svg path{stroke-dasharray:24;animation:draw .38s .08s ease-out both}
+@keyframes draw{from{stroke-dashoffset:24}}
+.item.pop{animation:rowGlow .9s ease-out}
+@keyframes rowGlow{0%{background:var(--sage)}100%{background:transparent}}
+.item.gift.pop{animation-name:rowGlowLav}
+@keyframes rowGlowLav{0%{background:var(--lav)}100%{background:transparent}}
+.mrow.pop .box{animation:pop .45s var(--ease)}
+.page.enter-fade>*,.page.enter-push>*,.guest.enter-fade>*{animation:rise .5s var(--ease) both}
+.page.enter-fade>*:nth-child(2),.page.enter-push>*:nth-child(2),.guest>*:nth-child(2){animation-delay:40ms}
+.page.enter-fade>*:nth-child(3),.page.enter-push>*:nth-child(3),.guest>*:nth-child(3){animation-delay:80ms}
+.page.enter-fade>*:nth-child(4),.page.enter-push>*:nth-child(4){animation-delay:120ms}
+.page.enter-fade>*:nth-child(5),.page.enter-push>*:nth-child(5){animation-delay:160ms}
+.page.enter-fade>*:nth-child(6),.page.enter-push>*:nth-child(6){animation-delay:200ms}
+.page.enter-fade>*:nth-child(n+7),.page.enter-push>*:nth-child(n+7){animation-delay:240ms}
+.hero .chip-glass{animation:float 5s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+.feat .fic{transition:transform .3s var(--ease)}
+.feat:active .fic{transform:rotate(-8deg) scale(1.08)}
+.sheet-body>*{animation:rise .4s var(--ease) both;animation-delay:.08s}
+.tour .box{animation:rise .35s var(--ease) both}
+.tour .ring{animation:ringPulse 1.8s ease-in-out infinite}
+@keyframes ringPulse{0%,100%{box-shadow:0 0 0 4px #F6F2EC}50%{box-shadow:0 0 0 7px rgba(246,242,236,.75)}}
+.empty b{animation:rise .5s var(--ease) both}
+.switch i{transition:transform .25s var(--ease)}
+.big,.mid{font-variant-numeric:tabular-nums}
+
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0ms!important;transition-duration:.01ms!important}
 }
@@ -520,7 +561,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.13-1";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.13-2";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -1211,7 +1252,7 @@ function render(mode) {
   let animate = false;
   const page = app.firstElementChild;
   if (S.loaded && page && !page.classList.contains("loading")) {
-    animate = !S.introDone || mode === "enter-push";
+    animate = !S.introDone || mode === "enter-push" || (mode === "enter-fade" && !!r.tab);
     S.introDone = true;
   }
   finish(app, mode, r, animate);
@@ -1225,7 +1266,7 @@ function finish(app, mode, r, animate) {
     $$("[data-w]").forEach(el => el.style.width = el.dataset.w + "%");
     $$("[data-h]").forEach(el => el.style.height = el.dataset.h + "px");
   };
-  if (animate) requestAnimationFrame(() => requestAnimationFrame(fill));
+  if (animate) { requestAnimationFrame(() => requestAnimationFrame(fill)); $$("[data-count]").forEach(countUp); }
   else {
     const els = $$("[data-w],[data-h]");
     $$(".stagger").forEach(el => el.classList.remove("stagger"));
@@ -1236,6 +1277,13 @@ function finish(app, mode, r, animate) {
   }
   if (S.popId) { const row = document.querySelector(`.item[data-id="${CSS.escape(S.popId)}"]`); if (row) row.classList.add("pop"); S.popId = null; }
   if (r.name === "item") loadPhotos(r.id);
+}
+function countUp(el) {
+  const end = +el.dataset.count || 0, suf = el.dataset.suf || "";
+  if (!end || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+  const t0 = performance.now(), dur = 900;
+  const step = t => { const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3); el.textContent = Math.round(end * e) + suf; if (k < 1) requestAnimationFrame(step); };
+  el.textContent = "0" + suf; requestAnimationFrame(step);
 }
 function navigate() {
   const prev = S.route;
@@ -1265,7 +1313,9 @@ function rerender() { const y = window.scrollY; render(null); window.scrollTo(0,
 function setTabs(active) {
   const bar = $("#tabbar");
   document.body.classList.toggle("has-tabs", !!active);
-  if (!active) { bar.classList.add("hide"); return; }
+  if (!active) { bar.classList.add("hide"); bar.dataset.active = ""; return; }
+  if (bar.dataset.active === active && !bar.classList.contains("hide")) return;
+  bar.dataset.active = active;
   const t = (id, href, icon, label) => `<a class="tab" data-tab="${id}" href="${href}" ${active === id ? 'aria-current="page"' : ""}>${ic(icon, 23, active === id ? 2 : 1.8)}${label}</a>`;
   bar.innerHTML = `<nav aria-label="Abas">
     ${t("home", "#/", "home", "Início")}
@@ -1329,7 +1379,7 @@ function viewHome() {
     <section class="hero" aria-label="Progresso da casa">
       <span class="chip-glass">${ic("key", 14, 2)}${esc(chavesTxt())}</span>
       <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px">
-        <div style="display:flex;flex-direction:column;gap:2px"><span class="big">${p}%</span><span class="mut" style="font-size:14px">da casa já montada</span></div>
+        <div style="display:flex;flex-direction:column;gap:2px"><span class="big" data-count="${p}" data-suf="%">${p}%</span><span class="mut" style="font-size:14px">da casa já montada</span></div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><b style="font-size:18px">${d} de ${t}</b><span class="mut" style="font-size:13px">itens</span></div>
       </div>
       <div class="hbar"><i data-w="${p}"></i></div>
@@ -1620,7 +1670,7 @@ function viewMercado() {
     <div class="chips" role="group" aria-label="Mostrar">${[["all", "Tudo"], ["falta", "Faltam"], ["ok", "No carrinho"]].map(([k, l]) => `<button class="chip" data-act="m-filter" data-v="${k}" aria-pressed="${f === k}">${l}</button>`).join("")}</div>
     ${groups.map(g => { const v = g.l.filter(i => f === "all" || (f === "ok" ? i.ok : !i.ok)); return v.length ? `<section style="display:flex;flex-direction:column;gap:8px">
       <div class="grp-h"><h3>${esc(g.c)}</h3><span>${g.l.filter(i => i.ok).length} de ${g.l.length}</span></div>
-      <div class="items">${v.map(i => `<div class="mrow ${i.ok ? "on" : ""}" style="padding-right:4px"><button class="row grow" style="gap:12px;min-height:52px;text-align:left" data-act="m-toggle" data-ym="${ym}" data-id="${esc(i.id)}" aria-pressed="${!!i.ok}"><span class="box">${ic("check", 14, 3)}</span><span class="nm">${esc(i.nome)}</span>${i.qtd ? `<span class="q">${esc(i.qtd)}</span>` : ""}</button><button class="rm" data-act="m-rm" data-ym="${ym}" data-id="${esc(i.id)}" aria-label="Tirar ${esc(i.nome)}">${ic("x", 16, 2)}</button></div>`).join("")}</div>
+      <div class="items">${v.map(i => `<div class="mrow ${i.ok ? "on" : ""} ${S.mPop === i.id ? "pop" : ""}" style="padding-right:4px"><button class="row grow" style="gap:12px;min-height:52px;text-align:left" data-act="m-toggle" data-ym="${ym}" data-id="${esc(i.id)}" aria-pressed="${!!i.ok}"><span class="box">${ic("check", 14, 3)}</span><span class="nm">${esc(i.nome)}</span>${i.qtd ? `<span class="q">${esc(i.qtd)}</span>` : ""}</button><button class="rm" data-act="m-rm" data-ym="${ym}" data-id="${esc(i.id)}" aria-label="Tirar ${esc(i.nome)}">${ic("x", 16, 2)}</button></div>`).join("")}</div>
     </section>` : ""; }).join("") || empty(f === "ok" ? "Nada no carrinho ainda" : "Tudo no carrinho!", f === "ok" ? "Marca os itens conforme for pegando." : "Agora é só passar no caixa.")}
     <div class="btns2"><button class="btn ghost" data-act="m-new" data-v="${nextYm}" style="font-size:14px">${S.mercado.has(nextYm) ? "Ver " + monthName(nextYm) : "Começar " + monthName(nextYm)}</button><button class="btn primary" data-act="lancar" style="font-size:14px">Lançar compra</button></div>`
     : `<div class="card center" style="align-items:center;gap:10px;padding:22px 18px"><b>Lista de ${monthName(ym)}</b><span class="small muted">A gente monta uma lista com o básico de mercado, limpeza e higiene. Depois é só tirar e colocar o que quiser.</span><button class="btn primary" data-act="m-new" data-v="${ym}">Montar a lista do mês</button></div>`}
@@ -2961,7 +3011,7 @@ document.addEventListener("click", e => {
   else if (a === "m-filter") { S.mFilter = el.dataset.v; rerender(); }
   else if (a === "m-month") openMesMercado();
   else if (a === "m-new") { const ym = el.dataset.v; if (S.mercado.has(ym)) S.mMonth = ym; else novaListaMercado(ym); rerender(); window.scrollTo(0, 0); }
-  else if (a === "m-toggle") { const ym = el.dataset.ym, d = S.mercado.get(ym); if (!d) return; saveMercado(ym, d.itens.map(i => i.id === id ? { ...i, ok: !i.ok } : i)); rerender(); }
+  else if (a === "m-toggle") { const ym = el.dataset.ym, d = S.mercado.get(ym); if (!d) return; const was = d.itens.find(i => i.id === id)?.ok; S.mPop = was ? null : id; saveMercado(ym, d.itens.map(i => i.id === id ? { ...i, ok: !i.ok } : i)); rerender(); setTimeout(() => { S.mPop = null; }, 600); }
   else if (a === "m-rm") { const ym = el.dataset.ym, d = S.mercado.get(ym); if (!d) return; const old = d.itens; const it = old.find(i => i.id === id); saveMercado(ym, old.filter(i => i.id !== id)); rerender(); toast(`${it?.nome || "Item"} saiu da lista`, "Desfazer", () => { saveMercado(ym, old); rerender(); }); }
   else if (a === "ach-tab") { S.achTab = el.dataset.v; rerender(); }
   else if (a === "push") askPush(() => rerender());
