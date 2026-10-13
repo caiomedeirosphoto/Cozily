@@ -1,13 +1,13 @@
 {
   "name": "Cozily",
   "short_name": "Cozily",
-  "description": "Tudo do nosso AP, item por item.",
+  "description": "Monte sua casa nova item por item.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#F3F2EE",
-  "theme_color": "#F3F2EE",
+  "background_color": "#F6F2EC",
+  "theme_color": "#F6F2EC",
   "lang": "pt-BR",
   "icons": [
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },

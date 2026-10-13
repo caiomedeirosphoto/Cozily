@@ -1,15 +1,55 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Casa original do Caio e da Mirielly
-    match /casas/nosso-ap/{path=**} {
-      allow read, write: if request.auth != null
-        && request.auth.token.email == 'caiodanielmedeiros1597@gmail.com';
+
+    function signedIn() { return request.auth != null; }
+    function myEmail() { return request.auth.token.email.lower(); }
+    function casaPath(casaId) { return /databases/$(database)/documents/casas/$(casaId); }
+    // Quem pode mexer numa casa: o dono (id da conta), a conta original do nosso-ap,
+    // ou qualquer e-mail que esteja na lista "membros" da casa.
+    function isMember(casaId) {
+      return signedIn() && (
+        request.auth.uid == casaId
+        || (casaId == 'nosso-ap' && myEmail() == 'caiodanielmedeiros1597@gmail.com')
+        || (exists(casaPath(casaId)) && myEmail() in get(casaPath(casaId)).data.get('membros', []))
+      );
     }
-    // Cada conta nova tem a própria casa: casas/{id da conta}
-    match /casas/{casaId}/{path=**} {
-      allow read, write: if request.auth != null
-        && request.auth.uid == casaId;
+
+    match /casas/{casaId} {
+      allow read, write: if isMember(casaId);
+      match /{path=**} {
+        allow read, write: if isMember(casaId);
+      }
     }
+
+    // Convites: quem é da casa convida; o convidado lê o próprio convite para entrar na casa.
+    match /convites/{email} {
+      allow read: if signedIn() && myEmail() == email;
+      allow create, update: if isMember(request.resource.data.casaId);
+      allow delete: if isMember(resource.data.casaId);
+    }
+
+    // Lista de presentes: página pública (convidado não faz login).
+    match /listas/{slug} {
+      allow read: if true;
+      allow create: if isMember(request.resource.data.casaId);
+      allow update: if isMember(resource.data.casaId) && request.resource.data.casaId == resource.data.casaId;
+      allow delete: if isMember(resource.data.casaId);
+
+      // Reserva de presente: qualquer um cria, ninguém sobrescreve; só a casa libera.
+      match /reservas/{itemId} {
+        allow read: if true;
+        allow create: if request.resource.data.keys().hasOnly(['nome', 'em'])
+          && request.resource.data.nome is string
+          && request.resource.data.nome.size() > 0 && request.resource.data.nome.size() <= 60
+          && request.resource.data.em is number;
+        allow update: if false;
+        allow delete: if isMember(get(/databases/$(database)/documents/listas/$(slug)).data.casaId);
+      }
+    }
+
+    // Ofertas e cupons: o app só lê (quem escreve é o robô do painel, mais pra frente).
+    match /ofertas/{id} { allow read: if signedIn(); allow write: if false; }
+    match /cupons/{id} { allow read: if signedIn(); allow write: if false; }
   }
 }
