@@ -14,7 +14,21 @@ service cloud.firestore {
         request.auth.uid == casaId
         || (verified() && casaId == 'nosso-ap' && myEmail() == 'caiodanielmedeiros1597@gmail.com')
         || (verified() && exists(casaPath(casaId)) && myEmail() in get(casaPath(casaId)).data.get('membros', []))
+        || (verified() && exists(meuConvite()) && get(meuConvite()).data.casaId == casaId)
       );
+    }
+    function meuConvite() { return /databases/$(database)/documents/convites/$(myEmail()); }
+    // Entrar pelo link do WhatsApp: na mesma gravação, a pessoa marca o código como usado por ela
+    // e cria o próprio convite apontando pra casa do código. Só funciona com código válido e não usado.
+    function entrouPeloLink(email) {
+      let d = request.resource.data;
+      let c = /databases/$(database)/documents/codigos/$(d.codigo);
+      return signedIn() && verified() && myEmail() == email
+        && d.keys().hasOnly(['casaId', 'de', 'em', 'codigo'])
+        && d.codigo is string && exists(c)
+        && !('usadoPor' in get(c).data)
+        && get(c).data.casaId == d.casaId
+        && getAfter(c).data.usadoPor == myEmail();
     }
     // Fotos: só imagem e com tamanho limitado (o app já reduz antes de subir).
     function fotoOk() {
@@ -40,8 +54,28 @@ service cloud.firestore {
     // Ninguém consegue trocar um convite que já existe pra apontar pra outra casa.
     match /convites/{email} {
       allow read: if signedIn() && verified() && myEmail() == email;
-      allow create: if isMember(request.resource.data.casaId);
-      allow update: if isMember(resource.data.casaId) && isMember(request.resource.data.casaId);
+      allow create: if isMember(request.resource.data.casaId) || entrouPeloLink(email);
+      allow update: if (isMember(resource.data.casaId) && isMember(request.resource.data.casaId)) || entrouPeloLink(email);
+      allow delete: if isMember(resource.data.casaId);
+    }
+
+    // Link de convite (WhatsApp): qualquer um com o código lê (pra ver quem chamou), ninguém lista.
+    // Vale 7 dias e serve pra uma pessoa só.
+    match /codigos/{code} {
+      allow get: if true;
+      allow list: if false;
+      allow create: if isMember(request.resource.data.casaId)
+        && code.size() >= 16 && code.size() <= 40
+        && request.resource.data.keys().hasOnly(['casaId', 'de', 'casa', 'nome', 'rel', 'em', 'exp'])
+        && request.resource.data.nome is string && request.resource.data.nome.size() <= 40
+        && request.resource.data.rel is string && request.resource.data.rel.size() <= 20
+        && request.resource.data.exp is int
+        && request.resource.data.exp <= request.time.toMillis() + 8 * 86400000;
+      allow update: if signedIn() && verified()
+        && !('usadoPor' in resource.data)
+        && request.time.toMillis() < resource.data.exp
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usadoPor', 'usadoEm'])
+        && request.resource.data.usadoPor == myEmail();
       allow delete: if isMember(resource.data.casaId);
     }
 

@@ -424,6 +424,17 @@ input[type=date].input,input[type=month].input{min-width:0;display:flex;align-it
 .opt .ot b{font-size:15px}.opt .ot span{font-size:13px;color:var(--muted)}
 .member{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line3)}
 .member:last-child{border-bottom:0}
+.convite-quem{display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--line3);padding-top:16px}
+.chips.wrap{flex-wrap:wrap;overflow:visible;margin:0;padding:0}
+.chips.wrap .chip{height:36px;padding:0 13px}
+.convite-wa{display:flex;flex-direction:column;gap:8px;align-items:stretch}
+.convite-wa .link-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;align-self:center}
+.convite-mail{border-top:1px solid var(--line3);padding-top:6px}
+.convite-mail>summary{list-style:none;display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer}
+.convite-mail>summary::-webkit-details-marker{display:none}
+.convite-mail>summary svg:last-child{transition:transform var(--t-press) ease}
+.convite-mail[open]>summary svg:last-child{transform:rotate(180deg)}
+.convite-mail[open]{display:flex;flex-direction:column;gap:12px}
 .av{width:40px;height:40px;border-radius:50%;background:var(--tile);color:var(--ink2);display:flex;align-items:center;justify-content:center;font-weight:700;flex:none}
 .av.lav{background:var(--lav);color:var(--lav-ink)}
 .member .mt{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
@@ -670,7 +681,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.14-5";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.14-6";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -1147,7 +1158,7 @@ function makeDemoStore() {
   const KEY = "cozily-demo-v3";
   const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } };
   let db = load();
-  db.users = db.users || {}; db.casas = db.casas || {}; db.globals = db.globals || {}; db.listas = db.listas || {}; db.convites = db.convites || {};
+  db.users = db.users || {}; db.casas = db.casas || {}; db.globals = db.globals || {}; db.listas = db.listas || {}; db.convites = db.convites || {}; db.codigos = db.codigos || {};
   if (DEMO_PRELOAD && !db.users["caio@exemplo.com"]) {
     db.users["caio@exemplo.com"] = { uid: "demo-caio", senha: "demonstracao", nome: "Caio" };
     db.users["mirielly@exemplo.com"] = { uid: "demo-miri", senha: "demonstracao", nome: "Mirielly" };
@@ -1212,6 +1223,15 @@ function makeDemoStore() {
     async putPhotos(id, a) { const c = casa(); if (a.length) c.photos[id] = a; else delete c.photos[id]; persist(); },
     async invite(email, deNome) { email = email.toLowerCase().trim(); db.convites[email] = { casaId, de: deNome, em: Date.now() }; persist(); },
     async uninvite(email) { delete db.convites[email]; persist(); },
+    async criarCodigo(code, de, nomeCasa, nome, rel) { db.codigos[code] = { casaId, de: de || "", casa: nomeCasa || "", nome: nome || "", rel: rel || "", em: Date.now(), exp: Date.now() + CODIGO_DIAS * 864e5 }; persist(); },
+    async lerCodigo(code) { return db.codigos[code] ? { ...db.codigos[code] } : null; },
+    async usarCodigo(code) {
+      const c = db.codigos[code], email = db.session;
+      if (!c || c.usadoPor || c.exp < Date.now() || !email) throw { code: "permission-denied" };
+      c.usadoPor = email; c.usadoEm = Date.now();
+      db.convites[email] = { casaId: c.casaId, de: c.de, em: Date.now(), codigo: code }; persist();
+    },
+    async delCodigo(code) { delete db.codigos[code]; persist(); },
     watchLista(slugId, cb) { return listen(() => { const l = db.listas[slugId]; cb(l ? l.data : null); }); },
     watchReservas(slugId, cb) { return listen(() => cb(arr(db.listas[slugId]?.reservas))); },
     async listaLivre(slugId) { const l = db.listas[slugId]; return !l || l.data.casaId === casaId; },
@@ -1302,6 +1322,19 @@ async function makeFirebaseStore() {
       await A.sendSignInLinkToEmail(auth, email, { url, handleCodeInApp: true });
     },
     uninvite: email => F.deleteDoc(F.doc(db, "convites", email)).catch(() => {}),
+    criarCodigo: (code, de, nomeCasa, nome, rel) => F.setDoc(F.doc(db, "codigos", code), { casaId, de: de || "", casa: nomeCasa || "", nome: nome || "", rel: rel || "", em: Date.now(), exp: Date.now() + CODIGO_DIAS * 864e5 }),
+    async lerCodigo(code) { try { const d = await F.getDoc(F.doc(db, "codigos", code)); return d.exists() ? d.data() : null; } catch { return null; } },
+    async usarCodigo(code) {
+      const ref = F.doc(db, "codigos", code), d = await F.getDoc(ref);
+      const email = (auth.currentUser?.email || "").toLowerCase();
+      if (!d.exists() || !email) throw { code: "permission-denied" };
+      const c = d.data();
+      const b = F.writeBatch(db);
+      b.update(ref, { usadoPor: email, usadoEm: Date.now() });
+      b.set(F.doc(db, "convites", email), { casaId: c.casaId, de: c.de || "", em: Date.now(), codigo: code });
+      await b.commit();
+    },
+    delCodigo: code => F.deleteDoc(F.doc(db, "codigos", code)).catch(() => {}),
     watchLista: (s, cb) => F.onSnapshot(F.doc(db, "listas", s), d => cb(d.exists() ? d.data() : null), () => cb(null)),
     watchReservas: (s, cb) => F.onSnapshot(F.collection(db, "listas", s, "reservas"), q => cb(list(q)), () => cb([])),
     async listaLivre(s) { try { const d = await F.getDoc(F.doc(db, "listas", s)); return !d.exists() || d.data().casaId === casaId; } catch { return false; } },
@@ -1333,6 +1366,12 @@ const nomesCasa = () => S.settings.nomes || (S.casaId === "nosso-ap" ? NOMES_PAD
 /* guia de boas-vindas: só pra conta recém-criada (salvo na conta, não no aparelho) */
 const GUIA_DIAS = 3;
 const guiaKey = () => `guia_${S.user?.uid || "x"}`;
+/* convite por link (WhatsApp): código aleatório, vale CODIGO_DIAS e serve pra uma pessoa só */
+const CODIGO_DIAS = 7;
+function novoCodigo() { const b = new Uint8Array(16); crypto.getRandomValues(b); return btoa(String.fromCharCode(...b)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); }
+const codigoOk = c => typeof c === "string" && /^[\w-]{16,40}$/.test(c);
+function lsGet(k) { try { return localStorage.getItem(k); } catch { return null; } }
+function lsSet(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} }
 const guiaNovo = () => ({ [guiaKey()]: { em: Date.now(), tour: 0, x: [] } });
 function guia() {
   const g = S.user && S.settings?.[guiaKey()];
@@ -1431,11 +1470,12 @@ function render(mode) {
   if (S.linkMode) { app.innerHTML = viewLinkLogin(); setTabs(null); finish(app, mode, r, false); return; }
   if (!S.user) { app.innerHTML = viewLogin(); setTabs(null); finish(app, mode, r, false); return; }
   if (S.needVerify) { app.innerHTML = viewVerify(); setTabs(null); finish(app, mode, r, false); return; }
+  if (S.codigoConfirm || S.codigoErro) { app.innerHTML = S.codigoConfirm ? viewCodigoConfirm() : viewCodigoErro(); setTabs(null); finish(app, mode, r, false); return; }
   let html = "", tab = null;
   const onb = S.loaded && needsOnboarding();
   if (!S.loaded) html = `<div class="loading"><div class="spinner" role="status" aria-label="Carregando"></div></div>`;
   else if (onb) html = viewOnboarding();
-  else if (S.post && S.post.length) html = S.post[0] === "avisos" ? viewAtivarAvisos() : viewInstalar();
+  else if (S.post && S.post.length) html = S.post[0] === "bemvindo" ? viewBemVindo() : S.post[0] === "avisos" ? viewAtivarAvisos() : viewInstalar();
   else {
     tab = r.tab || null;
     html = r.name === "room" ? viewRoom(r.id)
@@ -2698,24 +2738,79 @@ function guestPick(id) {
 }
 
 /* ---------------- QUEM MORA JUNTO ---------------- */
+const RELACOES = ["Noiva", "Noivo", "Namorada", "Namorado", "Esposa", "Marido", "Parente", "Amigo(a)", "Outro"];
+const pessoas = () => S.settings.pessoas || {};
+function salvarPessoa(email, o) {
+  const ps = { ...pessoas(), [email]: { ...(pessoas()[email] || {}), ...o } };
+  S.settings = { ...S.settings, pessoas: ps }; write(S.store.putSettings({ pessoas: ps }));
+}
+const venceEm = exp => new Date(exp).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+const btnCancel = attr => `<button class="small" style="font-weight:700;color:var(--muted);min-height:40px;padding:0 6px" ${attr}>Cancelar</button>`;
+/* sugestão de nome pra quem ainda não tem: primeiro nome de "Caio e Mirielly" quando bate com o e-mail */
+function nomeSugerido(email = S.user.email) {
+  const pre = norm(email.split("@")[0]);
+  return (nomesCasa() || "").split(/\s+e\s+|,\s*/).map(x => x.trim()).find(n => n && pre.startsWith(norm(n.split(/\s+/)[0]).slice(0, 4))) || "";
+}
 function membrosHtml() {
   const mem = S.settings.membros || [S.user.email];
   const ok = new Set(S.settings.membrosOk || []);
+  const ps = pessoas();
   const nomes = Object.fromEntries((S.settings.chegadas || []).map(c => [c.email, c.nome]));
   return mem.map(e => {
     const eu = e === S.user.email, pend = !eu && !ok.has(e) && e !== Object.keys(LEGACY).find(k => LEGACY[k] === S.casaId);
-    const nome = eu ? (meuNome() || "Você") : nomes[e] || e.split("@")[0];
-    return `<div class="member"><span class="av ${pend ? "" : "lav"}">${esc(initials(nome))}</span><span class="mt"><b>${esc(nome)}${eu ? " · você" : ""}</b><span>${esc(e)}</span>${pend ? `<span style="color:var(--honey-ink);font-weight:600">Convite enviado por e-mail · aguardando</span>` : ""}</span>
-      ${pend ? `<button class="small" style="font-weight:700;color:var(--muted);min-height:40px;padding:0 6px" data-unv="${esc(e)}">Cancelar</button>` : ""}</div>`;
-  }).join("");
+    const p = ps[e] || {};
+    const nome = eu ? meuNome() : p.nome || nomes[e] || nomeSugerido(e) || e.split("@")[0];
+    const sub = [p.rel, e].filter(Boolean).join(" · ");
+    if (eu && S.editNome) return `<form class="member" id="jNomeForm"><span class="av lav">${esc(initials(nome || "?"))}</span><span class="mt" style="flex-direction:row;gap:8px;align-items:center"><input class="input grow" id="jNome" value="${esc(nome || nomeSugerido())}" placeholder="Seu nome" autocapitalize="words" autocomplete="given-name" maxlength="40" style="min-height:44px"><button class="btn primary sm" type="submit" style="min-height:44px">Salvar</button></span></form>`;
+    return `<div class="member"><span class="av ${pend ? "" : "lav"}">${esc(initials(nome || "Você"))}</span><span class="mt"><b>${eu ? (nome ? esc(nome) + " · você" : "Você") : esc(nome)}</b><span>${esc(sub)}</span>${pend ? `<span style="color:var(--honey-ink);font-weight:600">Convite enviado por e-mail · aguardando</span>` : ""}</span>
+      ${pend ? btnCancel(`data-unv="${esc(e)}"`) : eu ? `<button class="small" style="font-weight:700;color:var(--g);min-height:40px;padding:0 6px" data-editnome>${nome ? "Editar" : "Pôr meu nome"}</button>` : ""}</div>`;
+  }).join("") + linksPendentes().map(l => `<div class="member"><span class="av" style="background:var(--sage);color:var(--sage-ink)">${l.nome ? esc(initials(l.nome)) : ic("chat", 17, 2)}</span><span class="mt"><b>${l.nome ? esc(l.nome) : "Convite pelo WhatsApp"}</b>${l.rel || l.nome ? `<span>${esc([l.rel, "pelo WhatsApp"].filter(Boolean).join(" · "))}</span>` : ""}<span style="color:var(--honey-ink);font-weight:600">Aguardando · vale até ${venceEm(l.exp)}</span></span>
+      ${btnCancel(`data-unl="${esc(l.c)}"`)}</div>`).join("");
+}
+const linksPendentes = () => (S.settings.links || []).filter(l => l && l.exp > Date.now());
+const nomeDaCasa = () => S.settings.nomeCasa || S.ob?.casa || "";
+function waConvite(code) {
+  const url = location.origin + location.pathname + "?c=" + code;
+  const casa = nomeDaCasa();
+  const quem = (S.conv?.nome || "").trim().split(/\s+/)[0];
+  const msg = `Oi${quem ? ", " + quem : ""}! Te chamei pra montar ${casa ? "o " + casa : "a nossa casa"} comigo no Cozily 🏡\nEntra por aqui: ${url}\n\nO link vale por ${CODIGO_DIAS} dias.`;
+  return { url, msg, wa: "https://wa.me/?text=" + encodeURIComponent(msg) };
+}
+let codigoPronto = null;
+const codigoDaVez = () => codigoPronto || (codigoPronto = novoCodigo());
+/* o link já fica pronto antes do toque: o WhatsApp abre na hora (iPhone bloqueia abrir depois de esperar a internet) */
+function registrarCodigo() {
+  const code = codigoDaVez(); codigoPronto = null;
+  const exp = Date.now() + CODIGO_DIAS * 864e5;
+  const nome = (S.conv?.nome || "").trim().slice(0, 40), rel = S.conv?.rel || "";
+  write(S.store.criarCodigo(code, meuNome() || nomeSugerido(), nomeDaCasa(), nome, rel), "Não deu pra criar o convite. Confere a internet?");
+  const l = { c: code, exp }; if (nome) l.nome = nome; if (rel) l.rel = rel;
+  const links = [...linksPendentes(), l].slice(-10);
+  S.settings = { ...S.settings, links };
+  write(S.store.putSettings({ links }));
+  return code;
 }
 function juntosBody() {
+  S.conv = S.conv || { nome: "", rel: "" };
+  S.editNome = !meuNome();
+  const w = waConvite(codigoDaVez());
   return `<div class="card" style="gap:0;padding:4px 16px" id="jList">${membrosHtml()}</div>
-    <form id="jForm" class="field"><label for="jEmail">Convidar mais alguém</label>
+    <div class="convite-quem">
+      <b class="disp" style="font-size:17px">Convidar alguém</b>
+      <div class="field"><label for="jQuem">Nome</label><input class="input" id="jQuem" value="${esc(S.conv.nome)}" placeholder="Ex.: Mirielly" autocapitalize="words" autocomplete="off" maxlength="40"></div>
+      <div class="field"><span class="lbl" id="jRelL">Essa pessoa é sua…</span><div class="chips wrap" role="group" aria-labelledby="jRelL">${RELACOES.map(r => `<button type="button" class="chip" data-rel="${esc(r)}" aria-pressed="${S.conv.rel === r}">${esc(r)}</button>`).join("")}</div></div>
+    </div>
+    <div class="convite-wa">
+      <a class="btn sage block lg" id="jWa" href="${esc(w.wa)}" target="_blank" rel="noopener">${ic("chat", 19, 2)} Chamar pelo WhatsApp</a>
+      <span class="small center" style="color:var(--muted2);line-height:1.45">Abre o WhatsApp com o convite pronto. É só escolher a pessoa. O link vale ${CODIGO_DIAS} dias e serve pra uma pessoa só.</span>
+      <button class="link-btn" type="button" id="jCopy">${ic("copy", 15, 2)} Copiar link do convite</button>
+    </div>
+    <details class="convite-mail"${S.lastInvite ? " open" : ""}><summary>${ic("mail", 16, 2)} Prefiro mandar por e-mail ${ic("down", 14, 2.4)}</summary>
+    <form id="jForm" class="field"><label for="jEmail">E-mail dela(e)</label>
       <div class="row"><input class="input grow" id="jEmail" type="email" inputmode="email" autocapitalize="off" placeholder="E-mail da pessoa" autocomplete="off"><button class="btn primary" type="submit" style="min-height:52px">Convidar</button></div>
       <span class="small" style="color:var(--muted2)">Se a pessoa for entrar com o Google, usa o mesmo e-mail da conta Google dela.</span></form>
     <div class="err" id="jErr" role="alert"></div>
-    <div id="jOk">${S.lastInvite ? inviteOkHtml(S.lastInvite.email, S.lastInvite.nome) : ""}</div>`;
+    <div id="jOk">${S.lastInvite ? inviteOkHtml(S.lastInvite.email, S.lastInvite.nome) : ""}</div></details>`;
 }
 function inviteOkHtml(email, nome) {
   return `<div class="tip mist" style="flex-direction:column;gap:10px;padding:14px">
@@ -2736,11 +2831,52 @@ function wireJuntos(root) {
     btn.disabled = false; btn.textContent = "Convidar";
     if (r === false) { err.textContent = "Não deu pra convidar agora. Confere a internet e tenta de novo?"; return; }
     inp.value = "";
+    const dado = (S.conv?.nome || "").trim().slice(0, 40), rel = S.conv?.rel || "";
+    if (dado || rel) salvarPessoa(email, Object.assign({}, dado && { nome: dado }, rel && { rel }));
     $("#jList", root).innerHTML = membrosHtml();
-    S.lastInvite = { email, nome: email.split("@")[0].replace(/[._-]+/g, " ").replace(/\d+/g, "").trim().replace(/^\w/, c => c.toUpperCase()) || "essa pessoa" };
+    S.lastInvite = { email, nome: dado.split(/\s+/)[0] || email.split("@")[0].replace(/[._-]+/g, " ").replace(/\d+/g, "").trim().replace(/^\w/, c => c.toUpperCase()) || "essa pessoa" };
     $("#jOk", root).innerHTML = inviteOkHtml(S.lastInvite.email, S.lastInvite.nome);
+    refreshWa();
+  };
+  const quem = $("#jQuem", root);
+  quem.oninput = () => { S.conv.nome = quem.value; const a = $("#jWa", root); if (a) a.href = waConvite(codigoDaVez()).wa; };
+  root.addEventListener("submit", e => {
+    if (e.target.id !== "jNomeForm") return;
+    e.preventDefault();
+    const n = $("#jNome", root).value.trim().slice(0, 40);
+    if (!n) return;
+    S.user = { ...S.user, nome: n }; S.editNome = false;
+    write(S.store.setName(n)); salvarPessoa(S.user.email, { nome: n });
+    $("#jList", root).innerHTML = membrosHtml(); toast("Nome salvo");
+  });
+  const refreshWa = () => {
+    S.conv = { nome: "", rel: "" }; quem.value = "";
+    $$("[data-rel]", root).forEach(x => x.setAttribute("aria-pressed", "false"));
+    const a = $("#jWa", root); if (a) a.href = waConvite(codigoDaVez()).wa; $("#jList", root).innerHTML = membrosHtml();
+  };
+  $("#jWa", root).onclick = () => { registrarCodigo(); setTimeout(refreshWa, 400); };
+  $("#jCopy", root).onclick = async () => {
+    const code = registrarCodigo(), w = waConvite(code);
+    try { await navigator.clipboard.writeText(w.msg); toast("Convite copiado! Cola no WhatsApp ou onde quiser."); }
+    catch { toast("Não deu pra copiar. Usa o botão do WhatsApp?"); }
+    refreshWa();
   };
   root.addEventListener("click", async e => {
+    const rb = e.target.closest("[data-rel]");
+    if (rb) {
+      S.conv.rel = S.conv.rel === rb.dataset.rel ? "" : rb.dataset.rel;
+      $$("[data-rel]", root).forEach(x => x.setAttribute("aria-pressed", String(x.dataset.rel === S.conv.rel)));
+      return;
+    }
+    if (e.target.closest("[data-editnome]")) { S.editNome = true; $("#jList", root).innerHTML = membrosHtml(); setTimeout(() => $("#jNome", root)?.focus(), 30); return; }
+    const ul = e.target.closest("[data-unl]");
+    if (ul) {
+      const code = ul.dataset.unl, links = (S.settings.links || []).filter(l => l.c !== code);
+      S.settings = { ...S.settings, links };
+      write(S.store.putSettings({ links })); write(S.store.delCodigo(code));
+      $("#jList", root).innerHTML = membrosHtml(); toast("Convite cancelado. Aquele link não funciona mais.");
+      return;
+    }
     const rs = e.target.closest("[data-resend]");
     if (rs) { rs.disabled = true; const r = await convidar(rs.dataset.resend, true); rs.disabled = false; toast(r === false ? "Não deu pra reenviar agora" : "Convite reenviado! Dá uma olhadinha no spam também."); }
     const un = e.target.closest("[data-unv]");
@@ -2760,7 +2896,7 @@ async function convidar(email, resend) {
       S.settings = { ...S.settings, membros };
       await S.store.putSettings({ membros });
     }
-    await S.store.invite(email, meuNome());
+    await S.store.invite(email, meuNome() || nomeSugerido());
     return true;
   } catch (err) {
     console.error(err);
@@ -3047,29 +3183,75 @@ const isStandalone = () => window.matchMedia?.("(display-mode: standalone)").mat
    =================================================================== */
 function viewLogin() {
   const criar = S.authMode === "criar";
+  const cv = S.codigo && S.codigoInfo && !S.codigoInfo.invalido ? S.codigoInfo : null;
+  const brand = cv
+    ? `<div class="brand"><div class="logo">${LOGO(46)}</div><h1 style="font-size:26px;line-height:1.2">${esc(cv.de || "Alguém")} te chamou pra montar ${cv.casa ? "o " + esc(cv.casa) : "a casa"} junto</h1><p>${criar ? "Cria sua conta, leva 1 minutinho. Depois vocês veem a mesma lista, ao mesmo tempo." : "Entra com a sua conta e a casa aparece pra você."}</p></div>`
+    : `<div class="brand"><div class="logo">${LOGO(46)}</div><h1 class="wordmark">cozily</h1><p>Monte sua casa nova item por item, do primeiro garfo ao último quadro.</p></div>`;
   return `<div class="login">
-    <div class="brand"><div class="logo">${LOGO(46)}</div><h1 class="wordmark">cozily</h1><p>Monte sua casa nova item por item, do primeiro garfo ao último quadro.</p></div>
+    ${brand}
+    ${S.codigoAviso ? `<div class="tip honey" role="alert">${ic("info", 18, 2)}<p>${S.codigoAviso}</p></div>` : ""}
     <form id="loginForm" novalidate>
       ${segHtml("authSeg", [["entrar", "Entrar"], ["criar", "Criar conta"]], criar ? "criar" : "entrar").replace(/<button /g, '<button data-act="authmode" ')}
       ${DEMO ? `<span class="demo">${criar ? "Prévia · crie uma conta de teste" : "Prévia · a lista de vocês é caio@exemplo.com"}</span>` : ""}
       <button class="btn google block lg" type="button" data-act="google" id="gBtn"><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Continuar com Google</button>
       <span class="or">ou com e-mail</span>
-      ${criar ? `<div class="field"><label for="lNome">Seu nome</label><input class="input" id="lNome" autocomplete="given-name" autocapitalize="words" value="${esc(S.authNome || "")}"></div>` : ""}
+      ${criar ? `<div class="field"><label for="lNome">Seu nome</label><input class="input" id="lNome" autocomplete="given-name" autocapitalize="words" value="${esc(S.authNome || cv?.nome || "")}"></div>` : ""}
       <div class="field"><label for="lEmail">E-mail</label><input class="input" id="lEmail" type="email" autocomplete="username" inputmode="email" autocapitalize="off" value="${esc(S.authEmail || "")}" required></div>
       <div class="field"><label for="lSenha">Senha</label><input class="input" id="lSenha" type="password" autocomplete="${criar ? "new-password" : "current-password"}" required>${criar ? `<span class="small muted">Pelo menos 6 caracteres</span>` : ""}</div>
+      ${criar ? `<div class="field"><label for="lSenha2">Repita a senha</label><input class="input" id="lSenha2" type="password" autocomplete="new-password" required></div>` : ""}
       <div class="err" id="lErr" role="alert"></div>
       <button class="btn primary block lg" type="submit" id="lBtn">${criar ? "Criar conta" : "Entrar"}</button>
       ${criar ? "" : `<button class="link-btn" type="button" data-act="reset">Esqueci minha senha</button>`}
     </form>
-    <p class="small muted center" style="margin:auto 0 0;line-height:1.5">Cada um entra com o próprio e-mail. Quem mora junto chega pelo convite.</p>
+    <p class="small muted center" style="margin:auto 0 0;line-height:1.5">${cv ? (criar ? "Já tem conta no Cozily? Toca em <b>Entrar</b> lá em cima." : "Ainda não tem conta? Toca em <b>Criar conta</b> lá em cima.") : "Cada um entra com o próprio e-mail. Quem mora junto chega pelo convite."}</p>
   </div>`;
+}
+/* chegou pelo link do convite já com a conta aberta: confirma antes de trocar de casa */
+function viewCodigoConfirm() {
+  const cv = S.codigoConfirm || {};
+  return `<main class="page no-tabs" style="justify-content:center;gap:18px">
+    <div class="brand"><div class="logo">${LOGO(46)}</div><h1 style="font-size:26px;line-height:1.2">${esc(cv.de || "Alguém")} te chamou pra montar ${cv.casa ? "o " + esc(cv.casa) : "a casa"} junto</h1><p>Vocês vão ver a mesma lista, ao mesmo tempo. Você está como <b style="color:var(--ink)">${esc(S.user?.email || "")}</b>.</p></div>
+    <button class="btn primary block lg" data-act="cod-sim">Entrar na casa</button>
+    <button class="btn ghost block" data-act="cod-nao">Agora não</button>
+    <button class="link-btn" data-act="verify-out">Entrar com outra conta</button>
+  </main>`;
+}
+function viewCodigoErro() {
+  return `<main class="page no-tabs" style="justify-content:center;gap:18px">
+    <div class="brand"><div class="logo">${LOGO(46)}</div><h1 style="font-size:26px;line-height:1.2">Esse convite não vale mais</h1><p>O link já foi usado ou passou dos ${CODIGO_DIAS} dias. Pede pra ${esc(S.codigoErro?.de || "quem te chamou")} mandar um novo pelo app, em Ajustes › Quem mora junto.</p></div>
+    <button class="btn primary block lg" data-act="cod-propria">Continuar sem o convite</button>
+    <button class="link-btn" data-act="verify-out">Entrar com outra conta</button>
+  </main>`;
+}
+function viewBemVindo() {
+  const st = S.settings, itens = [...S.items.values()], feitos = itens.filter(i => i.comprado).length;
+  const casa = st.nomeCasa || "Cozily";
+  return `<main class="page no-tabs" style="justify-content:center;gap:20px">
+    <div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px">
+      <span class="bigicon" style="background:var(--sage);color:var(--sage-ink)">${ic("home", 34, 1.8)}</span>
+      <h1 class="disp" style="font-size:27px;line-height:1.2">Você entrou no ${esc(casa)}!</h1>
+      <p class="muted" style="margin:0;font-size:15px;line-height:1.45;max-width:320px">A partir de agora vocês veem a mesma lista, ao mesmo tempo. O que um marca, o outro vê na hora.</p>
+    </div>
+    ${itens.length ? `<div class="card" style="flex-direction:row;justify-content:space-around;padding:16px 10px;text-align:center">
+      <span style="display:flex;flex-direction:column;gap:2px"><b class="disp" style="font-size:24px">${itens.length}</b><span class="small muted">itens na lista</span></span>
+      <span style="display:flex;flex-direction:column;gap:2px"><b class="disp" style="font-size:24px">${feitos}</b><span class="small muted">já comprados</span></span>
+      <span style="display:flex;flex-direction:column;gap:2px"><b class="disp" style="font-size:24px">${ROOMS.length}</b><span class="small muted">cômodos</span></span>
+    </div>` : ""}
+    <div class="flist">
+      <div class="frow"><span class="fi" style="background:var(--honey);color:var(--honey-ink)">${ic("check", 18, 2)}</span><span class="ft"><b>Comprou algo?</b><span>Marca na lista e pronto</span></span></div>
+      <div class="frow"><span class="fi" style="background:var(--lav);color:var(--lav-ink)">${ic("plus", 18, 2)}</span><span class="ft"><b>Lembrou de algo?</b><span>Anota no botão do meio, lá embaixo</span></span></div>
+    </div>
+    <button class="btn primary block lg" data-act="post-next" style="margin-top:6px">Bora ver a casa</button>
+  </main>`;
 }
 function viewLinkLogin() {
   return `<div class="login">
-    <div class="brand"><div class="logo">${LOGO(46)}</div><h1>Que bom te ver!</h1><p>Você foi convidado(a) pra montar a casa junto. Confirma seu e-mail e pronto.</p></div>
+    <div class="brand"><div class="logo">${LOGO(46)}</div><h1>Que bom te ver!</h1><p>Você foi convidado(a) pra montar a casa junto. Falta só seu nome e uma senha.</p></div>
     <form id="linkForm" novalidate>
       <div class="field"><label for="kNome">Seu nome</label><input class="input" id="kNome" autocomplete="given-name" autocapitalize="words"></div>
       <div class="field"><label for="kEmail">E-mail</label><input class="input" id="kEmail" type="email" inputmode="email" autocapitalize="off" value="${esc(S.linkEmail || "")}"></div>
+      <div class="field"><label for="kSenha">Crie uma senha</label><input class="input" id="kSenha" type="password" autocomplete="new-password"><span class="small muted">Pelo menos 6 caracteres. É com ela que você entra das próximas vezes.</span></div>
+      <div class="field"><label for="kSenha2">Repita a senha</label><input class="input" id="kSenha2" type="password" autocomplete="new-password"></div>
       <div class="err" id="kErr" role="alert"></div>
       <button class="btn primary block lg" type="submit" id="kBtn">Entrar na casa</button>
       <button class="link-btn" type="button" data-act="link-cancel">Já tenho conta com senha</button>
@@ -3403,7 +3585,11 @@ document.addEventListener("click", e => {
   else if (a === "post-install") { if (deferredInstall) { deferredInstall.prompt(); deferredInstall.userChoice.finally(() => { deferredInstall = null; postNext(); }); } else postNext(); }
   else if (a === "os") { S.os = el.dataset.v; rerender(); }
   else if (a === "authmode") { S.authEmail = $("#lEmail")?.value || S.authEmail; S.authNome = $("#lNome")?.value || S.authNome; S.authMode = el.dataset.v; render(null); }
+  else if (a === "cod-sim") { S.codigoAuto = true; el.disabled = true; el.textContent = "Entrando…"; S.codigoConfirm = null; handleAuth(S.user); }
+  else if (a === "cod-nao") { largarCodigo(); S.codigoConfirm = null; handleAuth(S.user); }
+  else if (a === "cod-propria") { S.codigoErro = null; handleAuth(S.user); }
   else if (a === "google") {
+    if (S.codigo) S.codigoAuto = true;
     const err = $("#lErr"); if (err) err.textContent = "";
     el.disabled = true;
     S.ob = null;
@@ -3474,14 +3660,18 @@ document.addEventListener("submit", async e => {
     const nome = $("#kNome").value.trim(), email = $("#kEmail").value.trim(), err = $("#kErr"), btn = $("#kBtn");
     if (!nome) { err.textContent = "Escreve seu nome."; return; }
     if (!email) { err.textContent = "Escreve o e-mail que recebeu o convite."; return; }
+    const senha = $("#kSenha").value, senha2 = $("#kSenha2").value;
+    if (senha.length < 6) { err.textContent = "A senha precisa ter pelo menos 6 caracteres."; return; }
+    if (senha !== senha2) { err.textContent = "As duas senhas não estão iguais."; return; }
     btn.disabled = true; btn.textContent = "Entrando…";
     S.pendingName = nome;
-    try { await S.store.completeLink(email, location.href); }
+    try { await S.store.completeLink(email, location.href); S.store.setPassword(senha).catch(x => { console.error(x); toast("Entrou! Mas a senha não salvou. Cria uma em Ajustes."); }); }
     catch (x) { console.error(x); btn.disabled = false; btn.textContent = "Entrar na casa"; err.textContent = (x?.code || "").includes("invalid-email") ? "Esse e-mail não é o mesmo do convite." : (x?.code || "").includes("expired") || (x?.code || "").includes("invalid-action") ? "Esse link já foi usado ou venceu. Pede pra mandarem de novo?" : "Não deu pra entrar. Tenta de novo?"; }
     return;
   }
   if (f.id !== "loginForm") return;
   e.preventDefault();
+  if (S.codigo) S.codigoAuto = true;
   const criar = S.authMode === "criar";
   const email = $("#lEmail").value.trim(), senha = $("#lSenha").value, nome = $("#lNome")?.value.trim() || "";
   const err = $("#lErr"), btn = $("#lBtn");
@@ -3489,6 +3679,7 @@ document.addEventListener("submit", async e => {
   if (criar && !nome) { err.textContent = "Como você se chama?"; return; }
   if (!email || !senha) { err.textContent = "Preenche o e-mail e a senha."; return; }
   if (criar && senha.length < 6) { err.textContent = "A senha precisa ter pelo menos 6 caracteres."; return; }
+  if (criar && senha !== ($("#lSenha2")?.value || "")) { err.textContent = "As duas senhas não estão iguais."; return; }
   btn.disabled = true; btn.textContent = criar ? "Criando a conta…" : "Entrando…";
   try {
     S.ob = null;
@@ -3629,9 +3820,13 @@ function ensureMembro() {
     patch.chegadas = [...(st.chegadas || []), { email, nome, em: Date.now() }];
     Object.assign(patch, guiaNovo());
     if (st.nomes && !norm(st.nomes).includes(norm(nome))) patch.nomes = st.nomes + " e " + nome;
-    S.post = isStandalone() ? ["avisos"] : ["avisos", "instalar"];
-    setTimeout(() => toast(`Bem-vindo(a) ao ${st.nomeCasa || "Cozily"}!`), 600);
+    S.post = isStandalone() ? ["bemvindo", "avisos"] : ["bemvindo", "avisos", "instalar"];
   }
+  if (S.codigoUsado && (st.links || []).some(l => l.c === S.codigoUsado)) patch.links = st.links.filter(l => l.c !== S.codigoUsado);
+  const ci = S.codigoUsadoInfo || {}, antes = (st.pessoas || {})[email] || {}, eu = { ...antes };
+  eu.nome = meuNome() || ci.nome || eu.nome || ""; if (ci.rel) eu.rel = ci.rel;
+  if (eu.nome !== (antes.nome || "") || eu.rel !== antes.rel) patch.pessoas = { ...(st.pessoas || {}), [email]: eu };
+  S.codigoUsado = null; S.codigoUsadoInfo = null;
   if (Object.keys(patch).length) { S.settings = { ...S.settings, ...patch }; write(S.store.putSettings(patch)); }
 }
 
@@ -3660,6 +3855,18 @@ async function start() {
   if (S.afterStore) { S.afterStore(); S.afterStore = null; }
   const params = new URLSearchParams(location.search);
   if (S.store.isLink(location.href)) { S.linkMode = true; S.linkEmail = params.get("convite") || ""; }
+  const cUrl = params.get("c");
+  if (codigoOk(cUrl)) { lsSet("cozily-codigo", cUrl); params.delete("c"); history.replaceState(null, "", location.pathname + (params.toString() ? "?" + params : "") + location.hash); }
+  S.codigo = codigoOk(lsGet("cozily-codigo")) ? lsGet("cozily-codigo") : null;
+  if (S.codigo) {
+    S.authMode = "criar";
+    S.codigoInfo = await S.store.lerCodigo(S.codigo);
+    const ci = S.codigoInfo;
+    if (!ci || ci.usadoPor || ci.exp < Date.now()) {
+      S.codigoInfo = { invalido: true, de: ci?.de, casaId: ci?.casaId, usadoPor: ci?.usadoPor };
+      if (ci) S.codigoAviso = `Esse convite já foi usado ou venceu. Pede pra ${esc(ci.de || "quem te chamou")} mandar um link novo.`;
+    }
+  }
   if (typeof Notification !== "undefined" && Notification.permission === "granted") registerSW();
   S.store.onAuth(handleAuth);
 }
@@ -3670,6 +3877,22 @@ async function verifyCheck(btn) {
   try { ok = await S.store.checkVerified(); } catch {}
   if (ok) { S.needVerify = false; handleAuth({ ...S.user, verified: true }); return; }
   if (btn) { btn.disabled = false; btn.textContent = "Já confirmei"; toast("Ainda não apareceu como confirmado. Abre o link do e-mail e tenta de novo."); }
+}
+/* convite pelo link: devolve false quando precisa parar numa tela (confirmar ou link vencido) */
+function largarCodigo() { S.codigo = null; S.codigoInfo = null; S.codigoAuto = false; lsSet("cozily-codigo", null); }
+async function tratarCodigo(user) {
+  const code = S.codigo, ci = (await S.store.lerCodigo(code)) || {};
+  const atual = await S.store.resolveCasa(user);
+  if (ci.casaId && ci.casaId === atual) { largarCodigo(); if (ci.usadoPor !== user.email) setTimeout(() => toast("Você já faz parte dessa casa"), 700); return true; }
+  const vencido = !ci.casaId || ci.usadoPor || ci.exp < Date.now();
+  if (vencido) {
+    largarCodigo();
+    if (atual !== user.uid) { setTimeout(() => toast("Esse convite já foi usado ou venceu"), 700); return true; }
+    S.codigoErro = { de: ci.de }; return false;
+  }
+  if (!S.codigoAuto) { S.codigoConfirm = ci; return false; }
+  try { await S.store.usarCodigo(code); S.codigoUsado = code; S.codigoUsadoInfo = ci; largarCodigo(); return true; }
+  catch (x) { console.error(x); largarCodigo(); S.codigoErro = { de: ci.de }; return false; }
 }
 async function handleAuth(user) {
     unsubs.forEach(u => u && u()); unsubs = []; resUnsub && resUnsub(); resUnsub = null; resSlug = null;
@@ -3686,7 +3909,9 @@ async function handleAuth(user) {
       S.loaded = false; S.items = new Map(); S.settings = {}; S.photos = {}; S.ob = null; S.introDone = false; S.post = null;
       S.movs = []; S.compras = []; S.mercado = new Map(); S.reservas = []; membroOk = false; listaSent = "";
       S.authMode = "entrar"; S.authEmail = ""; S.authNome = ""; S.lastInvite = null;
+      S.codigoAviso = ""; S.codigoConfirm = null; S.codigoErro = null;
       render(null);
+      if (S.codigo && !(await tratarCodigo(user))) { render("enter-fade"); return; }
       S.casaId = await S.store.resolveCasa(user);
       applyRooms();
       let gotItems = false, gotSettings = false;
