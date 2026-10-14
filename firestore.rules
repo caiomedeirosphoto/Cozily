@@ -4,28 +4,44 @@ service cloud.firestore {
 
     function signedIn() { return request.auth != null; }
     function myEmail() { return request.auth.token.email.lower(); }
+    // E-mail confirmado: Google e link por e-mail já vêm confirmados; cadastro com senha precisa clicar no link.
+    function verified() { return request.auth.token.email_verified == true; }
     function casaPath(casaId) { return /databases/$(database)/documents/casas/$(casaId); }
     // Quem pode mexer numa casa: o dono (id da conta), a conta original do nosso-ap,
-    // ou qualquer e-mail que esteja na lista "membros" da casa.
+    // ou qualquer e-mail CONFIRMADO que esteja na lista "membros" da casa.
     function isMember(casaId) {
       return signedIn() && (
         request.auth.uid == casaId
-        || (casaId == 'nosso-ap' && myEmail() == 'caiodanielmedeiros1597@gmail.com')
-        || (exists(casaPath(casaId)) && myEmail() in get(casaPath(casaId)).data.get('membros', []))
+        || (verified() && casaId == 'nosso-ap' && myEmail() == 'caiodanielmedeiros1597@gmail.com')
+        || (verified() && exists(casaPath(casaId)) && myEmail() in get(casaPath(casaId)).data.get('membros', []))
       );
+    }
+    // Fotos: só imagem e com tamanho limitado (o app já reduz antes de subir).
+    function fotoOk() {
+      return request.resource.data.keys().hasOnly(['data', 'itemId'])
+        && request.resource.data.data is string
+        && request.resource.data.data.size() < 900000
+        && request.resource.data.data.matches('^data:image/(jpeg|png|webp);base64,.*');
     }
 
     match /casas/{casaId} {
       allow read, write: if isMember(casaId);
-      match /{path=**} {
-        allow read, write: if isMember(casaId);
+      match /itens/{id} { allow read, write: if isMember(casaId); }
+      match /movs/{id} { allow read, write: if isMember(casaId); }
+      match /compras/{id} { allow read, write: if isMember(casaId); }
+      match /mercado/{id} { allow read, write: if isMember(casaId); }
+      match /fotos/{id} {
+        allow read, delete: if isMember(casaId);
+        allow create, update: if isMember(casaId) && fotoOk();
       }
     }
 
-    // Convites: quem é da casa convida; o convidado lê o próprio convite para entrar na casa.
+    // Convites: quem é da casa convida; o convidado (com e-mail confirmado) lê o próprio convite.
+    // Ninguém consegue trocar um convite que já existe pra apontar pra outra casa.
     match /convites/{email} {
-      allow read: if signedIn() && myEmail() == email;
-      allow create, update: if isMember(request.resource.data.casaId);
+      allow read: if signedIn() && verified() && myEmail() == email;
+      allow create: if isMember(request.resource.data.casaId);
+      allow update: if isMember(resource.data.casaId) && isMember(request.resource.data.casaId);
       allow delete: if isMember(resource.data.casaId);
     }
 
@@ -42,7 +58,8 @@ service cloud.firestore {
         allow create: if request.resource.data.keys().hasOnly(['nome', 'em'])
           && request.resource.data.nome is string
           && request.resource.data.nome.size() > 0 && request.resource.data.nome.size() <= 60
-          && request.resource.data.em is number;
+          && request.resource.data.em is number
+          && itemId.size() <= 200;
         allow update: if false;
         allow delete: if isMember(get(/databases/$(database)/documents/listas/$(slug)).data.casaId);
       }

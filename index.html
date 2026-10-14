@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://*.google.com https://*.firebaseapp.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.googleapis.com https://*.google.com https://*.gstatic.com https://*.firebaseio.com wss://*.firebaseio.com https://*.firebaseapp.com; frame-src https://*.firebaseapp.com https://*.google.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Cozily</title>
 <meta name="description" content="Monte sua casa nova item por item.">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -668,7 +670,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.14-4";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.14-5";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -1167,11 +1169,13 @@ function makeDemoStore() {
     listeners.forEach(fn => fn());
   };
   let authCb = () => {};
-  const userOf = email => email && db.users[email] ? { email, uid: db.users[email].uid, nome: db.users[email].nome || "" } : null;
+  const userOf = email => email && db.users[email] ? { email, uid: db.users[email].uid, nome: db.users[email].nome || "", verified: !db.users[email].naoVerificado } : null;
   const listen = fn => { listeners.add(fn); setTimeout(fn, 40); return () => listeners.delete(fn); };
   const arr = o => Object.entries(o || {}).map(([id, v]) => ({ id, ...v }));
   return {
     onAuth(cb) { authCb = cb; setTimeout(() => cb(userOf(db.session)), 120); },
+    sendVerify: async () => { if (db.session && db.users[db.session]) { db.users[db.session].verifSent = 1; persist(); } },
+    async checkVerified() { const u = db.users[db.session]; if (u && u.verifSent) { delete u.naoVerificado; persist(); } return !!(u && !u.naoVerificado); },
     async login(email, senha) {
       email = (email || "").toLowerCase().trim();
       const u = db.users[email];
@@ -1181,7 +1185,7 @@ function makeDemoStore() {
     async createAccount(email, senha, nome) {
       email = (email || "").toLowerCase().trim();
       if (db.users[email]) throw { code: "auth/email-already-in-use" };
-      db.users[email] = { uid: "demo-" + uid(), senha, nome };
+      db.users[email] = { uid: "demo-" + uid(), senha, nome, naoVerificado: /\+verificar/.test(email) };
       db.session = email; persist(); authCb(userOf(email));
     },
     async logout() { delete db.session; persist(); authCb(null); },
@@ -1239,11 +1243,14 @@ async function makeFirebaseStore() {
     for (let i = 0; i < items.length; i += 400) { const b = F.writeBatch(db); items.slice(i, i + 400).forEach(x => fn(b, x)); await b.commit(); }
   };
   return {
-    onAuth: cb => A.onAuthStateChanged(auth, u => cb(u ? { email: (u.email || "").toLowerCase(), uid: u.uid, nome: u.displayName || "" } : null)),
+    onAuth: cb => A.onAuthStateChanged(auth, u => cb(u ? { email: (u.email || "").toLowerCase(), uid: u.uid, nome: u.displayName || "", verified: !!u.emailVerified } : null)),
+    sendVerify: () => auth.currentUser ? A.sendEmailVerification(auth.currentUser, { url: location.origin + location.pathname }) : null,
+    async checkVerified() { if (!auth.currentUser) return false; await A.reload(auth.currentUser); if (auth.currentUser.emailVerified) { try { await auth.currentUser.getIdToken(true); } catch {} } return !!auth.currentUser.emailVerified; },
     login: (e, s) => A.signInWithEmailAndPassword(auth, e.trim(), s),
     async createAccount(e, s, nome) {
       const c = await A.createUserWithEmailAndPassword(auth, e.trim(), s);
       if (nome) try { await A.updateProfile(c.user, { displayName: nome }); } catch {}
+      try { await A.sendEmailVerification(c.user, { url: location.origin + location.pathname }); } catch {}
     },
     logout: () => A.signOut(auth),
     async loginGoogle() {
@@ -1423,6 +1430,7 @@ function render(mode) {
   if (S.user === undefined) return;
   if (S.linkMode) { app.innerHTML = viewLinkLogin(); setTabs(null); finish(app, mode, r, false); return; }
   if (!S.user) { app.innerHTML = viewLogin(); setTabs(null); finish(app, mode, r, false); return; }
+  if (S.needVerify) { app.innerHTML = viewVerify(); setTabs(null); finish(app, mode, r, false); return; }
   let html = "", tab = null;
   const onb = S.loaded && needsOnboarding();
   if (!S.loaded) html = `<div class="loading"><div class="spinner" role="status" aria-label="Carregando"></div></div>`;
@@ -1535,6 +1543,18 @@ function tipCard(key, text, color = "lav", icon = "bulb") {
   return `<div class="tip ${color}" data-tip="${key}">${ic(icon, 18, 2)}<p>${text}</p><button class="x" data-act="tip-x" data-v="${key}" aria-label="Fechar dica">${ic("x", 16, 2.2)}</button></div>`;
 }
 const empty = (t, s = "", extra = "") => `<div class="empty"><b>${t}</b>${s ? `<span>${s}</span>` : ""}${extra}</div>`;
+
+/* ---------------- CONFIRMAR E-MAIL ---------------- */
+function viewVerify() {
+  return `<main class="page no-tabs" style="justify-content:center;gap:18px">
+    <div class="brand"><div class="logo">${LOGO(46)}</div><h1 style="font-size:28px">Confirma seu e-mail</h1><p>Mandamos um link pra <b style="color:var(--ink)">${esc(S.user?.email || "")}</b>. Abre o e-mail, toca no link e volta aqui.</p></div>
+    <div class="card" style="gap:6px;padding:14px 16px"><span class="small" style="line-height:1.5;color:var(--muted)">É só uma vez. Isso garante que ninguém entra na casa de vocês usando o seu e-mail.</span></div>
+    <button class="btn primary block lg" data-act="verify-ok">Já confirmei</button>
+    <button class="btn ghost block" data-act="verify-send">Mandar o link de novo</button>
+    <p class="small muted center" style="margin:0">Não achou? Confere a caixa de spam ou promoções.</p>
+    <button class="link-btn" data-act="verify-out">Entrar com outra conta</button>
+  </main>`;
+}
 
 /* ---------------- INÍCIO ---------------- */
 function chavesTxt() {
@@ -3369,6 +3389,9 @@ document.addEventListener("click", e => {
   else if (a === "lista-cfg") openListaCfg(false);
   else if (a === "lista-item") toggleListaItem(id);
   else if (a === "lista-liberar") { const s = S.settings.lista?.slug; if (s) { write(S.store.liberar(s, id)); toast("Presente liberado de novo na lista"); } }
+  else if (a === "verify-ok") verifyCheck(el);
+  else if (a === "verify-send") { S.store.sendVerify().then(() => toast("Mandamos o link de novo. Confere também o spam.", null, null, 3400, { ok: true, title: "Enviado!" })).catch(err => toast(err?.code?.includes("too-many") ? "Muitos envios seguidos. Espera um pouquinho." : "Não deu pra reenviar agora.")); }
+  else if (a === "verify-out") S.store.logout();
   else if (a === "ganhos") { S.ganhosOpen = !S.ganhosOpen; rerender(); }
   else if (a === "pres-filter") { S.presFilter = el.dataset.v; S.presRoom = "*"; S.presQ = ""; rerender(); }
   else if (a === "pres-room") { S.presRoom = el.dataset.v; S.presQ = ""; S.presTopic = "*"; rerender(); window.scrollTo(0, Math.min(window.scrollY, ($("#presAnchor")?.offsetTop || 0))); }
@@ -3638,9 +3661,24 @@ async function start() {
   const params = new URLSearchParams(location.search);
   if (S.store.isLink(location.href)) { S.linkMode = true; S.linkEmail = params.get("convite") || ""; }
   if (typeof Notification !== "undefined" && Notification.permission === "granted") registerSW();
-  S.store.onAuth(async user => {
+  S.store.onAuth(handleAuth);
+}
+/* confirmação de e-mail: só entra na casa com o e-mail confirmado (Google e link já vêm confirmados) */
+async function verifyCheck(btn) {
+  if (btn) { btn.disabled = true; btn.textContent = "Conferindo…"; }
+  let ok = false;
+  try { ok = await S.store.checkVerified(); } catch {}
+  if (ok) { S.needVerify = false; handleAuth({ ...S.user, verified: true }); return; }
+  if (btn) { btn.disabled = false; btn.textContent = "Já confirmei"; toast("Ainda não apareceu como confirmado. Abre o link do e-mail e tenta de novo."); }
+}
+async function handleAuth(user) {
     unsubs.forEach(u => u && u()); unsubs = []; resUnsub && resUnsub(); resUnsub = null; resSlug = null;
     S.user = user;
+    S.needVerify = !!(user && user.verified === false);
+    if (S.needVerify) {
+      if (S.linkMode) { S.linkMode = false; history.replaceState(null, "", location.pathname + location.hash); }
+      S.route = parseRoute(); render("enter-fade"); return;
+    }
     if (user) {
       if (S.pendingName && !user.nome) { user.nome = S.pendingName; S.store.setName(S.pendingName).catch(() => {}); }
       S.pendingName = null;
@@ -3666,7 +3704,6 @@ async function start() {
     } else { S.items = new Map(); S.settings = {}; S.loaded = false; applyRooms(); }
     S.route = parseRoute();
     render("enter-fade");
-  });
 }
 /* atualização automática */
 let lastCheck = 0;
@@ -3684,7 +3721,7 @@ async function checkUpdate() {
     location.replace(location.pathname + "?v=" + encodeURIComponent(v) + location.hash);
   } catch {}
 }
-document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { checkUpdate(); checkGarantias(); } });
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { checkUpdate(); checkGarantias(); if (S.needVerify) verifyCheck(); } });
 
 S.route = parseRoute();
 if (S.route.name === "guest") { startGuest(S.route.id); render("enter-fade"); }
