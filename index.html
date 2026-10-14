@@ -424,8 +424,8 @@ input[type=date].input,input[type=month].input{min-width:0;display:flex;align-it
 .opt .ot b{font-size:15px}.opt .ot span{font-size:13px;color:var(--muted)}
 .member{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line3)}
 .member:last-child{border-bottom:0}
-.sec-h{margin:10px 2px -6px;font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted2)}
-.sec-h:first-child{margin-top:0}
+.aj-sec{margin:10px 2px -6px;font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted2)}
+.aj-sec:first-child{margin-top:0}
 .aj-rodape{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 8px;font-size:13px;color:var(--faint);padding-top:4px}
 .aj-rodape button{min-height:36px;padding:0 4px;color:var(--muted2);font-weight:600}
 .aj-rodape .ver{flex-basis:100%;text-align:center;font-size:12px}
@@ -3005,7 +3005,7 @@ function openSettings() {
   const nMem = (S.settings.membros || [S.user.email]).length;
   const row = (attr, icon, label, sub = "") => `<button class="item" style="width:100%;text-align:left;min-height:56px" ${attr}><span class="tile" style="width:36px;height:36px;border-radius:11px">${ic(icon, 18, 2)}</span><span class="item-txt grow"><span class="item-name">${label}</span>${sub ? `<span class="meta">${sub}</span>` : ""}</span>${ic("chev", 16, 2)}</button>`;
   openSheet("Ajustes", `
-    <h3 class="sec-h">A casa</h3>
+    <h3 class="aj-sec">A casa</h3>
     <div class="field"><label for="sCasa">Nome da casa</label><input class="input" id="sCasa" value="${esc(S.settings.nomeCasa || (legacy ? CASA_PADRAO : ""))}" placeholder="Nossa casa"></div>
     <div class="field"><label for="sNomes">Nomes na saudação</label><input class="input" id="sNomes" value="${esc(nomesCasa())}" placeholder="Ex.: Ana e Léo"></div>
     <div class="two">
@@ -3018,13 +3018,13 @@ function openSettings() {
       ${row("data-go=lista", "gift", "Lista de presentes", S.settings.lista ? "No ar" : "Ainda não criada")}
       ${row("data-go=trash", "trash", "Itens excluídos", nExcl ? plural(nExcl, "item", "itens") : "Nada por aqui")}
     </div>
-    <h3 class="sec-h">No celular</h3>
+    <h3 class="aj-sec">No celular</h3>
     <div class="field"><span class="lbl" id="temaLbl">Aparência</span><div class="seg" role="group" aria-labelledby="temaLbl" id="sTema">${[["auto", "auto", "Automático"], ["claro", "sun", "Claro"], ["escuro", "moon", "Escuro"]].map(([k, icn, l]) => `<button type="button" data-tema="${k}" aria-pressed="${getTema() === k}">${ic(icn, 16, 2)}${l}</button>`).join("")}</div><span class="small muted" id="temaNota">${temaNota(getTema())}</span></div>
     <div class="items">
       ${row("data-go=avisos", "bell", "Avisos")}
       ${row("data-go=instalar", "phone", "Colocar o app na tela inicial")}
     </div>
-    <h3 class="sec-h">Sua conta</h3>
+    <h3 class="aj-sec">Sua conta</h3>
     <div class="items">
       ${row("data-go=nome", "edit", "Seu nome", esc(meuNome() || "Ainda sem nome"))}
       ${row("data-go=senha", "key", "Senha", "Criar ou trocar")}
