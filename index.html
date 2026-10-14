@@ -424,6 +424,25 @@ input[type=date].input,input[type=month].input{min-width:0;display:flex;align-it
 .opt .ot b{font-size:15px}.opt .ot span{font-size:13px;color:var(--muted)}
 .member{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line3)}
 .member:last-child{border-bottom:0}
+.sec-h{margin:10px 2px -6px;font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted2)}
+.sec-h:first-child{margin-top:0}
+.aj-rodape{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 8px;font-size:13px;color:var(--faint);padding-top:4px}
+.aj-rodape button{min-height:36px;padding:0 4px;color:var(--muted2);font-weight:600}
+.aj-rodape .ver{flex-basis:100%;text-align:center;font-size:12px}
+.save.danger-txt{color:var(--danger)}
+.btn.danger{background:var(--danger);color:var(--card)}
+.member.tirar{flex-wrap:wrap;gap:10px;padding:12px 0}
+.member.tirar .mt{min-width:180px}
+.priv h3{margin:0 0 4px;font-size:15px;font-weight:700}
+.priv p{margin:0;font-size:14px;line-height:1.55;color:var(--ink2)}
+.priv a{color:var(--g);font-weight:600;overflow-wrap:anywhere}
+.erros{display:flex;flex-direction:column;gap:8px}
+.erro{border:1px solid var(--line3);border-radius:12px;background:var(--card);padding:10px 12px}
+.erro summary{list-style:none;cursor:pointer;display:flex;flex-direction:column;gap:2px}
+.erro summary::-webkit-details-marker{display:none}
+.erro summary b{font-size:14px;overflow-wrap:anywhere}
+.erro summary span{font-size:12px;color:var(--muted2)}
+.erro pre{margin:8px 0 0;font-size:11px;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--muted);max-height:220px;overflow:auto}
 .convite-quem{display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--line3);padding-top:16px}
 .chips.wrap{flex-wrap:wrap;overflow:visible;margin:4px 0 0;padding:0}
 .chips.wrap .chip{height:36px;padding:0 13px}
@@ -681,7 +700,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.14-8";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.14-9";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -1232,6 +1251,14 @@ function makeDemoStore() {
       db.convites[email] = { casaId: c.casaId, de: c.de, em: Date.now(), codigo: code }; persist();
     },
     async delCodigo(code) { delete db.codigos[code]; persist(); },
+    provedor: () => "password",
+    async reautenticar(senha) { const u = db.users[db.session]; if (!u || (u.senha && u.senha !== senha)) throw { code: "auth/wrong-password" }; },
+    async apagarCasa(id) { delete db.casas[id]; persist(); },
+    async apagarLista(slugId) { delete db.listas[slugId]; persist(); },
+    async apagarUsuario() { const e = db.session; delete db.users[e]; delete db.convites[e]; delete db.session; persist(); authCb(null); },
+    async logErro(o) { db.erros = [...(db.erros || []), { id: uid(), ...o }].slice(-50); persist(); },
+    async lerErros() { return [...(db.erros || [])].reverse(); },
+    async limparErros() { db.erros = []; persist(); },
     watchLista(slugId, cb) { return listen(() => { const l = db.listas[slugId]; cb(l ? l.data : null); }); },
     watchReservas(slugId, cb) { return listen(() => cb(arr(db.listas[slugId]?.reservas))); },
     async listaLivre(slugId) { const l = db.listas[slugId]; return !l || l.data.casaId === casaId; },
@@ -1335,6 +1362,31 @@ async function makeFirebaseStore() {
       await b.commit();
     },
     delCodigo: code => F.deleteDoc(F.doc(db, "codigos", code)).catch(() => {}),
+    provedor: () => (auth.currentUser?.providerData || []).some(p => p.providerId === "password") ? "password" : (auth.currentUser?.providerData?.[0]?.providerId || ""),
+    async reautenticar(senha) {
+      const u = auth.currentUser;
+      if (senha != null) return A.reauthenticateWithCredential(u, A.EmailAuthProvider.credential(u.email, senha));
+      const p = new A.GoogleAuthProvider(); p.setCustomParameters({ prompt: "select_account", login_hint: u.email });
+      return A.reauthenticateWithPopup(u, p);
+    },
+    async apagarCasa(id) {
+      for (const name of ["itens", "movs", "compras", "mercado", "fotos"]) {
+        const q = await F.getDocs(F.collection(db, "casas", id, name));
+        const refs = []; q.forEach(d => refs.push(d.ref));
+        await batched(refs, (b, r) => b.delete(r));
+      }
+      await F.deleteDoc(F.doc(db, "casas", id));
+    },
+    async apagarLista(s) {
+      const q = await F.getDocs(F.collection(db, "listas", s, "reservas"));
+      const refs = []; q.forEach(d => refs.push(d.ref));
+      await batched(refs, (b, r) => b.delete(r));
+      await F.deleteDoc(F.doc(db, "listas", s));
+    },
+    apagarUsuario: () => A.deleteUser(auth.currentUser),
+    logErro: o => F.addDoc(F.collection(db, "erros"), o),
+    async lerErros() { const q = await F.getDocs(F.query(F.collection(db, "erros"), F.orderBy("em", "desc"), F.limit(60))); return list(q); },
+    async limparErros() { const q = await F.getDocs(F.collection(db, "erros")); const refs = []; q.forEach(d => refs.push(d.ref)); await batched(refs, (b, r) => b.delete(r)); },
     watchLista: (s, cb) => F.onSnapshot(F.doc(db, "listas", s), d => cb(d.exists() ? d.data() : null), () => cb(null)),
     watchReservas: (s, cb) => F.onSnapshot(F.collection(db, "listas", s, "reservas"), q => cb(list(q)), () => cb([])),
     async listaLivre(s) { try { const d = await F.getDoc(F.doc(db, "listas", s)); return !d.exists() || d.data().casaId === casaId; } catch { return false; } },
@@ -1366,6 +1418,25 @@ const nomesCasa = () => S.settings.nomes || (S.casaId === "nosso-ap" ? NOMES_PAD
 /* guia de boas-vindas: só pra conta recém-criada (salvo na conta, não no aparelho) */
 const GUIA_DIAS = 3;
 const guiaKey = () => `guia_${S.user?.uid || "x"}`;
+/* registro de erros: o app guarda o que quebrou (sem dados da casa) pra dar pra consertar */
+const ADMIN_EMAIL = "caiodanielmedeiros1597@gmail.com";
+const CONTATO_EMAIL = "caiodanielmedeiros1597@gmail.com";
+const ehAdmin = () => !DEMO ? S.user?.email === ADMIN_EMAIL : S.user?.email === "caio@exemplo.com";
+let errosEnviados = 0;
+const errosVistos = new Set();
+function logErro(e, onde = "") {
+  try {
+    const msg = String(e?.message || e?.code || e || "").slice(0, 500);
+    if (!msg || /ResizeObserver|^Script error|cancelled-popup|popup-closed|AbortError/i.test(msg)) return;
+    const k = msg + "|" + onde;
+    if (errosVistos.has(k) || errosEnviados >= 8 || !S.store?.logErro || !S.user?.uid) return;
+    errosVistos.add(k); errosEnviados++;
+    Promise.resolve(S.store.logErro({ msg, stack: String(e?.stack || "").slice(0, 2000), onde: String(onde).slice(0, 60), v: APP_VERSION, rota: location.hash.slice(0, 100), ua: navigator.userAgent.slice(0, 200), uid: S.user.uid, em: Date.now() })).catch(() => {});
+  } catch {}
+}
+window.addEventListener("error", ev => logErro(ev.error || ev.message, "tela"));
+window.addEventListener("unhandledrejection", ev => logErro(ev.reason, "promessa"));
+
 /* convite por link (WhatsApp): código aleatório, vale CODIGO_DIAS e serve pra uma pessoa só */
 const CODIGO_DIAS = 7;
 function novoCodigo() { const b = new Uint8Array(16); crypto.getRandomValues(b); return btoa(String.fromCharCode(...b)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); }
@@ -2761,8 +2832,11 @@ function membrosHtml() {
     const nome = eu ? meuNome() : p.nome || nomes[e] || nomeSugerido(e) || e.split("@")[0];
     const sub = [p.rel, e].filter(Boolean).join(" · ");
     if (eu && S.editNome) return `<form class="member" id="jNomeForm"><span class="av lav">${esc(initials(nome || "?"))}</span><span class="mt" style="flex-direction:row;gap:8px;align-items:center"><input class="input grow" id="jNome" value="${esc(nome || nomeSugerido())}" placeholder="Seu nome" autocapitalize="words" autocomplete="given-name" maxlength="40" style="min-height:44px"><button class="btn primary sm" type="submit" style="min-height:44px">Salvar</button></span></form>`;
+    const tiravel = !eu && !pend && ok.has(e);
+    if (tiravel && S.removendo === e) return `<div class="member tirar"><span class="mt"><b>Tirar ${esc(nome)} da casa?</b><span>${esc(nome.split(" ")[0])} deixa de ver a lista. Dá pra chamar de novo depois.</span></span>
+      <span class="row" style="gap:6px;flex:none"><button class="btn ghost sm" data-rmno style="min-height:40px">Voltar</button><button class="btn sm danger" data-rmsim="${esc(e)}" style="min-height:40px">Tirar</button></span></div>`;
     return `<div class="member"><span class="av ${pend ? "" : "lav"}">${esc(initials(nome || "Você"))}</span><span class="mt"><b>${eu ? (nome ? esc(nome) + " · você" : "Você") : esc(nome)}</b><span>${esc(sub)}</span>${pend ? `<span style="color:var(--honey-ink);font-weight:600">Convite enviado por e-mail · aguardando</span>` : ""}</span>
-      ${pend ? btnCancel(`data-unv="${esc(e)}"`) : eu ? `<button class="small" style="font-weight:700;color:var(--g);min-height:40px;padding:0 6px" data-editnome>${nome ? "Editar" : "Pôr meu nome"}</button>` : ""}</div>`;
+      ${pend ? btnCancel(`data-unv="${esc(e)}"`) : eu ? `<button class="small" style="font-weight:700;color:var(--g);min-height:40px;padding:0 6px" data-editnome>${nome ? "Editar" : "Pôr meu nome"}</button>` : tiravel ? `<button class="small" style="font-weight:700;color:var(--muted);min-height:40px;padding:0 6px" data-rm="${esc(e)}" aria-label="Tirar ${esc(nome)} da casa">Tirar</button>` : ""}</div>`;
   }).join("") + linksPendentes().map(l => `<div class="member"><span class="av" style="background:var(--sage);color:var(--sage-ink)">${l.nome ? esc(initials(l.nome)) : ic("chat", 17, 2)}</span><span class="mt"><b>${l.nome ? esc(l.nome) : "Convite pelo WhatsApp"}</b>${l.rel || l.nome ? `<span>${esc([l.rel, "pelo WhatsApp"].filter(Boolean).join(" · "))}</span>` : ""}<span style="color:var(--honey-ink);font-weight:600">Aguardando · vale até ${venceEm(l.exp)}</span></span>
       ${btnCancel(`data-unl="${esc(l.c)}"`)}</div>`).join("");
 }
@@ -2791,7 +2865,7 @@ function registrarCodigo() {
 }
 function juntosBody() {
   S.conv = S.conv || { nome: "", rel: "" };
-  S.editNome = !meuNome();
+  S.editNome = !meuNome(); S.removendo = null;
   const w = waConvite(codigoDaVez());
   return `<div class="card" style="gap:0;padding:4px 16px" id="jList">${membrosHtml()}</div>
     <div class="convite-quem">
@@ -2862,6 +2936,19 @@ function wireJuntos(root) {
     refreshWa();
   };
   root.addEventListener("click", async e => {
+    const rmb = e.target.closest("[data-rm]");
+    if (rmb) { S.removendo = rmb.dataset.rm; $("#jList", root).innerHTML = membrosHtml(); return; }
+    if (e.target.closest("[data-rmno]")) { S.removendo = null; $("#jList", root).innerHTML = membrosHtml(); return; }
+    const rms = e.target.closest("[data-rmsim]");
+    if (rms) {
+      const email = rms.dataset.rmsim, nome = ((pessoas()[email] || {}).nome || email.split("@")[0]).split(" ")[0];
+      const st = S.settings, ps = { ...pessoas() }; delete ps[email];
+      const patch = { membros: (st.membros || []).filter(x => x !== email), membrosOk: (st.membrosOk || []).filter(x => x !== email), pessoas: ps };
+      S.settings = { ...st, ...patch }; S.removendo = null;
+      write(S.store.uninvite(email)); write(S.store.putSettings(patch));
+      $("#jList", root).innerHTML = membrosHtml(); toast(`${nome} saiu da casa`);
+      return;
+    }
     if (e.target.closest("[data-editnome]")) { S.editNome = true; $("#jList", root).innerHTML = membrosHtml(); setTimeout(() => $("#jNome", root)?.focus(), 30); return; }
     const ul = e.target.closest("[data-unl]");
     if (ul) {
@@ -2918,8 +3005,8 @@ function openSettings() {
   const nMem = (S.settings.membros || [S.user.email]).length;
   const row = (attr, icon, label, sub = "") => `<button class="item" style="width:100%;text-align:left;min-height:56px" ${attr}><span class="tile" style="width:36px;height:36px;border-radius:11px">${ic(icon, 18, 2)}</span><span class="item-txt grow"><span class="item-name">${label}</span>${sub ? `<span class="meta">${sub}</span>` : ""}</span>${ic("chev", 16, 2)}</button>`;
   openSheet("Ajustes", `
+    <h3 class="sec-h">A casa</h3>
     <div class="field"><label for="sCasa">Nome da casa</label><input class="input" id="sCasa" value="${esc(S.settings.nomeCasa || (legacy ? CASA_PADRAO : ""))}" placeholder="Nossa casa"></div>
-    <div class="field"><span class="lbl" id="temaLbl">Aparência</span><div class="seg" role="group" aria-labelledby="temaLbl" id="sTema">${[["auto", "auto", "Automático"], ["claro", "sun", "Claro"], ["escuro", "moon", "Escuro"]].map(([k, icn, l]) => `<button type="button" data-tema="${k}" aria-pressed="${getTema() === k}">${ic(icn, 16, 2)}${l}</button>`).join("")}</div><span class="small muted" id="temaNota">${temaNota(getTema())}</span></div>
     <div class="field"><label for="sNomes">Nomes na saudação</label><input class="input" id="sNomes" value="${esc(nomesCasa())}" placeholder="Ex.: Ana e Léo"></div>
     <div class="two">
       <div class="field"><label for="sSit">Em que pé está</label><select class="input" id="sSit">${[["obra", "Na planta ou em obra"], ["chaves", "Esperando as chaves"], ["morando", "Já moramos"]].map(([k, l]) => `<option value="${k}" ${k === sit ? "selected" : ""}>${l}</option>`).join("")}</select></div>
@@ -2927,19 +3014,31 @@ function openSettings() {
     </div>
     <button class="juntos-card" data-go="juntos"><span class="tile" style="width:40px;height:40px;border-radius:12px;background:var(--mist-ink);color:var(--mist)">${ic("users", 19, 2)}</span><span class="item-txt grow"><span class="item-name">Quem mora junto</span><span class="meta" style="color:var(--mist-ink)">${plural(nMem, "pessoa", "pessoas")} · convidar alguém</span></span><span class="pill lg" style="background:var(--mist-btn);color:var(--mist-btn-ink)">Convidar</span></button>
     <div class="items">
-      ${row("data-go=rooms", "home", "Cômodos da casa", plural(ROOMS.length, "cômodo", "cômodos"))}
+      ${row("data-go=rooms", "home", "Cômodos", plural(ROOMS.length, "cômodo", "cômodos"))}
       ${row("data-go=lista", "gift", "Lista de presentes", S.settings.lista ? "No ar" : "Ainda não criada")}
+      ${row("data-go=trash", "trash", "Itens excluídos", nExcl ? plural(nExcl, "item", "itens") : "Nada por aqui")}
+    </div>
+    <h3 class="sec-h">No celular</h3>
+    <div class="field"><span class="lbl" id="temaLbl">Aparência</span><div class="seg" role="group" aria-labelledby="temaLbl" id="sTema">${[["auto", "auto", "Automático"], ["claro", "sun", "Claro"], ["escuro", "moon", "Escuro"]].map(([k, icn, l]) => `<button type="button" data-tema="${k}" aria-pressed="${getTema() === k}">${ic(icn, 16, 2)}${l}</button>`).join("")}</div><span class="small muted" id="temaNota">${temaNota(getTema())}</span></div>
+    <div class="items">
       ${row("data-go=avisos", "bell", "Avisos")}
       ${row("data-go=instalar", "phone", "Colocar o app na tela inicial")}
-      ${row("data-go=trash", "trash", "Itens excluídos", nExcl ? plural(nExcl, "item", "itens") : "")}
-      ${row("data-go=senha", "key", "Criar ou trocar a senha")}
     </div>
-    <button class="btn ghost block" data-exp type="button">${ic("dl", 18, 2)} Baixar backup da lista</button>
+    <h3 class="sec-h">Sua conta</h3>
+    <div class="items">
+      ${row("data-go=nome", "edit", "Seu nome", esc(meuNome() || "Ainda sem nome"))}
+      ${row("data-go=senha", "key", "Senha", "Criar ou trocar")}
+      ${row("data-go=dados", "dl", "Baixar meus dados", "Cópia de tudo, num arquivo")}
+      ${ehAdmin() ? row("data-go=erros", "info", "Erros do app", "Só você vê isso") : ""}
+    </div>
     <div style="display:flex;flex-direction:column;gap:8px;align-items:center">
       <span class="small muted center">Conectado como <b style="color:var(--ink)">${esc(S.user?.email || "")}</b>${DEMO ? " · prévia" : ""}</span>
       <button class="btn ghost block" data-out type="button">Sair</button>
     </div>
-    <p class="small center" style="margin:0;color:var(--faint)">Cozily · sua casa, item por item · ${APP_VERSION}</p>`, {
+    <div class="aj-rodape">
+      <button type="button" data-go="privacidade">Privacidade</button><span aria-hidden="true">·</span><button type="button" data-go="excluir">Excluir conta</button>
+      <span class="ver">Cozily ${APP_VERSION}</span>
+    </div>`, {
     saveLabel: "Salvar",
     onMount(ov, close) {
       $("[data-out]", ov).onclick = async () => { close(); await S.store.logout(); };
@@ -2950,25 +3049,112 @@ function openSettings() {
       });
       ov.addEventListener("click", e => {
         const g = e.target.closest("[data-go]"); if (!g) return;
-        const k = g.dataset.go; close();
+        const k = g.dataset.go;
+        if (k === "dados") { baixarDados(); return; }
+        close();
         setTimeout(() => {
           if (k === "juntos") openJuntos(); else if (k === "rooms") openRoomsEditor(); else if (k === "lista") go("#/presentes");
           else if (k === "avisos") go("#/avisos"); else if (k === "trash") openTrash(); else if (k === "senha") openSenha();
+          else if (k === "nome") openNome(); else if (k === "privacidade") openPrivacidade(); else if (k === "excluir") openExcluirConta(); else if (k === "erros") openErros();
           else if (k === "instalar") { S.post = ["instalar"]; S.postManual = true; rerender(); window.scrollTo(0, 0); }
         }, 300);
       });
-      const exp = $("[data-exp]", ov);
-      if (exp) exp.onclick = () => {
-        const blob = new Blob([JSON.stringify({ exportadoEm: new Date().toISOString(), casa: S.settings, itens: all().map(({ thumb, ...r }) => r), caixinha: S.movs, mercado: [...S.mercado.values()], compras: S.compras }, null, 2)], { type: "application/json" });
-        const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `cozily-backup-${today()}.json`; a.click();
-        setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-      };
     },
     async onSave(ov) {
       const o = { nomeCasa: $("#sCasa", ov).value.trim() || (legacy ? CASA_PADRAO : "Nossa casa"), nomes: $("#sNomes", ov).value.trim(), situacao: $("#sSit", ov).value, entrega: $("#sEntrega", ov).value || null };
       S.settings = { ...S.settings, ...o };
       write(S.store.putSettings(o)); syncLista();
       S.dirty = true; return true;
+    }
+  });
+}
+function baixarDados() {
+  const blob = new Blob([JSON.stringify({ exportadoEm: new Date().toISOString(), conta: { email: S.user.email, nome: meuNome() }, casa: S.settings, itens: all().map(({ thumb, ...r }) => r), caixinha: S.movs, mercado: [...S.mercado.values()], compras: S.compras }, null, 2)], { type: "application/json" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `cozily-meus-dados-${today()}.json`; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  toast("Arquivo baixado");
+}
+function openNome() {
+  openSheet("Seu nome", `<p class="small muted" style="margin:0">É assim que quem mora junto te vê no app.</p>
+    <div class="field"><label for="nmIn">Nome</label><input class="input" id="nmIn" value="${esc(meuNome() || nomeSugerido())}" autocapitalize="words" autocomplete="given-name" maxlength="40"></div>
+    <div class="err" id="nmErr" role="alert"></div>`, {
+    saveLabel: "Salvar",
+    async onSave(ov) {
+      const n = $("#nmIn", ov).value.trim().slice(0, 40);
+      if (!n) { $("#nmErr", ov).textContent = "Escreve seu nome."; return false; }
+      S.user = { ...S.user, nome: n }; write(S.store.setName(n)); salvarPessoa(S.user.email, { nome: n });
+      toast("Nome salvo"); rerender(); return true;
+    }
+  });
+}
+function openPrivacidade() {
+  const sec = (t, html) => `<section class="priv"><h3>${t}</h3>${html}</section>`;
+  openSheet("Privacidade", `
+    <p class="small muted" style="margin:0">Atualizada em outubro de 2026. Em palavras simples, sem letra miúda.</p>
+    ${sec("O que o Cozily guarda", `<p>Seu nome e e-mail. O que vocês colocam na lista: itens, valores, lojas, notas, fotos, a caixinha e o mercado. Na lista de presentes, o nome de quem marcou um presente.</p>`)}
+    ${sec("Pra que serve", `<p>Só pra o app funcionar: mostrar a lista, juntar quem mora junto, mandar os avisos que você ligar e consertar erros. A gente não vende seus dados e não usa pra propaganda.</p>`)}
+    ${sec("Quem vê", `<p>Só quem você chamou pra sua casa. A lista de presentes é pública pra quem tem o link, e mostra só os itens que você escolheu e os nomes da saudação. Quando você toca numa loja, vai pro site dela, que tem as próprias regras.</p>`)}
+    ${sec("Onde fica", `<p>Nos servidores do Google (Firebase), que podem ficar fora do Brasil, com conexão protegida. O login também é do Google. No seu celular ficam só preferências, como o tema.</p>`)}
+    ${sec("Erros", `<p>Quando algo quebra, o app guarda a mensagem do erro, a tela, a versão e o modelo do navegador. Nada do conteúdo da lista vai junto.</p>`)}
+    ${sec("Seus direitos", `<p>Pela LGPD você pode ver, corrigir, baixar e apagar seus dados. Em Ajustes tem <b>Baixar meus dados</b> e <b>Excluir conta</b>. Se tirarem você de uma casa, os dados da casa ficam com quem continua nela.</p>`)}
+    ${sec("Fale com a gente", `<p>Dúvida ou pedido sobre seus dados: <a href="mailto:${CONTATO_EMAIL}">${CONTATO_EMAIL}</a>.</p>`)}`, { cancelLabel: "Fechar" });
+}
+function openExcluirConta() {
+  const st = S.settings, email = S.user.email;
+  const dono = S.casaId === S.user.uid || LEGACY[email] === S.casaId;
+  const ficam = (st.membros || []).filter(e => e !== email && ((st.membrosOk || []).includes(e) || !dono));
+  const nomesFicam = ficam.map(e => ((pessoas()[e] || {}).nome || nomeSugerido(e) || e.split("@")[0]).split(" ")[0]);
+  const apagaCasa = dono && !ficam.length;
+  const senha = S.store.provedor() === "password";
+  openSheet("Excluir conta", `
+    <div class="tip honey" style="align-items:flex-start">${ic("info", 18, 2)}<p>${apagaCasa
+      ? `<b>Isso apaga tudo:</b> sua conta, a lista da casa, fotos, caixinha, mercado e a lista de presentes. Não dá pra desfazer.`
+      : `<b>Sua conta vai ser apagada</b> e você sai da casa. A lista continua com ${esc(nomesFicam.join(" e ") || "quem mora junto")}. Não dá pra desfazer.`}</p></div>
+    <button class="btn ghost block" type="button" data-dados>${ic("dl", 18, 2)} Antes, baixar meus dados</button>
+    ${senha ? `<div class="field"><label for="exSenha">Sua senha, pra confirmar</label><input class="input" id="exSenha" type="password" autocomplete="current-password"></div>`
+      : `<p class="small muted" style="margin:0">Pra confirmar, o Google vai pedir que você entre de novo.</p>`}
+    <div class="field"><label for="exOk">Escreve EXCLUIR pra confirmar</label><input class="input" id="exOk" autocapitalize="characters" autocomplete="off"></div>
+    <div class="err" id="exErr" role="alert"></div>`, {
+    saveLabel: "Excluir",
+    onMount(ov) {
+      $("[data-dados]", ov).onclick = baixarDados;
+      const sv = $(".save", ov); if (sv) sv.style.color = "var(--danger)";
+    },
+    async onSave(ov) {
+      const err = $("#exErr", ov); err.textContent = "";
+      if (norm($("#exOk", ov).value.trim()) !== "excluir") { err.textContent = "Escreve EXCLUIR, do jeitinho, pra confirmar."; return false; }
+      const pw = senha ? $("#exSenha", ov).value : null;
+      if (senha && !pw) { err.textContent = "Coloca sua senha."; return false; }
+      const sv = $(".save", ov); if (sv) { sv.disabled = true; sv.textContent = "Excluindo…"; }
+      try { await excluirConta(pw, apagaCasa); toast("Conta excluída. Até mais!"); return true; }
+      catch (x) {
+        console.error(x); if (sv) { sv.disabled = false; sv.textContent = "Excluir"; }
+        const c = x?.code || "";
+        err.textContent = c.includes("wrong-password") || c.includes("invalid-credential") ? "Senha errada. Tenta de novo?"
+          : c.includes("popup-closed") || c.includes("cancelled") ? "Precisa entrar com o Google pra confirmar."
+          : c.includes("too-many") ? "Muitas tentativas. Espera uns minutinhos."
+          : c.includes("network") ? "Sem internet no momento." : "Não deu pra excluir agora. Tenta de novo?";
+        if (!/wrong-password|invalid-credential|popup|cancelled|too-many|network/.test(c)) logErro(x, "excluir-conta");
+        return false;
+      }
+    }
+  });
+}
+async function openErros() {
+  openSheet("Erros do app", `<div id="erList"><div class="loading" style="min-height:120px"><div class="spinner" role="status" aria-label="Carregando"></div></div></div>`, {
+    cancelLabel: "Fechar",
+    async onMount(ov) {
+      const box = $("#erList", ov);
+      const draw = lst => {
+        if (!lst.length) { box.innerHTML = `<div class="empty"><b>Nenhum erro</b><span>Quando algo quebrar no celular de alguém, aparece aqui.</span></div>`; return; }
+        const quando = t => new Date(t).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+        box.innerHTML = `<p class="small muted" style="margin:0 0 10px">${plural(lst.length, "erro", "erros")}, do mais novo pro mais antigo. Me manda print do que se repetir.</p>
+          <div class="erros">${lst.map(x => `<details class="erro"><summary><b>${esc(x.msg)}</b><span>${quando(x.em)} · ${esc(x.onde || "")} · ${esc(x.rota || "#/")} · v${esc(x.v || "")}</span></summary><pre>${esc((x.stack || "") + "\n\n" + (x.ua || ""))}</pre></details>`).join("")}</div>
+          <button class="btn ghost block" type="button" data-limpar style="margin-top:12px">Limpar lista</button>`;
+        $("[data-limpar]", box).onclick = async () => { try { await S.store.limparErros(); draw([]); toast("Lista limpa"); } catch (x) { toast("Não deu pra limpar agora"); } };
+      };
+      try { draw(await S.store.lerErros()); }
+      catch (x) { console.error(x); box.innerHTML = `<div class="empty"><b>Não deu pra carregar</b><span>Confere se as regras novas do Firebase foram publicadas.</span></div>`; }
     }
   });
 }
@@ -3033,7 +3219,7 @@ function openRoomsEditor() {
 
 /* ---------------- AÇÕES ---------------- */
 function write(p, msg = "Não deu pra salvar. Confere a internet?") {
-  Promise.resolve(p).catch(err => { console.error(err); toast(err?.code === "permission-denied" ? "Sem permissão pra salvar. Confere as regras do Firestore." : msg); });
+  Promise.resolve(p).catch(err => { console.error(err); logErro(err, "salvar"); toast(err?.code === "permission-denied" ? "Sem permissão pra salvar. Confere as regras do Firestore." : msg); });
 }
 function toggleItem(id) {
   const it = S.items.get(id); if (!it) return;
@@ -3872,6 +4058,30 @@ async function verifyCheck(btn) {
   if (ok) { S.needVerify = false; handleAuth({ ...S.user, verified: true }); return; }
   if (btn) { btn.disabled = false; btn.textContent = "Já confirmei"; toast("Ainda não apareceu como confirmado. Abre o link do e-mail e tenta de novo."); }
 }
+/* excluir conta: confirma quem é, apaga (ou sai d)a casa e depois a conta */
+async function excluirConta(senha, apagaCasa) {
+  await S.store.reautenticar(senha);
+  const email = S.user.email, st = S.settings, casa = S.casaId;
+  unsubs.forEach(u => u && u()); unsubs = []; resUnsub && resUnsub(); resUnsub = null; resSlug = null;
+  if (apagaCasa) {
+    for (const l of st.links || []) await S.store.delCodigo(l.c);
+    if (st.lista?.slug) await S.store.apagarLista(st.lista.slug).catch(x => logErro(x, "apagar-lista"));
+    await S.store.apagarCasa(casa);
+  } else {
+    const ps = { ...(st.pessoas || {}) }; delete ps[email];
+    await S.store.putSettings({ membros: (st.membros || []).filter(x => x !== email), membrosOk: (st.membrosOk || []).filter(x => x !== email), pessoas: ps });
+  }
+  await S.store.uninvite(email);
+  ["cozily-codigo"].forEach(k => lsSet(k, null));
+  await S.store.apagarUsuario();
+}
+/* tiraram você da casa: volta pra sua própria */
+let saindoDaCasa = 0;
+function perdeuAcesso() {
+  if (saindoDaCasa++ > 1 || !S.user) return false;
+  setTimeout(() => { toast("Você não faz mais parte daquela casa"); handleAuth(S.user); }, 50);
+  return true;
+}
 /* convite pelo link: devolve false quando precisa parar numa tela (confirmar ou link vencido) */
 function largarCodigo() { S.codigo = null; S.codigoInfo = null; S.codigoAuto = false; lsSet("cozily-codigo", null); }
 async function tratarCodigo(user) {
@@ -3909,11 +4119,16 @@ async function handleAuth(user) {
       S.casaId = await S.store.resolveCasa(user);
       applyRooms();
       let gotItems = false, gotSettings = false;
-      const ready = () => { if (gotItems && gotSettings && !S.loaded) { S.loaded = true; render("enter-fade"); } onData(); };
+      const ready = () => { if (gotItems && gotSettings && !S.loaded) { S.loaded = true; saindoDaCasa = 0; render("enter-fade"); } onData(); };
       unsubs.push(S.store.subscribe(S.casaId,
         arr => { S.items = new Map(arr.map(i => [i.id, i])); gotItems = true; ready(); },
         st => { S.settings = st || {}; applyRooms(); gotSettings = true; ready(); },
-        err => { console.error(err); S.loaded = true; refresh(); toast(err?.code === "permission-denied" ? "Esse e-mail ainda não tem acesso a essa casa" : "Não deu pra carregar a lista"); }
+        err => {
+          console.error(err);
+          if (err?.code === "permission-denied" && S.loaded && S.casaId !== S.user.uid && perdeuAcesso()) return;
+          logErro(err, "carregar"); S.loaded = true; refresh();
+          toast(err?.code === "permission-denied" ? "Esse e-mail ainda não tem acesso a essa casa" : "Não deu pra carregar a lista");
+        }
       ));
       unsubs.push(S.store.watch("movs", l => { S.movs = l; onData(); }));
       unsubs.push(S.store.watch("compras", l => { S.compras = l; onData(); }));

@@ -56,7 +56,7 @@ service cloud.firestore {
       allow read: if signedIn() && verified() && myEmail() == email;
       allow create: if isMember(request.resource.data.casaId) || entrouPeloLink(email);
       allow update: if (isMember(resource.data.casaId) && isMember(request.resource.data.casaId)) || entrouPeloLink(email);
-      allow delete: if isMember(resource.data.casaId);
+      allow delete: if isMember(resource.data.casaId) || (signedIn() && myEmail() == email);
     }
 
     // Link de convite (WhatsApp): qualquer um com o código lê (pra ver quem chamou), ninguém lista.
@@ -97,6 +97,22 @@ service cloud.firestore {
         allow update: if false;
         allow delete: if isMember(get(/databases/$(database)/documents/listas/$(slug)).data.casaId);
       }
+    }
+
+    // Registro de erros: o app só grava (sem conteúdo da lista); só o dono do app lê e apaga.
+    match /erros/{id} {
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['msg', 'stack', 'onde', 'v', 'rota', 'ua', 'uid', 'em'])
+        && request.resource.data.msg is string && request.resource.data.msg.size() <= 500
+        && request.resource.data.stack is string && request.resource.data.stack.size() <= 2000
+        && request.resource.data.onde is string && request.resource.data.onde.size() <= 60
+        && request.resource.data.v is string && request.resource.data.v.size() <= 40
+        && request.resource.data.rota is string && request.resource.data.rota.size() <= 100
+        && request.resource.data.ua is string && request.resource.data.ua.size() <= 200
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.em is int;
+      allow read, delete: if signedIn() && verified() && myEmail() == 'caiodanielmedeiros1597@gmail.com';
+      allow update: if false;
     }
 
     // Ofertas e cupons: o app só lê (quem escreve é o robô do painel, mais pra frente).
