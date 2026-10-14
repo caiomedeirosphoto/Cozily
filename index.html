@@ -424,6 +424,8 @@ input[type=date].input,input[type=month].input{min-width:0;display:flex;align-it
 .opt .ot b{font-size:15px}.opt .ot span{font-size:13px;color:var(--muted)}
 .member{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line3)}
 .member:last-child{border-bottom:0}
+.pres-todos{margin-bottom:10px;border-style:dashed;white-space:nowrap}
+.pres-todos .n{font-size:13px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--tile);color:var(--ink2)}
 .aj-sec{margin:10px 2px -6px;font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted2)}
 .aj-sec:first-child{margin-top:0}
 .aj-rodape{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 8px;font-size:13px;color:var(--faint);padding-top:4px}
@@ -700,7 +702,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.14-9";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.14-10";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -2151,6 +2153,7 @@ function viewPresentes() {
   const pool = f === "on" ? cands.filter(i => onSet.has(i.id)) : cands.filter(i => !onSet.has(i.id));
   const cnt = {}; pool.forEach(i => cnt[i.comodo] = (cnt[i.comodo] || 0) + 1);
   const pr = S.presRoom && (S.presRoom === "*" || cnt[S.presRoom]) ? S.presRoom : "*";
+  if (pr !== S.presRoom) { S.presRoom = pr; S.presTopic = "*"; }
   S.presRoom = pr;
   const msg = `Oi! Montamos nossa lista de presentes pro ${L.tipo.toLowerCase()}${L.data ? " (" + fmtDate(L.data) + ")" : ""}. Escolhe um presentinho e marca lá, assim ninguém dá repetido: ${url}`;
   return `<main class="page no-tabs">
@@ -2192,9 +2195,9 @@ function presBody(f, pool, cnt, pr) {
     ${tops.length > 1 ? `<div class="chips" role="group" aria-label="Tópicos"><button class="chip" data-act="pres-topic" data-v="*" aria-pressed="${pt === "*"}">Todos</button>${tops.map(t => `<button class="chip" data-act="pres-topic" data-v="${esc(t)}" aria-pressed="${pt === t}">${esc(t || "Outros")}</button>`).join("")}</div>` : ""}
     <div id="presList">${presListHtml()}</div>`;
 }
-function presListHtml() {
+/* o que está aparecendo agora na lista de presentes (mesmos filtros da tela) */
+function presFiltrados() {
   const L = S.settings.lista || {}; const f = S.presFilter;
-  const res = new Map(S.reservas.map(r => [r.id, r]));
   const onSet = new Set(L.itens || []);
   const pool = all().filter(i => onSet.has(i.id) || !i.comprado).filter(i => f === "on" ? onSet.has(i.id) : !onSet.has(i.id));
   const q = norm(S.presQ || "").trim();
@@ -2203,6 +2206,12 @@ function presListHtml() {
   let list = pool.filter(i => (pr === "*" || (q && !inAddRoom)) ? true : i.comodo === pr);
   if (inAddRoom && S.presTopic && S.presTopic !== "*") list = list.filter(i => (i.topico || "") === S.presTopic);
   if (q) list = list.filter(i => norm(i.nome + " " + (i.topico || "") + " " + (ROOM[i.comodo]?.nome || "")).includes(q));
+  return { L, f, onSet, pool, q, pr, inAddRoom, list };
+}
+function presListHtml() {
+  const { f, onSet, pool, q, pr, inAddRoom, list } = presFiltrados();
+  const res = new Map(S.reservas.map(r => [r.id, r]));
+  if (inAddRoom && !list.length && !q) return empty(S.presTopic && S.presTopic !== "*" ? "Tudo desse tópico já está na lista" : "Tudo desse cômodo já está na lista", "Volta pros cômodos pra escolher de outro lugar.", `<button class="btn ghost sm" data-act="pres-room" data-v="*">${ic("back", 16, 2.2)} Ver os cômodos</button>`);
   if (!pool.length) return empty(f === "on" ? "A lista ainda está vazia" : "Tudo que falta já está na lista", f === "on" ? "Toca em “Colocar mais” e escolhe o que vocês gostariam de ganhar." : "");
   if (!list.length) return empty("Nada com esse nome", f === "on" ? "Confere se ele já está na lista ou procura em “Colocar mais”." : "Se ainda não está na casa, anota ele primeiro e depois coloca na lista.", f === "on" ? "" : `<button class="btn ghost sm" data-act="anotar" data-name="${esc(S.presQ || "")}">${ic("plus", 16, 2.2)} Anotar “${esc(S.presQ || "")}”</button>`);
   const row = i => { const on = onSet.has(i.id), r = res.get(i.id); return `<div class="item">
@@ -2216,7 +2225,8 @@ function presListHtml() {
   const orphan = list.filter(i => !ROOM[i.comodo]);
   if (orphan.length) groups.push([{ id: "_", nome: "Outros" }, orphan]);
   const single = (groups.length === 1 && pr !== "*" && !q) || inAddRoom;
-  return groups.map(([r, l]) => `${single ? "" : `<div class="sec-h" style="margin-top:6px"><h3 style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted2)">${esc(r.nome)}</h3><span>${l.length}</span></div>`}<div class="items">${l.map(row).join("")}</div>`).join("");
+  const todos = inAddRoom && list.length > 1 ? `<button class="btn ghost block pres-todos" data-act="pres-todos">${ic("plus", 17, 2.2)} Colocar todos na lista <span class="n">${list.length}</span></button>` : "";
+  return todos + groups.map(([r, l]) => `${single ? "" : `<div class="sec-h" style="margin-top:6px"><h3 style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted2)">${esc(r.nome)}</h3><span>${l.length}</span></div>`}<div class="items">${l.map(row).join("")}</div>`).join("");
 }
 
 /* ---------------- PÁGINA DO CONVIDADO ---------------- */
@@ -2779,6 +2789,18 @@ function toggleListaItem(id) {
   S.settings = { ...S.settings, lista };
   write(S.store.putSettings({ lista }));
   syncLista(); rerender();
+}
+function colocarTodosNaLista() {
+  const { L, list } = presFiltrados(); if (!S.settings.lista || !list.length) return;
+  const antes = [...(L.itens || [])];
+  const lista = { ...L, itens: [...new Set([...antes, ...list.map(i => i.id)])] };
+  S.settings = { ...S.settings, lista };
+  write(S.store.putSettings({ lista })); syncLista(); rerender();
+  toast(`${plural(list.length, "item entrou", "itens entraram")} na lista`, "Desfazer", () => {
+    const volta = { ...S.settings.lista, itens: antes };
+    S.settings = { ...S.settings, lista: volta };
+    write(S.store.putSettings({ lista: volta })); syncLista(); rerender();
+  }, 4200, { ok: true, title: "Prontinho!" });
 }
 function guestPick(id) {
   const G = S.guest; if (!G || !G.data) return;
@@ -3750,6 +3772,7 @@ document.addEventListener("click", e => {
   else if (a === "lista-criar") criarLista();
   else if (a === "lista-cfg") openListaCfg(false);
   else if (a === "lista-item") toggleListaItem(id);
+  else if (a === "pres-todos") colocarTodosNaLista();
   else if (a === "lista-liberar") { const s = S.settings.lista?.slug; if (s) { write(S.store.liberar(s, id)); toast("Presente liberado de novo na lista"); } }
   else if (a === "verify-ok") verifyCheck(el);
   else if (a === "verify-send") { S.store.sendVerify().then(() => toast("Mandamos o link de novo. Confere também o spam.", null, null, 3400, { ok: true, title: "Enviado!" })).catch(err => toast(err?.code?.includes("too-many") ? "Muitos envios seguidos. Espera um pouquinho." : "Não deu pra reenviar agora.")); }
