@@ -272,9 +272,9 @@ a.search span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-widt
 .kv b{font-weight:700}
 
 /* mercado */
-.mrow{display:flex;align-items:center;gap:12px;min-height:52px;padding:0 6px 0 14px;border-bottom:1px solid var(--line3);width:100%;text-align:left}
+.mrow{display:flex;align-items:center;gap:2px;min-height:56px;padding:0 4px 0 6px;border-bottom:1px solid var(--line3);width:100%;text-align:left}
 .mrow:last-child{border-bottom:0}
-.mrow .box{width:24px;height:24px;border-radius:8px;border:2px solid var(--ring-off);display:flex;align-items:center;justify-content:center;flex:none;color:transparent}
+.mrow .box{width:26px;height:26px;border-radius:50%;border:2px solid var(--ring-off);display:flex;align-items:center;justify-content:center;flex:none;color:transparent}
 .mrow.on .box{background:var(--sage-dk);border-color:var(--sage-dk);color:#fff}
 .mrow .nm{flex:1;min-width:0;font-size:15px;font-weight:600}
 .mrow.on .nm{color:var(--faint);text-decoration:line-through}
@@ -557,6 +557,34 @@ html.theme-fade,html.theme-fade *{transition:background-color .3s ease,color .3s
 .tip.bye{animation:byeOut .2s ease-in both}.tour.bye{animation:fadeOut .2s ease both}
 @keyframes byeOut{to{opacity:0;transform:scale(.97)}}
 
+.juntos-card{width:100%;display:flex;align-items:center;gap:12px;min-height:70px;padding:12px 14px;background:var(--mist);border-radius:22px;text-align:left}
+.juntos-card .item-name{font-weight:700}
+
+/* mercado: bolinha + nome separados */
+.mchk{width:48px;min-height:56px;display:flex;align-items:center;justify-content:center;flex:none;margin-left:-4px}
+.mname{flex:1;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:56px;text-align:left;padding-right:6px}
+.mname .mtx{display:flex;flex-direction:column;gap:1px;min-width:0}
+.mname .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mname .mk{font-size:12px;color:var(--faint)}
+.mname .q.add{background:transparent;color:var(--faint);font-weight:600}
+.mname:active .q{transform:scale(.96)}
+.mrow .rm.del{width:36px;height:36px;margin:0 4px;border-radius:11px;background:var(--rose);color:var(--rose-ink);display:flex;align-items:center;justify-content:center;flex:none}
+.qbtn{width:52px;height:52px;border-radius:16px;border:1px solid var(--line);background:var(--card);display:flex;align-items:center;justify-content:center;color:var(--ink);flex:none}
+.qbtn.plus{background:var(--g);color:var(--g-ink);border-color:var(--g)}
+.qbtn:active{transform:scale(.94)}
+
+/* presentes que ganharam (finanças) */
+.ganhos-h{width:100%;display:flex;align-items:center;gap:12px;padding:16px;min-height:72px}
+.ganhos-h .chev{color:var(--faint);transition:transform .26s var(--ease);display:flex}
+.ganhos.is-open .ganhos-h .chev{transform:rotate(180deg)}
+.ganhos-b{border-top:1px solid var(--line3);padding:4px 16px 14px;display:flex;flex-direction:column;gap:4px;animation:rise .28s var(--ease) both}
+.ganhos-g{display:flex;flex-direction:column;padding-top:10px}
+.ganhos-q{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--lav-ink);padding-bottom:2px}
+.ganhos-q span:last-child{letter-spacing:0;text-transform:none;font-weight:500;color:var(--muted2)}
+.ganhos-i{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:42px;border-bottom:1px solid var(--line3);font-size:15px}
+.ganhos-i span:last-child{font-size:12px;color:var(--faint);flex:none}
+.ganhos-g:last-child .ganhos-i:last-child{border-bottom:0}
+
 /* transições de tela */
 .enter-push{animation:push var(--t-screen) var(--ease) both}
 .enter-pop{animation:popIn 240ms var(--ease) both}
@@ -640,7 +668,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.14-3";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.14-4";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -824,6 +852,30 @@ function guessCat(nome) {
   }
   return "Outros";
 }
+/* marcas conhecidas → [nome genérico, seção] */
+const MARCAS = {
+  "rexona": ["Desodorante", "Higiene"], "nivea": ["Hidratante", "Higiene"], "dove": ["Sabonete", "Higiene"], "lux": ["Sabonete", "Higiene"], "protex": ["Sabonete", "Higiene"],
+  "colgate": ["Pasta de dente", "Higiene"], "sorriso": ["Pasta de dente", "Higiene"], "close-up": ["Pasta de dente", "Higiene"], "oral-b": ["Escova de dente", "Higiene"], "sensodyne": ["Pasta de dente", "Higiene"],
+  "pantene": ["Shampoo", "Higiene"], "seda": ["Shampoo", "Higiene"], "elseve": ["Shampoo", "Higiene"], "head-shoulders": ["Shampoo", "Higiene"], "tresemme": ["Shampoo", "Higiene"],
+  "gillette": ["Lâmina de barbear", "Higiene"], "always": ["Absorvente", "Higiene"], "intimus": ["Absorvente", "Higiene"], "neve": ["Papel higiênico", "Higiene"], "personal": ["Papel higiênico", "Higiene"], "scott": ["Papel higiênico", "Higiene"], "monange": ["Desodorante", "Higiene"], "axe": ["Desodorante", "Higiene"],
+  "coca-cola": ["Refrigerante", "Bebidas"], "coca": ["Refrigerante", "Bebidas"], "pepsi": ["Refrigerante", "Bebidas"], "guarana": ["Refrigerante", "Bebidas"], "fanta": ["Refrigerante", "Bebidas"], "sprite": ["Refrigerante", "Bebidas"], "kuat": ["Refrigerante", "Bebidas"],
+  "heineken": ["Cerveja", "Bebidas"], "brahma": ["Cerveja", "Bebidas"], "skol": ["Cerveja", "Bebidas"], "amstel": ["Cerveja", "Bebidas"], "budweiser": ["Cerveja", "Bebidas"], "stella": ["Cerveja", "Bebidas"], "corona": ["Cerveja", "Bebidas"], "spaten": ["Cerveja", "Bebidas"],
+  "del-valle": ["Suco", "Bebidas"], "maguary": ["Suco", "Bebidas"], "sufresh": ["Suco", "Bebidas"], "crystal": ["Água", "Bebidas"], "bonafont": ["Água", "Bebidas"], "red-bull": ["Energético", "Bebidas"], "monster": ["Energético", "Bebidas"], "gatorade": ["Isotônico", "Bebidas"],
+  "ype": ["Detergente", "Limpeza"], "limpol": ["Detergente", "Limpeza"], "omo": ["Sabão em pó", "Limpeza"], "ariel": ["Sabão em pó", "Limpeza"], "brilhante": ["Sabão em pó", "Limpeza"], "tixan": ["Sabão em pó", "Limpeza"], "comfort": ["Amaciante", "Limpeza"], "downy": ["Amaciante", "Limpeza"],
+  "veja": ["Limpador multiuso", "Limpeza"], "pinho-sol": ["Desinfetante", "Limpeza"], "qboa": ["Água sanitária", "Limpeza"], "bombril": ["Esponja de aço", "Limpeza"], "scotch-brite": ["Esponja", "Limpeza"], "vanish": ["Tira-manchas", "Limpeza"], "harpic": ["Limpador de vaso", "Limpeza"], "sbp": ["Inseticida", "Limpeza"], "raid": ["Inseticida", "Limpeza"],
+  "nescau": ["Achocolatado", "Mercearia"], "toddy": ["Achocolatado", "Mercearia"], "nescafe": ["Café", "Mercearia"], "pilao": ["Café", "Mercearia"], "melitta": ["Café", "Mercearia"], "3-coracoes": ["Café", "Mercearia"], "camil": ["Arroz", "Mercearia"], "tio-joao": ["Arroz", "Mercearia"],
+  "barilla": ["Macarrão", "Mercearia"], "renata": ["Macarrão", "Mercearia"], "nissin": ["Macarrão instantâneo", "Mercearia"], "miojo": ["Macarrão instantâneo", "Mercearia"], "hellmanns": ["Maionese", "Mercearia"], "heinz": ["Ketchup", "Mercearia"], "quero": ["Molho de tomate", "Mercearia"], "pomarola": ["Molho de tomate", "Mercearia"], "liza": ["Óleo", "Mercearia"], "soya": ["Óleo", "Mercearia"], "gallo": ["Azeite", "Mercearia"], "uniao": ["Açúcar", "Mercearia"], "cisne": ["Sal", "Mercearia"], "kitano": ["Temperos", "Mercearia"], "sazon": ["Temperos", "Mercearia"],
+  "danone": ["Iogurte", "Laticínios e frios"], "activia": ["Iogurte", "Laticínios e frios"], "italac": ["Leite", "Laticínios e frios"], "piracanjuba": ["Leite", "Laticínios e frios"], "parmalat": ["Leite", "Laticínios e frios"], "aviacao": ["Manteiga", "Laticínios e frios"], "qualy": ["Margarina", "Laticínios e frios"], "doriana": ["Margarina", "Laticínios e frios"], "catupiry": ["Requeijão", "Laticínios e frios"], "polenghi": ["Queijo", "Laticínios e frios"],
+  "sadia": ["Frios", "Laticínios e frios"], "perdigao": ["Frios", "Laticínios e frios"], "seara": ["Frango", "Carnes e ovos"], "friboi": ["Carne", "Carnes e ovos"],
+  "pullman": ["Pão de forma", "Padaria"], "wickbold": ["Pão de forma", "Padaria"], "seven-boys": ["Pão de forma", "Padaria"], "bauducco": ["Bolacha", "Padaria"], "oreo": ["Bolacha", "Padaria"], "trakinas": ["Bolacha", "Padaria"], "passatempo": ["Bolacha", "Padaria"], "piraque": ["Bolacha", "Padaria"]
+};
+const MARCA_NOME = { "coca": "Coca-Cola", "coca-cola": "Coca-Cola", "ype": "Ypê", "3-coracoes": "3 Corações", "uniao": "União", "aviacao": "Aviação", "pilao": "Pilão", "perdigao": "Perdigão", "nescafe": "Nescafé", "hellmanns": "Hellmann's", "head-shoulders": "Head & Shoulders", "tresemme": "TRESemmé", "oral-b": "Oral-B", "del-valle": "Del Valle", "red-bull": "Red Bull", "scotch-brite": "Scotch-Brite", "pinho-sol": "Pinho Sol", "tio-joao": "Tio João", "seven-boys": "Seven Boys", "close-up": "Close Up", "guarana": "Guaraná", "piraque": "Piraquê" };
+function achaMarca(nome) {
+  const s = slug(nome);
+  const keys = Object.keys(MARCAS).sort((a, b) => b.length - a.length);
+  for (const k of keys) if (s === k || s.startsWith(k + "-") || s.endsWith("-" + k) || s.includes("-" + k + "-")) return k;
+  return null;
+}
 /* "2 kg de arroz" → { nome: "Arroz", qtd: "2 kg" } */
 function parseMercado(txt) {
   let t = txt.trim().replace(/\s+/g, " ");
@@ -832,11 +884,24 @@ function parseMercado(txt) {
   if (m) {
     const U = { gr: "g", litro: "L", litros: "L", l: "L", und: "un", unidade: "un", unidades: "un", pacote: "pct", pacotes: "pct", caixa: "cx", caixas: "cx", duzia: "dz", duzias: "dz", "dúzia": "dz", "dúzias": "dz", "cabeça": "cab", "cabeças": "cab" };
     const u = (m[2] || "").toLowerCase();
-    qtd = m[1].replace(".", ",") + (u ? " " + (U[u] || u) : "");
+    qtd = m[1].replace(".", ",") + " " + (u ? (U[u] || u) : "un");
     nome = m[3];
   }
   nome = nome.charAt(0).toUpperCase() + nome.slice(1);
-  return { nome, qtd };
+  let marca = "", cat = "";
+  const k = achaMarca(nome);
+  if (k) {
+    const [gen, c] = MARCAS[k];
+    const rx = new RegExp(k.replace(/-/g, "[\\s-]?"), "i");
+    const plain = nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const mm = plain.match(rx);
+    const rest = mm ? (nome.slice(0, mm.index) + nome.slice(mm.index + mm[0].length)).replace(/\s+/g, " ").trim() : "";
+    marca = MARCA_NOME[k] || (k.charAt(0).toUpperCase() + k.slice(1));
+    const restCat = rest ? guessCat(rest) : "Outros";
+    nome = rest && restCat !== "Outros" ? rest.charAt(0).toUpperCase() + rest.slice(1) : gen;
+    cat = restCat !== "Outros" ? restCat : c;
+  }
+  return { nome, qtd, marca, cat: cat || guessCat(nome) };
 }
 const ONDE = ["Mercado", "Atacado", "Feira", "Padaria", "Açougue", "Delivery"];
 
@@ -1769,12 +1834,18 @@ function viewFinancas() {
   </main>`;
 }
 function presentesCard(list) {
+  const SEM = "Sem nome de quem deu";
   const by = new Map();
-  list.forEach(i => { const k = (i.presenteDe || "").trim() || "Sem nome"; (by.get(k) || by.set(k, []).get(k)).push(i); });
-  const rows = [...by].sort((a, b) => (a[0] === "Sem nome") - (b[0] === "Sem nome") || b[1].length - a[1].length || a[0].localeCompare(b[0], "pt-BR"));
-  return `<section class="card" style="gap:4px">
-    <div class="row" style="justify-content:space-between;margin-bottom:4px"><h2>Presentes que ganharam</h2><span class="small muted">${plural(list.length, "item", "itens")}</span></div>
-    ${rows.map(([n, l]) => `<div class="member"><span class="av lav">${n === "Sem nome" ? ic("gift", 18, 2) : esc(initials(n))}</span><span class="mt"><b>${esc(n)}</b><span>${l.map(i => esc(i.nome)).join(", ")}</span></span><span class="small" style="font-weight:700">${l.length}</span></div>`).join("")}
+  list.forEach(i => { const k = (i.presenteDe || "").trim() || SEM; (by.get(k) || by.set(k, []).get(k)).push(i); });
+  const rows = [...by].sort((a, b) => (a[0] === SEM) - (b[0] === SEM) || b[1].length - a[1].length || a[0].localeCompare(b[0], "pt-BR"));
+  const pessoas = rows.filter(([n]) => n !== SEM).length;
+  const open = !!S.ganhosOpen;
+  return `<section class="card ganhos ${open ? "is-open" : ""}" style="padding:0;gap:0;overflow:hidden">
+    <button class="ganhos-h" data-act="ganhos" aria-expanded="${open}"><span class="tile" style="width:44px;height:44px;border-radius:14px;background:var(--lav);color:var(--lav-ink)">${ic("gift", 21, 2)}</span>
+      <span class="grow" style="display:flex;flex-direction:column;gap:2px;min-width:0;text-align:left"><b style="font-size:16px">Presentes que ganharam</b><span class="small muted">${plural(list.length, "presente", "presentes")}${pessoas ? " · de " + plural(pessoas, "pessoa", "pessoas") : ""}</span></span>
+      <span class="chev">${ic("down", 18, 2.4)}</span></button>
+    ${open ? `<div class="ganhos-b">${rows.map(([n, l]) => `<div class="ganhos-g"><div class="ganhos-q"><span>${esc(n)}</span><span>${plural(l.length, "presente", "presentes")}</span></div>
+      ${l.map(i => `<a class="ganhos-i" href="#/i/${encodeURIComponent(i.id)}"><span>${esc(i.nome)}</span><span>${esc(ROOM[i.comodo]?.nome || "")}</span></a>`).join("")}</div>`).join("")}</div>` : ""}
   </section>`;
 }
 
@@ -1810,11 +1881,12 @@ function viewMercado() {
       ${orc ? `<div class="hbar"><i data-w="${Math.min(100, pct(gm, orc))}"></i></div>${pill}` : ""}
     </a>
     ${doc ? `<div class="sec-h"><span style="font-size:14px;font-weight:700;color:var(--ink)">Lista de ${monthName(ym)}</span><span>${okN} de ${itens.length} no carrinho</span></div>
-    <form class="addbar" id="mAdd" data-ym="${ym}"><label for="mNovo" class="sr">Adicionar item</label><input id="mNovo" placeholder="Adicionar item… ex.: 2 kg de arroz" autocomplete="off" enterkeyhint="done"><button type="submit" aria-label="Adicionar">${ic("plus", 22, 2.4)}</button></form>
+    <div class="row" style="justify-content:space-between;gap:10px"><span class="small muted" style="line-height:1.4">${S.mEdit ? "Toque no − pra tirar. Escreva pra colocar: a gente separa por seção e reconhece a marca." : "Bolinha marca no carrinho. Toque no nome pra mudar a quantidade."}</span><button class="btn ${S.mEdit ? "primary" : "ghost"} sm" style="flex:none;min-height:40px" data-act="m-edit">${ic(S.mEdit ? "check" : "edit", 16, 2.2)} ${S.mEdit ? "Pronto" : "Editar lista"}</button></div>
+    ${S.mEdit ? `<form class="addbar" id="mAdd" data-ym="${ym}"><label for="mNovo" class="sr">Colocar item</label><input id="mNovo" placeholder="Ex.: Rexona, 2 Coca-Cola, 1 kg de café" autocomplete="off" enterkeyhint="done"><button type="submit" aria-label="Colocar">${ic("plus", 22, 2.4)}</button></form>` : ""}
     <div class="chips" role="group" aria-label="Mostrar">${[["all", "Tudo"], ["falta", "Faltam"], ["ok", "No carrinho"]].map(([k, l]) => `<button class="chip" data-act="m-filter" data-v="${k}" aria-pressed="${f === k}">${l}</button>`).join("")}</div>
     ${groups.map(g => { const v = g.l.filter(i => f === "all" || (f === "ok" ? i.ok : !i.ok)); return v.length ? `<section style="display:flex;flex-direction:column;gap:8px">
       <div class="grp-h"><h3>${esc(g.c)}</h3><span>${g.l.filter(i => i.ok).length} de ${g.l.length}</span></div>
-      <div class="items">${v.map(i => `<div class="mrow ${i.ok ? "on" : ""} ${S.mPop === i.id ? "pop" : ""}" style="padding-right:4px"><button class="row grow" style="gap:12px;min-height:52px;text-align:left" data-act="m-toggle" data-ym="${ym}" data-id="${esc(i.id)}" aria-pressed="${!!i.ok}"><span class="box">${ic("check", 14, 3)}</span><span class="nm">${esc(i.nome)}</span>${i.qtd ? `<span class="q">${esc(i.qtd)}</span>` : ""}</button><button class="rm" data-act="m-rm" data-ym="${ym}" data-id="${esc(i.id)}" aria-label="Tirar ${esc(i.nome)}">${ic("x", 16, 2)}</button></div>`).join("")}</div>
+      <div class="items">${v.map(i => `<div class="mrow ${i.ok ? "on" : ""} ${S.mPop === i.id ? "pop" : ""}" style="padding-right:4px"><button class="mchk" data-act="m-toggle" data-ym="${ym}" data-id="${esc(i.id)}" aria-pressed="${!!i.ok}" aria-label="${i.ok ? "Tirar do carrinho" : "Pôr no carrinho"}: ${esc(i.nome)}"><span class="box">${ic("check", 14, 3)}</span></button><button class="mname" data-act="m-qty" data-ym="${ym}" data-id="${esc(i.id)}"><span class="mtx"><span class="nm">${esc(i.nome)}</span>${i.marca ? `<span class="mk">${esc(i.marca)}</span>` : ""}</span>${i.qtd ? `<span class="q">${esc(i.qtd)}</span>` : `<span class="q add">+ qtd</span>`}</button>${S.mEdit ? `<button class="rm del" data-act="m-rm" data-ym="${ym}" data-id="${esc(i.id)}" aria-label="Tirar ${esc(i.nome)}">${ic("minus", 16, 2.6)}</button>` : ""}</div>`).join("")}</div>
     </section>` : ""; }).join("") || empty(f === "ok" ? "Nada no carrinho ainda" : "Tudo no carrinho!", f === "ok" ? "Marca os itens conforme for pegando." : "Agora é só passar no caixa.")}
     <div class="btns2"><button class="btn ghost" data-act="m-new" data-v="${nextYm}" style="font-size:14px">${S.mercado.has(nextYm) ? "Ver " + monthName(nextYm) : "Começar " + monthName(nextYm)}</button><button class="btn primary" data-act="lancar" style="font-size:14px">Lançar compra</button></div>`
     : `<div class="card center" style="align-items:center;gap:10px;padding:22px 18px"><b>Lista de ${monthName(ym)}</b><span class="small muted">A gente monta uma lista com o básico de mercado, limpeza e higiene. Depois é só tirar e colocar o que quiser.</span><button class="btn primary" data-act="m-new" data-v="${ym}">Montar a lista do mês</button></div>`}
@@ -1949,7 +2021,6 @@ function viewPresentes() {
   const cnt = {}; pool.forEach(i => cnt[i.comodo] = (cnt[i.comodo] || 0) + 1);
   const pr = S.presRoom && (S.presRoom === "*" || cnt[S.presRoom]) ? S.presRoom : "*";
   S.presRoom = pr;
-  const roomChipsPres = `<div class="chips" role="group" aria-label="Cômodos"><button class="chip" data-act="pres-room" data-v="*" aria-pressed="${pr === "*" || !!(S.presQ || "").trim()}">Todos <span style="opacity:.6;margin-left:4px">${pool.length}</span></button>${ROOMS.filter(r => cnt[r.id]).map(r => `<button class="chip" data-act="pres-room" data-v="${esc(r.id)}" aria-pressed="${pr === r.id && !(S.presQ || "").trim()}">${esc(r.nome)} <span style="opacity:.6;margin-left:4px">${cnt[r.id]}</span></button>`).join("")}</div>`;
   const msg = `Oi! Montamos nossa lista de presentes pro ${L.tipo.toLowerCase()}${L.data ? " (" + fmtDate(L.data) + ")" : ""}. Escolhe um presentinho e marca lá, assim ninguém dá repetido: ${url}`;
   return `<main class="page no-tabs">
     <div class="topbar">${backBtn()}<button class="icon-btn" data-act="lista-cfg" aria-label="Editar a lista">${ic("edit", 19, 2)}</button></div>
@@ -1960,14 +2031,36 @@ function viewPresentes() {
       <div class="btns2"><button class="btn" style="background:var(--hero-glass);color:var(--hero-ink)" data-act="copy" data-v="${esc(url)}">${ic("copy", 17, 2)} Copiar</button><a class="btn sage" href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${ic("chat", 17, 2)} WhatsApp</a></div>
       <span class="mut" style="font-size:12px">Convidados não precisam baixar nem criar conta.</span>
     </section>
-    <div class="sec-h"><h2 style="font-family:Figtree,sans-serif;font-size:15px;font-weight:700">Itens na lista</h2><span>${onSet.size} na lista · ${[...onSet].filter(id => res.has(id)).length} reservados</span></div>
+    <div class="sec-h" id="presAnchor"><h2 style="font-family:Figtree,sans-serif;font-size:15px;font-weight:700">Itens na lista</h2><span>${onSet.size} na lista · ${[...onSet].filter(id => res.has(id)).length} reservados</span></div>
     <div class="seg">${[["on", "Na lista"], ["add", "Colocar mais"]].map(([k, l]) => `<button data-act="pres-filter" data-v="${k}" aria-pressed="${f === k}">${l}</button>`).join("")}</div>
-    ${roomChipsPres}
-    <label class="search">${ic("search", 19, 2.2)}<span class="sr">Procurar item</span><input id="presQ" type="search" placeholder="${f === "on" ? "Procurar na lista" : "Procurar o que colocar"}" value="${esc(S.presQ || "")}" autocomplete="off" enterkeyhint="search"></label>
-    <div id="presList">${presListHtml()}</div>
+    ${presBody(f, pool, cnt, pr)}
   </main>`;
 }
 
+function presBody(f, pool, cnt, pr) {
+  const q = (S.presQ || "").trim();
+  const search = ph => `<label class="search">${ic("search", 19, 2.2)}<span class="sr">Procurar item</span><input id="presQ" type="search" placeholder="${ph}" value="${esc(S.presQ || "")}" autocomplete="off" enterkeyhint="search"></label>`;
+  if (f === "on") {
+    const chips = `<div class="chips" role="group" aria-label="Cômodos"><button class="chip" data-act="pres-room" data-v="*" aria-pressed="${pr === "*" || !!q}">Todos <span style="opacity:.6;margin-left:4px">${pool.length}</span></button>${ROOMS.filter(r => cnt[r.id]).map(r => `<button class="chip" data-act="pres-room" data-v="${esc(r.id)}" aria-pressed="${pr === r.id && !q}">${esc(r.nome)} <span style="opacity:.6;margin-left:4px">${cnt[r.id]}</span></button>`).join("")}</div>`;
+    return `${pool.length > 6 ? chips + search("Procurar na lista") : ""}<div id="presList">${presListHtml()}</div>`;
+  }
+  // "Colocar mais": quadradinhos dos cômodos, como no Início
+  if (pr === "*") {
+    const L = S.settings.lista || {}; const onSet = new Set(L.itens || []);
+    const grid = `<div class="grid2" id="presGrid" ${q ? 'style="display:none"' : ""}>${ROOMS.filter(r => cnt[r.id]).map(r => { const n = all().filter(i => i.comodo === r.id && onSet.has(i.id)).length; return `<button class="room-card" style="text-align:left" data-act="pres-room" data-v="${esc(r.id)}">
+        <div class="top">${tile(r)}${n ? `<span class="pill lav">${n} na lista</span>` : ""}</div>
+        <div style="display:flex;flex-direction:column;gap:3px"><span class="nm">${esc(r.nome)}</span><span class="ct">${plural(cnt[r.id], "item pra escolher", "itens pra escolher")}</span></div>
+      </button>`; }).join("")}</div>`;
+    return `${search("Procurar em todos os cômodos")}${grid}<div id="presList" ${q ? "" : 'style="display:none"'}>${q ? presListHtml() : ""}</div>`;
+  }
+  const r = ROOM[pr];
+  const tops = []; pool.filter(i => i.comodo === pr).forEach(i => { const t = i.topico || ""; if (!tops.includes(t)) tops.push(t); });
+  const pt = S.presTopic && tops.includes(S.presTopic) ? S.presTopic : "*";
+  return `<div class="row" style="gap:10px"><button class="icon-btn" data-act="pres-room" data-v="*" aria-label="Voltar pros cômodos">${ic("back", 20, 2)}</button><div style="display:flex;flex-direction:column;gap:1px;min-width:0"><span class="small muted">Colocar na lista</span><b class="disp" style="font-size:20px">${esc(r?.nome || "")}</b></div></div>
+    ${search("Procurar em " + (r?.nome || "").toLowerCase())}
+    ${tops.length > 1 ? `<div class="chips" role="group" aria-label="Tópicos"><button class="chip" data-act="pres-topic" data-v="*" aria-pressed="${pt === "*"}">Todos</button>${tops.map(t => `<button class="chip" data-act="pres-topic" data-v="${esc(t)}" aria-pressed="${pt === t}">${esc(t || "Outros")}</button>`).join("")}</div>` : ""}
+    <div id="presList">${presListHtml()}</div>`;
+}
 function presListHtml() {
   const L = S.settings.lista || {}; const f = S.presFilter;
   const res = new Map(S.reservas.map(r => [r.id, r]));
@@ -1975,7 +2068,9 @@ function presListHtml() {
   const pool = all().filter(i => onSet.has(i.id) || !i.comprado).filter(i => f === "on" ? onSet.has(i.id) : !onSet.has(i.id));
   const q = norm(S.presQ || "").trim();
   const pr = S.presRoom || "*";
-  let list = pool.filter(i => (pr === "*" || q) ? true : i.comodo === pr);
+  const inAddRoom = f !== "on" && pr !== "*";
+  let list = pool.filter(i => (pr === "*" || (q && !inAddRoom)) ? true : i.comodo === pr);
+  if (inAddRoom && S.presTopic && S.presTopic !== "*") list = list.filter(i => (i.topico || "") === S.presTopic);
   if (q) list = list.filter(i => norm(i.nome + " " + (i.topico || "") + " " + (ROOM[i.comodo]?.nome || "")).includes(q));
   if (!pool.length) return empty(f === "on" ? "A lista ainda está vazia" : "Tudo que falta já está na lista", f === "on" ? "Toca em “Colocar mais” e escolhe o que vocês gostariam de ganhar." : "");
   if (!list.length) return empty("Nada com esse nome", f === "on" ? "Confere se ele já está na lista ou procura em “Colocar mais”." : "Se ainda não está na casa, anota ele primeiro e depois coloca na lista.", f === "on" ? "" : `<button class="btn ghost sm" data-act="anotar" data-name="${esc(S.presQ || "")}">${ic("plus", 16, 2.2)} Anotar “${esc(S.presQ || "")}”</button>`);
@@ -1989,7 +2084,7 @@ function presListHtml() {
   const groups = ROOMS.map(r => [r, list.filter(i => i.comodo === r.id)]).filter(([, l]) => l.length);
   const orphan = list.filter(i => !ROOM[i.comodo]);
   if (orphan.length) groups.push([{ id: "_", nome: "Outros" }, orphan]);
-  const single = groups.length === 1 && pr !== "*" && !q;
+  const single = (groups.length === 1 && pr !== "*" && !q) || inAddRoom;
   return groups.map(([r, l]) => `${single ? "" : `<div class="sec-h" style="margin-top:6px"><h3 style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted2)">${esc(r.nome)}</h3><span>${l.length}</span></div>`}<div class="items">${l.map(row).join("")}</div>`).join("");
 }
 
@@ -2431,6 +2526,37 @@ function openLancar(compra = null) {
     }
   });
 }
+/* quantidade de um item do mercado */
+const M_UNITS = ["un", "kg", "g", "pct", "L", "dz", "cx"];
+function openMercadoQtd(ym, id) {
+  const doc = S.mercado.get(ym); const it = doc?.itens.find(i => i.id === id); if (!it) return;
+  const m = String(it.qtd || "").match(/^(\d+(?:[.,]\d+)?)\s*(.*)$/);
+  let n = m ? parseFloat(m[1].replace(",", ".")) : 1, u = m && m[2] ? m[2] : "un";
+  if (!M_UNITS.includes(u)) M_UNITS.push(u);
+  const step = () => u === "g" ? 100 : (u === "kg" || u === "L") && n < 3 && n % 1 ? 0.5 : 1;
+  const fmt = x => String(Math.round(x * 10) / 10).replace(".", ",");
+  openSheet(it.nome, `
+    <div class="row" style="gap:8px;margin-top:-6px"><span class="pill" style="background:var(--soft);color:var(--muted)">${esc(it.cat || "Outros")}</span>${it.marca ? `<span class="pill" style="background:var(--chipbg);color:var(--ink2)">${esc(it.marca)}</span>` : ""}</div>
+    <div class="card" style="flex-direction:row;align-items:center;gap:12px;padding:12px"><button type="button" class="qbtn" data-q="-1" aria-label="Menos">${ic("minus", 20, 2.6)}</button><b id="qN" class="disp" style="flex:1;text-align:center;font-size:30px" aria-live="polite">${fmt(n)}</b><button type="button" class="qbtn plus" data-q="1" aria-label="Mais">${ic("plus", 20, 2.6)}</button></div>
+    <div class="seg" id="qU">${M_UNITS.map(x => `<button type="button" data-v="${esc(x)}" aria-pressed="${x === u}">${esc(x)}</button>`).join("")}</div>
+    <div class="field"><label for="qMarca">Marca (se quiser)</label><input class="input" id="qMarca" value="${esc(it.marca || "")}" placeholder="Ex.: Camil, Ypê, Coca-Cola" autocomplete="off" autocapitalize="words"></div>
+    <button class="btn primary block lg" type="button" data-ok>Pronto</button>`, {
+    cancelLabel: "Fechar",
+    onMount(ov, close) {
+      ov.querySelector(".sheet").classList.add("compact");
+      const paint = () => { $("#qN", ov).textContent = fmt(n); pickSeg($("#qU", ov), u); };
+      ov.addEventListener("click", e => {
+        const q = e.target.closest("[data-q]"); if (q) { const s = +q.dataset.q > 0 ? step() : (u === "g" ? 100 : n <= 3 && (u === "kg" || u === "L") && n % 1 ? 0.5 : 1); n = Math.max(u === "g" ? 50 : 0.5, Math.round((n + (+q.dataset.q) * s) * 10) / 10); if (u !== "g" && u !== "kg" && u !== "L") n = Math.max(1, Math.round(n)); paint(); return; }
+        const b = e.target.closest("#qU button"); if (b) { u = b.dataset.v; if (u === "g" && n < 50) n = 500; else if (u !== "g" && n >= 50) n = 1; paint(); return; }
+      });
+      $("[data-ok]", ov).onclick = () => {
+        const marca = $("#qMarca", ov).value.trim();
+        saveMercado(ym, doc.itens.map(i => i.id === id ? { ...i, qtd: fmt(n) + " " + u, marca: marca || null } : i));
+        S.dirty = true; close();
+      };
+    }
+  });
+}
 function novaListaMercado(ym) {
   const prevs = [...S.mercado.keys()].filter(k => k < ym).sort();
   const base = prevs.length ? (S.mercado.get(prevs[prevs.length - 1]).itens || []).map(i => ({ ...i, ok: false }))
@@ -2649,8 +2775,8 @@ function openSettings() {
       <div class="field"><label for="sSit">Em que pé está</label><select class="input" id="sSit">${[["obra", "Na planta ou em obra"], ["chaves", "Esperando as chaves"], ["morando", "Já moramos"]].map(([k, l]) => `<option value="${k}" ${k === sit ? "selected" : ""}>${l}</option>`).join("")}</select></div>
       <div class="field"><label for="sEntrega">${sit === "morando" ? "Desde quando" : "Mês das chaves"}</label><input class="input" id="sEntrega" type="month" value="${esc(entrega)}"></div>
     </div>
+    <button class="juntos-card" data-go="juntos"><span class="tile" style="width:40px;height:40px;border-radius:12px;background:var(--mist-ink);color:var(--mist)">${ic("users", 19, 2)}</span><span class="item-txt grow"><span class="item-name">Quem mora junto</span><span class="meta" style="color:var(--mist-ink)">${plural(nMem, "pessoa", "pessoas")} · convidar alguém</span></span><span class="pill lg" style="background:var(--mist-btn);color:var(--mist-btn-ink)">Convidar</span></button>
     <div class="items">
-      <button class="item" style="width:100%;text-align:left;min-height:64px;background:var(--mist)" data-go="juntos"><span class="tile" style="width:36px;height:36px;border-radius:11px;background:var(--card);color:var(--mist-ink)">${ic("users", 18, 2)}</span><span class="item-txt grow"><span class="item-name">Quem mora junto</span><span class="meta" style="color:var(--mist-ink)">${plural(nMem, "pessoa", "pessoas")} · convidar alguém</span></span><span class="pill lg" style="background:var(--mist-btn);color:var(--mist-btn-ink)">Convidar</span></button>
       ${row("data-go=rooms", "home", "Cômodos da casa", plural(ROOMS.length, "cômodo", "cômodos"))}
       ${row("data-go=lista", "gift", "Lista de presentes", S.settings.lista ? "No ar" : "Ainda não criada")}
       ${row("data-go=avisos", "bell", "Avisos")}
@@ -3234,6 +3360,8 @@ document.addEventListener("click", e => {
   else if (a === "m-month") openMesMercado();
   else if (a === "m-new") { const ym = el.dataset.v; if (S.mercado.has(ym)) S.mMonth = ym; else novaListaMercado(ym); rerender(); window.scrollTo(0, 0); }
   else if (a === "m-toggle") { const ym = el.dataset.ym, d = S.mercado.get(ym); if (!d) return; const was = d.itens.find(i => i.id === id)?.ok; S.mPop = was ? null : id; saveMercado(ym, d.itens.map(i => i.id === id ? { ...i, ok: !i.ok } : i)); rerender(); setTimeout(() => { S.mPop = null; }, 600); }
+  else if (a === "m-edit") { S.mEdit = !S.mEdit; rerender(); if (S.mEdit) setTimeout(() => $("#mNovo")?.focus(), 60); }
+  else if (a === "m-qty") openMercadoQtd(el.dataset.ym, id);
   else if (a === "m-rm") { const ym = el.dataset.ym, d = S.mercado.get(ym); if (!d) return; const old = d.itens; const it = old.find(i => i.id === id); saveMercado(ym, old.filter(i => i.id !== id)); rerender(); toast(`${it?.nome || "Item"} saiu da lista`, "Desfazer", () => { saveMercado(ym, old); rerender(); }); }
   else if (a === "ach-tab") { S.achTab = el.dataset.v; rerender(); }
   else if (a === "push") askPush(() => rerender());
@@ -3241,8 +3369,10 @@ document.addEventListener("click", e => {
   else if (a === "lista-cfg") openListaCfg(false);
   else if (a === "lista-item") toggleListaItem(id);
   else if (a === "lista-liberar") { const s = S.settings.lista?.slug; if (s) { write(S.store.liberar(s, id)); toast("Presente liberado de novo na lista"); } }
+  else if (a === "ganhos") { S.ganhosOpen = !S.ganhosOpen; rerender(); }
   else if (a === "pres-filter") { S.presFilter = el.dataset.v; S.presRoom = "*"; S.presQ = ""; rerender(); }
-  else if (a === "pres-room") { S.presRoom = el.dataset.v; S.presQ = ""; rerender(); }
+  else if (a === "pres-room") { S.presRoom = el.dataset.v; S.presQ = ""; S.presTopic = "*"; rerender(); window.scrollTo(0, Math.min(window.scrollY, ($("#presAnchor")?.offsetTop || 0))); }
+  else if (a === "pres-topic") { S.presTopic = el.dataset.v; const box = $("#presList"); if (box) box.innerHTML = presListHtml(); $$('[data-act="pres-topic"]').forEach(b => b.setAttribute("aria-pressed", String(b === el))); }
   else if (a === "g-pick") guestPick(id);
   else if (a === "g-lojas") { S.guest.open = S.guest.open === id ? null : id; rerender(); }
   else if (a === "post-next") postNext();
@@ -3287,6 +3417,7 @@ document.addEventListener("input", e => {
   if (id === "obEntrega" && S.ob) S.ob.entrega = e.target.value;
   if (id === "presQ") {
     S.presQ = e.target.value; const box = $("#presList"); if (box) box.innerHTML = presListHtml();
+    const grid = $("#presGrid"); if (grid) { const has = !!S.presQ.trim(); grid.style.display = has ? "none" : ""; box.style.display = has ? "" : "none"; }
     const q = S.presQ.trim(); $$('[data-act="pres-room"]').forEach(b => b.setAttribute("aria-pressed", q ? String(b.dataset.v === "*") : String(b.dataset.v === (S.presRoom || "*"))));
     return;
   }
@@ -3307,11 +3438,12 @@ document.addEventListener("submit", async e => {
     const inp = $("#mNovo"), txt = inp.value.trim(); if (!txt) return;
     const ym = f.dataset.ym, d = S.mercado.get(ym); if (!d) return;
     const p = parseMercado(txt);
-    const it = { id: uid(), nome: p.nome, qtd: p.qtd, cat: guessCat(p.nome), ok: false };
+    const it = { id: uid(), nome: p.nome, qtd: p.qtd, cat: p.cat || guessCat(p.nome), ok: false };
+    if (p.marca) it.marca = p.marca;
     saveMercado(ym, [...d.itens, it]);
     S.mFilter = S.mFilter === "ok" ? "all" : S.mFilter;
     rerender(); setTimeout(() => $("#mNovo")?.focus(), 30);
-    toast(`${p.nome} entrou em ${it.cat}`);
+    toast(`${p.marca ? p.marca + ": " : ""}${p.nome} entrou em ${it.cat}`, null, null, 2600, { ok: true, title: "Na lista!" });
     return;
   }
   if (f.id === "linkForm") {
