@@ -559,11 +559,11 @@ html.theme-fade,html.theme-fade *{transition:background-color .3s ease,color .3s
 
 /* transições de tela */
 .enter-push{animation:push var(--t-screen) var(--ease) both}
-.enter-pop{animation:popIn var(--t-screen) var(--ease) both}
+.enter-pop{animation:popIn 240ms var(--ease) both}
 .enter-fade{animation:fade var(--t-screen) ease both}
 .enter-tab{animation:fade 140ms ease-out both}
 @keyframes push{from{opacity:0;transform:translateX(24px)}}
-@keyframes popIn{from{opacity:0;transform:translateX(-24px)}}
+@keyframes popIn{from{transform:translateX(-14px)}}
 .stagger>*{animation:rise .36s var(--ease) both;animation-delay:calc(min(var(--i,8),8) * 30ms)}
 @keyframes rise{from{opacity:0;transform:translateY(8px)}}
 /* animações leves */
@@ -640,7 +640,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.14-2";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.14-3";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
