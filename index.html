@@ -425,7 +425,7 @@ input[type=date].input,input[type=month].input{min-width:0;display:flex;align-it
 .member{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line3)}
 .member:last-child{border-bottom:0}
 .convite-quem{display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--line3);padding-top:16px}
-.chips.wrap{flex-wrap:wrap;overflow:visible;margin:0;padding:0}
+.chips.wrap{flex-wrap:wrap;overflow:visible;margin:4px 0 0;padding:0}
 .chips.wrap .chip{height:36px;padding:0 13px}
 .convite-wa{display:flex;flex-direction:column;gap:8px;align-items:stretch}
 .convite-wa .link-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;align-self:center}
@@ -681,7 +681,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.14-6";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.14-7";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -2738,7 +2738,7 @@ function guestPick(id) {
 }
 
 /* ---------------- QUEM MORA JUNTO ---------------- */
-const RELACOES = ["Noiva", "Noivo", "Namorada", "Namorado", "Esposa", "Marido", "Parente", "Amigo(a)", "Outro"];
+const RELACOES = ["Noiva", "Noivo", "Namorada", "Namorado", "Esposa", "Marido", "Parente", "Amigo(a)"];
 const pessoas = () => S.settings.pessoas || {};
 function salvarPessoa(email, o) {
   const ps = { ...pessoas(), [email]: { ...(pessoas()[email] || {}), ...o } };
@@ -2782,7 +2782,7 @@ const codigoDaVez = () => codigoPronto || (codigoPronto = novoCodigo());
 function registrarCodigo() {
   const code = codigoDaVez(); codigoPronto = null;
   const exp = Date.now() + CODIGO_DIAS * 864e5;
-  const nome = (S.conv?.nome || "").trim().slice(0, 40), rel = S.conv?.rel || "";
+  const nome = (S.conv?.nome || "").trim().slice(0, 40), rel = (S.conv?.rel || "").trim().slice(0, 30);
   write(S.store.criarCodigo(code, meuNome() || nomeSugerido(), nomeDaCasa(), nome, rel), "Não deu pra criar o convite. Confere a internet?");
   const l = { c: code, exp }; if (nome) l.nome = nome; if (rel) l.rel = rel;
   const links = [...linksPendentes(), l].slice(-10);
@@ -2798,7 +2798,8 @@ function juntosBody() {
     <div class="convite-quem">
       <b class="disp" style="font-size:17px">Convidar alguém</b>
       <div class="field"><label for="jQuem">Nome</label><input class="input" id="jQuem" value="${esc(S.conv.nome)}" placeholder="Ex.: Mirielly" autocapitalize="words" autocomplete="off" maxlength="40"></div>
-      <div class="field"><span class="lbl" id="jRelL">Essa pessoa é sua…</span><div class="chips wrap" role="group" aria-labelledby="jRelL">${RELACOES.map(r => `<button type="button" class="chip" data-rel="${esc(r)}" aria-pressed="${S.conv.rel === r}">${esc(r)}</button>`).join("")}</div></div>
+      <div class="field"><label for="jRel">Essa pessoa é sua…</label><input class="input" id="jRel" value="${esc(S.conv.rel)}" placeholder="Ex.: noiva, irmão, amiga de infância" autocapitalize="sentences" autocomplete="off" maxlength="30">
+        <div class="chips wrap" role="group" aria-label="Sugestões">${RELACOES.map(r => `<button type="button" class="chip" data-rel="${esc(r)}" aria-pressed="${S.conv.rel === r}">${esc(r)}</button>`).join("")}</div></div>
     </div>
     <div class="convite-wa">
       <a class="btn sage block lg" id="jWa" href="${esc(w.wa)}" target="_blank" rel="noopener">${ic("chat", 19, 2)} Chamar pelo WhatsApp</a>
@@ -2831,7 +2832,7 @@ function wireJuntos(root) {
     btn.disabled = false; btn.textContent = "Convidar";
     if (r === false) { err.textContent = "Não deu pra convidar agora. Confere a internet e tenta de novo?"; return; }
     inp.value = "";
-    const dado = (S.conv?.nome || "").trim().slice(0, 40), rel = S.conv?.rel || "";
+    const dado = (S.conv?.nome || "").trim().slice(0, 40), rel = (S.conv?.rel || "").trim().slice(0, 30);
     if (dado || rel) salvarPessoa(email, Object.assign({}, dado && { nome: dado }, rel && { rel }));
     $("#jList", root).innerHTML = membrosHtml();
     S.lastInvite = { email, nome: dado.split(/\s+/)[0] || email.split("@")[0].replace(/[._-]+/g, " ").replace(/\d+/g, "").trim().replace(/^\w/, c => c.toUpperCase()) || "essa pessoa" };
@@ -2839,6 +2840,9 @@ function wireJuntos(root) {
     refreshWa();
   };
   const quem = $("#jQuem", root);
+  const relInp = $("#jRel", root);
+  const marcaRel = () => $$("[data-rel]", root).forEach(x => x.setAttribute("aria-pressed", String(norm(x.dataset.rel) === norm(S.conv.rel))));
+  relInp.oninput = () => { S.conv.rel = relInp.value.trim(); marcaRel(); };
   quem.oninput = () => { S.conv.nome = quem.value; const a = $("#jWa", root); if (a) a.href = waConvite(codigoDaVez()).wa; };
   root.addEventListener("submit", e => {
     if (e.target.id !== "jNomeForm") return;
@@ -2850,7 +2854,7 @@ function wireJuntos(root) {
     $("#jList", root).innerHTML = membrosHtml(); toast("Nome salvo");
   });
   const refreshWa = () => {
-    S.conv = { nome: "", rel: "" }; quem.value = "";
+    S.conv = { nome: "", rel: "" }; quem.value = ""; relInp.value = "";
     $$("[data-rel]", root).forEach(x => x.setAttribute("aria-pressed", "false"));
     const a = $("#jWa", root); if (a) a.href = waConvite(codigoDaVez()).wa; $("#jList", root).innerHTML = membrosHtml();
   };
@@ -2864,8 +2868,8 @@ function wireJuntos(root) {
   root.addEventListener("click", async e => {
     const rb = e.target.closest("[data-rel]");
     if (rb) {
-      S.conv.rel = S.conv.rel === rb.dataset.rel ? "" : rb.dataset.rel;
-      $$("[data-rel]", root).forEach(x => x.setAttribute("aria-pressed", String(x.dataset.rel === S.conv.rel)));
+      S.conv.rel = norm(S.conv.rel) === norm(rb.dataset.rel) ? "" : rb.dataset.rel;
+      relInp.value = S.conv.rel; marcaRel();
       return;
     }
     if (e.target.closest("[data-editnome]")) { S.editNome = true; $("#jList", root).innerHTML = membrosHtml(); setTimeout(() => $("#jNome", root)?.focus(), 30); return; }

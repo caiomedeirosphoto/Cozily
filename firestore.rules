@@ -68,7 +68,7 @@ service cloud.firestore {
         && code.size() >= 16 && code.size() <= 40
         && request.resource.data.keys().hasOnly(['casaId', 'de', 'casa', 'nome', 'rel', 'em', 'exp'])
         && request.resource.data.nome is string && request.resource.data.nome.size() <= 40
-        && request.resource.data.rel is string && request.resource.data.rel.size() <= 20
+        && request.resource.data.rel is string && request.resource.data.rel.size() <= 30
         && request.resource.data.exp is int
         && request.resource.data.exp <= request.time.toMillis() + 8 * 86400000;
       allow update: if signedIn() && verified()
