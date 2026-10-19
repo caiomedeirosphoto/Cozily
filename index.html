@@ -462,6 +462,12 @@ input[type=date].input,input[type=month].input{min-width:0;display:flex;align-it
 .convite-mail[open]{display:flex;flex-direction:column;gap:12px}
 .av{width:40px;height:40px;border-radius:50%;background:var(--tile);color:var(--ink2);display:flex;align-items:center;justify-content:center;font-weight:700;flex:none}
 .av.lav{background:var(--lav);color:var(--lav-ink)}
+.av.mist{background:var(--mist);color:var(--mist-ink)}
+.av.eu{background:var(--sage);color:var(--sage-ink)}
+.av.sm{width:36px;height:36px;font-size:13px}
+.item.ativ{min-height:60px;padding-right:12px;color:var(--ink)}
+a.item.ativ:active{opacity:.75}
+.ativ-t{font-size:14px;font-weight:600;line-height:1.35;overflow-wrap:anywhere}
 .member .mt{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
 .member .mt b{font-size:15px;overflow:hidden;text-overflow:ellipsis}
 .member .mt span{font-size:12px;color:var(--muted2);overflow-wrap:anywhere}
@@ -608,6 +614,34 @@ html.theme-fade,html.theme-fade *{transition:background-color .3s ease,color .3s
 .mname .pr{font-size:12px;font-weight:700;color:var(--ink2)}
 .mrow.on .mname .pr{color:var(--muted2)}
 .m-tot{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.prox{background:var(--card);border:1px solid var(--line2);border-radius:22px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.prox-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.prox-h>span:first-child{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted2)}
+.prox-it{display:flex;align-items:center;gap:12px;min-height:48px;color:var(--ink)}
+.prox-it:active{opacity:.75}
+.prox .bar i{background:var(--honey-bar)}
+.prox.ok .bar i{background:var(--sage-dk)}
+.prox-msg{font-size:13px;line-height:1.45;color:var(--muted);font-weight:600}
+.prox.ok .prox-msg{color:var(--sage-ink);display:flex;gap:6px;align-items:flex-start}
+.prox.ok .prox-msg svg{flex:none;margin-top:2px}
+.prox .btn.sm{align-self:flex-start}
+.rep{background:var(--honey);color:var(--honey-ink);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px;animation:rise .3s var(--ease) both}
+.rep-t{display:flex;gap:8px;align-items:flex-start;font-size:14px;line-height:1.4}
+.rep-t svg{flex:none;margin-top:1px}
+.rep-t b{color:var(--ink)}
+.rep-t small{display:block;font-size:12px;font-weight:600;opacity:.85}
+.rep .btns2 .btn{font-size:13px;padding:0 8px}
+@media (max-width:359px){.rep .btns2{grid-template-columns:1fr}}
+.m-sobra .grp-h h3{display:flex;align-items:center;gap:4px;color:var(--honey-ink)}
+.m-sobra .items{border-color:var(--honey-bar);border-style:dashed}
+.phist{background:var(--soft);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.phist-h{font-size:14px;font-weight:700;color:var(--ink2);display:flex;align-items:center;gap:6px}
+.phist-h.sobe{color:var(--rose-ink)}.phist-h.desce{color:var(--sage-ink)}
+.phist-l{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.phist-l span{display:flex;flex-direction:column;gap:1px;background:var(--card);border-radius:11px;padding:6px 10px;flex:none}
+.phist-l span.on{outline:2px solid var(--ink2);outline-offset:-2px}
+.phist-l small{font-size:11px;font-weight:600;color:var(--muted)}
+.phist-l b{font-size:13px}
 .m-tot>span{display:flex;flex-direction:column;gap:2px;background:var(--card);border:1px solid var(--line3);border-radius:16px;padding:10px 14px}
 .m-tot small{font-size:12px;color:var(--muted);font-weight:600}
 .m-tot b{font-size:18px}
@@ -713,7 +747,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.19-3";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.19-4";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -1018,7 +1052,11 @@ const IC = {
   calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
   auto: '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/>',
   sun: '<circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
-  moon: '<path d="M20.5 13.5A8.5 8.5 0 1 1 10.5 3.5a6.5 6.5 0 0 0 10 10z"/>'
+  moon: '<path d="M20.5 13.5A8.5 8.5 0 1 1 10.5 3.5a6.5 6.5 0 0 0 10 10z"/>',
+  voltar: '<path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
+  sobe: '<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
+  desce: '<path d="M3 7l6 6 4-4 8 8"/><path d="M15 17h6v-6"/>',
+  pulso: '<path d="M3 12h4l3-8 4 16 3-8h4"/>'
 };
 const ic = (n, s = 22, w = 1.8) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n] || ""}</svg>`;
 const LOGO = (s = 40) => `<svg width="${s}" height="${s}" viewBox="0 0 100 100" fill="none" aria-hidden="true"><path d="M75 37L50 16 25 37v33a15 15 0 0 0 15 15h35" stroke="#F6F2EC" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/><circle cx="60" cy="58" r="10.5" fill="#E3D4BF"/></svg>`;
@@ -1162,10 +1200,24 @@ function demoSamples(db) {
   const c = db.casas["nosso-ap"];
   c.settings = { importado: true, etapasV2: true, meta: 40000, orcMercado: 1200, situacao: "obra", entrega: ENTREGA_PADRAO, nomes: NOMES_PADRAO, nomeCasa: CASA_PADRAO, membros: ["caio@exemplo.com", "mirielly@exemplo.com"], membrosOk: ["caio@exemplo.com"], moradores: 2,
     lista: { slug: "caio-e-mirielly", tipo: "Chá de casa nova", data: d(62), pix: "caio@exemplo.com", itens: ["cozinha--eletrodomesticos--geladeira", "cozinha--eletrodomesticos--micro-ondas", "banheiro--toalhas--toalhas-de-banho", "quarto--roupa-de-cama--lencois-com-elastico", "cozinha--eletrodomesticos--mixer", "sala-estar--eletronicos--televisao"] } };
-  c.colls = { movs: {}, compras: {}, mercado: {} };
+  c.colls = { movs: {}, compras: {}, mercado: {}, atividade: {} };
+  const h = k => Date.now() - k * 36e5;
+  [["mirielly@exemplo.com", "Mirielly", "comprou", "Toalhas de banho", "banheiro--toalhas--toalhas-de-banho", 120, "2 de 4", 1.5],
+   ["caio@exemplo.com", "Caio", "anotou", "Cortina blecaute", "", 0, "", 5],
+   ["caio@exemplo.com", "Caio", "mercado", "", "", 127.3, "Açougue", 26],
+   ["mirielly@exemplo.com", "Mirielly", "ganhou", "Batedeira", "cozinha--eletrodomesticos--batedeira", 0, "Tia Ana", 30],
+   ["mirielly@exemplo.com", "Mirielly", "anotou", "Tapete do banheiro", "", 0, "", 52]
+  ].forEach(([email, quem, acao, alvo, itemId, valor, extra, hrs], i) => { c.colls.atividade["a" + i] = { acao, quem, email, em: h(hrs), ...(alvo ? { alvo } : {}), ...(itemId ? { itemId } : {}), ...(valor ? { valor } : {}), ...(extra ? { extra } : {}) }; });
   [[-5, 5, 1200], [-4, 5, 1200], [-3, 5, 800], [-2, 5, 1500], [-1, 5, 1200], [0, 5, 1200]].forEach(([k, day, v], i) => c.colls.movs["m" + i] = { tipo: "in", valor: v, data: m(k, day), nota: "Depósito do mês", criadoEm: Date.now() });
   c.colls.movs.t1 = { tipo: "out", valor: 300, data: m(-2, 18), nota: "Emprestei pro conserto do carro", criadoEm: Date.now() };
   [[-5, 1080], [-4, 1150], [-3, 1290], [-2, 990], [-1, 1110]].forEach(([k, v], i) => { c.colls.compras["p" + i] = { valor: v * .6, data: m(k, 4), onde: "Mercado" }; c.colls.compras["q" + i] = { valor: v * .4, data: m(k, 18), onde: i % 2 ? "Feira" : "Atacado" }; });
+  /* mercado dos 3 meses anteriores, com preço subindo e descendo, e uns itens que ficaram sem comprar no mês passado */
+  const PRECOS = { "Arroz": [27.9, 29.5, 31.2], "Feijão": [16.5, 17.8, 18.4], "Café": [18.9, 19.9, 22.5], "Ovos": [12.5, 13.9, 14.9], "Banana": [7.5, 7.2, 6.9], "Leite": [33, 34.2, 34.2], "Frango": [31.9, 32.5, 29.9], "Detergente": [2.79, 2.89, 2.99], "Azeite": [38.9, 41.5, 44.9], "Queijo": [14.9, 15.5, 15.9] };
+  const FICOU = new Set(["Azeite", "Queijo", "Amaciante", "Limão"]);
+  [-3, -2, -1].forEach((k, mi) => {
+    const ym = monthAdd(thisMonth(), k);
+    c.colls.mercado[ym] = { criadoEm: Date.now(), itens: MERCADO_BASE.flatMap(([cat, l]) => l.map(([nome, qtd]) => ({ id: "dm" + slug(nome), nome, qtd, cat, ok: !(k === -1 && FICOU.has(nome)), ...(PRECOS[nome] ? { preco: PRECOS[nome][mi] } : {}) }))) };
+  });
   c.colls.compras.a = { valor: 486.4, data: m(0, 3), onde: "Mercado" };
   c.colls.compras.b = { valor: 128.3, data: m(0, 9), onde: "Feira" };
   c.colls.compras.c = { valor: 127.3, data: m(0, 11), onde: "Açougue" };
@@ -1389,7 +1441,7 @@ async function makeFirebaseStore() {
       return A.reauthenticateWithPopup(u, p);
     },
     async apagarCasa(id) {
-      for (const name of ["itens", "movs", "compras", "mercado", "fotos"]) {
+      for (const name of ["itens", "movs", "compras", "mercado", "fotos", "atividade"]) {
         const q = await F.getDocs(F.collection(db, "casas", id, name));
         const refs = []; q.forEach(d => refs.push(d.ref));
         await batched(refs, (b, r) => b.delete(r));
@@ -1421,7 +1473,7 @@ async function makeFirebaseStore() {
    =================================================================== */
 const S = {
   store: null, user: undefined, items: new Map(), settings: {}, loaded: false,
-  movs: [], compras: [], mercado: new Map(), ofertas: [], cupons: [], reservas: [], listaPub: null,
+  movs: [], compras: [], mercado: new Map(), ofertas: [], cupons: [], reservas: [], atividade: [], listaPub: null,
   route: null, scroll: {},
   roomTopic: {}, roomFilter: {}, stage: 1, q: "", qFilter: "all", mFilter: "all", mMonth: null, achTab: "top", presFilter: "on",
   photos: {}, pending: new Set(), guest: null
@@ -1432,6 +1484,12 @@ const sumidos = () => { if (S.casaId !== "nosso-ap") return []; const ids = new 
 const inRoom = id => all().filter(i => i.comodo === id);
 const topicsOf = id => { const t = []; inRoom(id).forEach(i => { if (!t.includes(i.topico || "")) t.push(i.topico || ""); }); return t; };
 const done = list => list.filter(isDone).length;
+/* nome "normalizado" pra achar item repetido: sem acento, sem maiúscula e sem plural (toalhas = toalha, colchões = colchão) */
+const singular = w => w.length <= 3 ? w : w.endsWith("oes") || w.endsWith("aes") ? w.slice(0, -3) + "ao" : w.endsWith("ais") ? w.slice(0, -2) + "l" : w.endsWith("eis") ? w.slice(0, -2) + "l" : w.endsWith("ois") ? w.slice(0, -2) + "l" : w.endsWith("ns") ? w.slice(0, -2) + "m" : w.endsWith("s") ? w.slice(0, -1) : w;
+const chaveNome = s => norm(s).replace(/[^a-z0-9]+/g, " ").trim().split(" ").filter(Boolean).map(singular).join(" ");
+const itensIguais = nome => { const k = chaveNome(nome); return k ? all().filter(i => chaveNome(i.nome) === k) : []; };
+/* "no Banheiro", "na Cozinha", "nas Ferramentas" */
+const noComodo = nome => { const w = norm(String(nome || "").trim().split(/\s+/)[0]); return (w.endsWith("as") ? "nas " : w.endsWith("os") && w.length > 3 ? "nos " : /(a|ao|cao|dade|gem)$/.test(w) ? "na " : "no ") + nome; };
 const meuNome = () => (S.user?.nome || "").trim();
 const nomesCasa = () => S.settings.nomes || (S.casaId === "nosso-ap" ? NOMES_PADRAO : meuNome());
 /* guia de boas-vindas: só pra conta recém-criada (salvo na conta, não no aparelho) */
@@ -1510,14 +1568,35 @@ function precoConhecido(nome) {
   return null;
 }
 function mercadoYm() { const cur = thisMonth(); return S.mMonth && S.mercado.has(S.mMonth) ? S.mMonth : cur; }
+/* histórico de preço de um item do mercado: um preço por mês, do mais antigo pro mais novo */
+function historicoPreco(nome, ate) {
+  const k = norm(nome).trim(), h = [];
+  [...S.mercado.keys()].filter(m => m <= ate).sort().forEach(m => { const it = (S.mercado.get(m).itens || []).find(i => i.preco && norm(i.nome).trim() === k); if (it) h.push({ ym: m, preco: it.preco }); });
+  return h.slice(-6);
+}
+/* "subiu 12% desde agosto": compara o preço de agora com o mês mais antigo que tem preço */
+function variacaoPreco(h, agora) {
+  const ini = h[0]; if (!ini || !agora || ini.preco <= 0) return null;
+  const p = Math.round((agora / ini.preco - 1) * 100);
+  return { p, desde: monthName(ini.ym), de: ini.preco };
+}
+function mercadoRowHtml(i, ym) {
+  const t = totalItemMercado(i);
+  return `<div class="mrow ${i.ok ? "on" : ""} ${S.mPop === i.id ? "pop" : ""}" style="padding-right:4px"><button class="mchk" data-act="m-toggle" data-ym="${ym}" data-id="${esc(i.id)}" aria-pressed="${!!i.ok}" aria-label="${i.ok ? "Tirar do carrinho" : "Pôr no carrinho"}: ${esc(i.nome)}"><span class="box">${ic("check", 14, 3)}</span></button><button class="mname" data-act="m-qty" data-ym="${ym}" data-id="${esc(i.id)}"><span class="mtx"><span class="nm">${esc(i.nome)}</span>${i.marca ? `<span class="mk">${esc(i.marca)}</span>` : ""}</span><span class="mr">${i.qtd ? `<span class="q">${esc(i.qtd)}</span>` : `<span class="q add">+ qtd</span>`}${t ? `<span class="pr">${money(t)}</span>` : ""}</span></button>${S.mEdit ? `<button class="rm del" data-act="m-rm" data-ym="${ym}" data-id="${esc(i.id)}" aria-label="Tirar ${esc(i.nome)}">${ic("minus", 16, 2.6)}</button>` : ""}</div>`;
+}
 function mercadoListaHtml() {
   const ym = mercadoYm(), doc = mercadoMes(ym); if (!doc) return "";
   const itens = doc.itens || [], f = S.mFilter, q = norm(S.mQ || "").trim();
   const bate = i => !q || norm(i.nome + " " + (i.marca || "") + " " + (i.cat || "")).includes(q);
-  const groups = MERCADO_CATS.map(c => ({ c, l: itens.filter(i => (i.cat || "Outros") === c) })).filter(g => g.l.length);
-  const html = groups.map(g => { const v = g.l.filter(i => (f === "all" || (f === "ok" ? i.ok : !i.ok)) && bate(i)); return v.length ? `<section style="display:flex;flex-direction:column;gap:8px">
-      <div class="grp-h"><h3>${esc(g.c)}</h3><span>${g.l.filter(i => i.ok).length} de ${g.l.length}</span></div>
-      <div class="items">${v.map(i => { const t = totalItemMercado(i); return `<div class="mrow ${i.ok ? "on" : ""} ${S.mPop === i.id ? "pop" : ""}" style="padding-right:4px"><button class="mchk" data-act="m-toggle" data-ym="${ym}" data-id="${esc(i.id)}" aria-pressed="${!!i.ok}" aria-label="${i.ok ? "Tirar do carrinho" : "Pôr no carrinho"}: ${esc(i.nome)}"><span class="box">${ic("check", 14, 3)}</span></button><button class="mname" data-act="m-qty" data-ym="${ym}" data-id="${esc(i.id)}"><span class="mtx"><span class="nm">${esc(i.nome)}</span>${i.marca ? `<span class="mk">${esc(i.marca)}</span>` : ""}</span><span class="mr">${i.qtd ? `<span class="q">${esc(i.qtd)}</span>` : `<span class="q add">+ qtd</span>`}${t ? `<span class="pr">${money(t)}</span>` : ""}</span></button>${S.mEdit ? `<button class="rm del" data-act="m-rm" data-ym="${ym}" data-id="${esc(i.id)}" aria-label="Tirar ${esc(i.nome)}">${ic("minus", 16, 2.6)}</button>` : ""}</div>`; }).join("")}</div>
+  const passa = i => (f === "all" || (f === "ok" ? i.ok : !i.ok)) && bate(i);
+  /* o que ficou sem comprar no mês anterior vem no topo, numa seção só dele */
+  const sobrou = itens.filter(i => i.sobrou), resto = itens.filter(i => !i.sobrou);
+  const de = doc.sobrouDe, tituloSobrou = !de || de === monthAdd(ym, -1) ? "Ficou do mês passado" : `Ficou de ${monthName(de)}`;
+  const groups = [...(sobrou.length ? [{ c: tituloSobrou, l: sobrou, sobra: true }] : []), ...MERCADO_CATS.map(c => ({ c, l: resto.filter(i => (i.cat || "Outros") === c) })).filter(g => g.l.length)];
+  const html = groups.map(g => { const v = g.l.filter(passa); return v.length ? `<section style="display:flex;flex-direction:column;gap:8px"${g.sobra ? ` class="m-sobra" aria-label="${esc(g.c)}"` : ""}>
+      <div class="grp-h"><h3>${g.sobra ? ic("voltar", 13, 2.4) + " " : ""}${esc(g.c)}</h3><span>${g.l.filter(i => i.ok).length} de ${g.l.length}</span></div>
+      ${g.sobra ? `<span class="small muted" style="margin:-4px 4px 0;line-height:1.4">Não deu pra comprar em ${monthName(de || monthAdd(ym, -1))}. Já está aqui pra não esquecer.</span>` : ""}
+      <div class="items">${v.map(i => mercadoRowHtml(i, ym)).join("")}</div>
     </section>` : ""; }).join("");
   if (html) return html;
   if (q) return empty(`Não tem “${esc(S.mQ.trim())}” ${f === "all" ? "na lista" : f === "ok" ? "no carrinho" : "entre os que faltam"}`, "", `<button class="btn ghost sm" data-act="m-addq" data-ym="${ym}">${ic("plus", 16, 2.2)} Colocar “${esc(S.mQ.trim())}” na lista</button>`);
@@ -1543,6 +1622,73 @@ function garantias() {
     const g = garantiaDate(i.garantia), dias = daysBetween(t, g);
     return { it: i, g, dias };
   }).sort((a, b) => a.g.localeCompare(b.g));
+}
+/* ATIVIDADE DA CASA: quem fez o quê e quando (casas/{id}/atividade, só as ~100 últimas) */
+const ATIV_MAX = 100;
+function registrar(acao, o = {}) {
+  if (!S.user || !S.store || !S.casaId) return null;
+  const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const email = S.user.email || "";
+  const doc = { acao, quem: (meuNome() || pessoas()[email]?.nome || email.split("@")[0] || "").slice(0, 60), email, em: Date.now() };
+  if (o.alvo) doc.alvo = String(o.alvo).slice(0, 120);
+  if (o.itemId) doc.itemId = String(o.itemId).slice(0, 200);
+  if (o.valor) doc.valor = o.valor;
+  if (o.extra) doc.extra = String(o.extra).slice(0, 80);
+  S.atividade = [...S.atividade, { id, ...doc }];
+  /* sem aviso de erro: antes das regras novas serem publicadas, isso só não grava */
+  Promise.resolve(S.store.putDoc("atividade", id, doc, false)).catch(err => console.warn("atividade", err?.code || err));
+  const velhos = [...S.atividade].sort((a, b) => b.em - a.em).slice(ATIV_MAX);
+  if (velhos.length) { S.atividade = S.atividade.filter(x => !velhos.includes(x)); velhos.forEach(x => Promise.resolve(S.store.delDoc("atividade", x.id)).catch(() => {})); }
+  return id;
+}
+function desregistrar(id) { if (!id) return; S.atividade = S.atividade.filter(x => x.id !== id); Promise.resolve(S.store.delDoc("atividade", id)).catch(() => {}); }
+/* o feed junta o que foi gravado com as reservas da lista de presentes (feitas por convidados) e quem entrou na casa */
+function feedAtividade() {
+  const eu = S.user?.email;
+  const nomeDe = (email, nome) => email && email === eu ? "Você" : (pessoas()[email]?.nome || nome || (email || "").split("@")[0] || "Alguém");
+  const f = S.atividade.map(a => {
+    const q = nomeDe(a.email, a.quem), it = a.itemId ? S.items.get(a.itemId) : null, alvo = a.alvo || it?.nome || "um item";
+    const r = it ? ROOM[it.comodo] : null;
+    const t = a.acao === "comprou" ? `${q} marcou como comprado: ${alvo}`
+      : a.acao === "ganhou" ? `${q} marcou como presente: ${alvo}`
+      : a.acao === "mercado" ? `${q} lançou uma compra do mercado`
+      : a.acao === "anotou" ? `${q} anotou ${alvo}` : `${q} mexeu em ${alvo}`;
+    const det = a.acao === "mercado" ? [money(a.valor), a.extra] : a.acao === "ganhou" ? [a.extra ? "de " + a.extra : "", r?.nome] : a.acao === "comprou" ? [a.valor ? money(a.valor) : "", a.extra, r?.nome] : [r?.nome];
+    return { em: a.em, t, det: det.filter(Boolean).join(" · "), av: a.email === eu ? "eu" : initials(q), kind: a.acao, href: it && !it.excluido ? "#/i/" + encodeURIComponent(it.id) : a.acao === "mercado" ? "#/mercado/gastos" : "" };
+  });
+  S.reservas.forEach(r => { const it = S.items.get(r.id); if (it) f.push({ em: r.em, t: `${r.nome} reservou ${it.nome}`, det: "Lista de presentes", av: "", kind: "reservou", href: "#/presentes" }); });
+  (S.settings.chegadas || []).forEach(c => f.push({ em: c.em, t: `${nomeDe(c.email, c.nome)} entrou na casa`, det: S.settings.nomeCasa || "", av: c.email === eu ? "eu" : initials(c.nome || c.email), kind: "chegou", href: "" }));
+  return f.filter(x => x.em).sort((a, b) => b.em - a.em);
+}
+function quandoHora(ms) {
+  const min = Math.floor((Date.now() - ms) / 6e4), d = new Date(ms), hh = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  if (min < 1) return "agora";
+  if (min < 60) return `há ${min} min`;
+  const dia = daysBetween(ymd(d), today());
+  return dia === 0 ? `hoje, ${hh}` : dia === 1 ? `ontem, ${hh}` : quando(ms);
+}
+function ativRowHtml(e) {
+  const icone = { comprou: "bag", ganhou: "gift", reservou: "gift", mercado: "cart", anotou: "edit" }[e.kind];
+  const av = e.av === "eu" ? `<span class="av sm eu">${ic(icone || "users", 16, 2)}</span>` : e.av ? `<span class="av sm ${e.kind === "ganhou" || e.kind === "reservou" ? "lav" : "mist"}">${esc(e.av)}</span>` : `<span class="av sm lav">${ic(icone || "gift", 16, 2)}</span>`;
+  const inner = `${av}<span class="item-txt grow"><span class="ativ-t">${esc(e.t)}</span><span class="meta">${[e.det, quandoHora(e.em)].filter(Boolean).map(esc).join(" · ")}</span></span>${e.href ? ic("chev", 16, 2) : ""}`;
+  return e.href ? `<a class="item ativ" href="${e.href}">${inner}</a>` : `<div class="item ativ">${inner}</div>`;
+}
+function atividadeHomeHtml() {
+  const f = feedAtividade(); if (!f.length) return "";
+  return `<div class="sec-h"><h2>Atividade da casa</h2><a class="lnk" href="#/atividade" style="min-height:32px;display:flex;align-items:center">Ver tudo</a></div>
+    <div class="items">${f.slice(0, 3).map(ativRowHtml).join("")}</div>`;
+}
+function viewAtividade() {
+  const f = feedAtividade(), dias = [];
+  f.forEach(e => { const k = ymd(new Date(e.em)); const g = dias[dias.length - 1]; if (g && g.k === k) g.l.push(e); else dias.push({ k, l: [e] }); });
+  const tit = k => { const d = daysBetween(k, today()); return d === 0 ? "Hoje" : d === 1 ? "Ontem" : fmtDate(k); };
+  return `<main class="page no-tabs">
+    <div class="topbar">${backBtn()}<span></span></div>
+    <div class="hello"><small>${esc(S.settings.nomeCasa || nomesCasa() || "A casa")}</small><h1>Atividade da casa</h1></div>
+    ${dias.length ? dias.map(g => `<section style="display:flex;flex-direction:column;gap:8px"><div class="grp-h"><h3>${tit(g.k)}</h3><span>${plural(g.l.length, "coisa", "coisas")}</span></div><div class="items">${g.l.map(ativRowHtml).join("")}</div></section>`).join("")
+      : empty("Nada por aqui ainda", "Quando alguém da casa anotar um item, marcar como comprado ou lançar uma compra do mercado, aparece aqui.")}
+    <p class="small muted center" style="margin:0">A gente guarda as ${ATIV_MAX} últimas.</p>
+  </main>`;
 }
 function eventos() {
   const ev = [];
@@ -1576,6 +1722,7 @@ function parseRoute() {
   if (a === "financas" || a === "gastos") return { name: "financas", depth: 0, tab: "financas", key: "financas" };
   if (a === "busca") return { name: "busca", depth: 1, key: "busca" };
   if (a === "avisos") return { name: "avisos", depth: 1, key: "avisos" };
+  if (a === "atividade") return { name: "atividade", depth: 1, key: "atividade" };
   if (a === "achadinhos") return { name: "achadinhos", depth: 1, key: "achadinhos" };
   if (a === "presentes") return { name: "presentes", depth: 1, key: "presentes" };
   return { name: "home", depth: 0, tab: "home", key: "home" };
@@ -1607,6 +1754,7 @@ function render(mode) {
       : r.name === "financas" ? viewFinancas()
       : r.name === "busca" ? viewBusca()
       : r.name === "avisos" ? viewAvisos()
+      : r.name === "atividade" ? viewAtividade()
       : r.name === "achadinhos" ? viewAchadinhos()
       : r.name === "presentes" ? viewPresentes()
       : viewHome();
@@ -1735,6 +1883,31 @@ function melhorOferta() {
   l.sort((a, b) => (b.match - a.match) || (b.off - a.off));
   return l[0] || null;
 }
+/* próxima compra: o item mais importante que falta (etapa 1 primeiro, na ordem da lista), comparado com a caixinha */
+function proximaCompra() {
+  const falta = all().filter(i => !isDone(i) && i.etapa);
+  const ord = (a, b) => (a.etapa - b.etapa) || ((a.ordem ?? 0) - (b.ordem ?? 0));
+  const comValor = falta.filter(i => i.valorPrevisto > 0).sort(ord);
+  const e1 = falta.filter(i => i.etapa === 1).sort(ord);
+  /* um item da etapa 1 com valor ganha de qualquer coisa; sem valor nenhum na etapa 1, mostra o primeiro dela pedindo o valor */
+  const it = comValor.find(i => i.etapa === 1) || e1[0] || comValor[0];
+  return it ? { it, valor: it.valorPrevisto > 0 ? it.valorPrevisto : 0, disp: caixa().disp } : null;
+}
+function proximaHtml() {
+  const p = proximaCompra(); if (!p) return "";
+  const { it, valor, disp } = p, r = ROOM[it.comodo] || ROOMS[0] || { nome: "", icon: "home" };
+  const href = "#/i/" + encodeURIComponent(it.id), da = valor && disp >= valor, falta = valor - Math.max(0, disp);
+  const msg = !valor ? `Quanto custa mais ou menos? Coloca um valor previsto pra gente comparar com a caixinha.`
+    : da ? `Dá pra comprar com o que já guardaram! Na caixinha tem ${money0(disp)}.`
+    : `Faltam ${money0(falta)}. Na caixinha tem ${money0(Math.max(0, disp))}.`;
+  return `<section class="prox ${da ? "ok" : ""}" aria-label="Próxima compra">
+    <div class="prox-h"><span>${ic("flag", 15, 2.2)} Próxima compra</span>${etapaPill(it.etapa)}</div>
+    <a class="prox-it" href="${href}">${tile(r)}<span class="item-txt grow"><span class="item-name">${esc(it.nome)}</span><span class="meta">${esc(r.nome)}${valor ? " · previsto " + money0(valor) : ""}</span></span>${ic("chev", 16, 2)}</a>
+    ${valor ? `<div class="bar thick"><i data-w="${Math.min(100, pct(Math.max(0, disp), valor))}"></i></div>` : ""}
+    <span class="prox-msg">${da ? ic("check", 15, 2.8) : ""}${msg}</span>
+    ${da ? `<button class="btn primary sm" data-act="toggle" data-id="${esc(it.id)}">${ic("bag", 16, 2.2)} Já compramos</button>` : !valor ? `<button class="btn ghost sm" data-act="edit" data-id="${esc(it.id)}">${ic("edit", 16, 2.2)} Colocar valor previsto</button>` : ""}
+  </section>`;
+}
 function viewHome() {
   const items = all();
   const d = done(items), t = items.length, p = pct(d, t);
@@ -1769,6 +1942,7 @@ function viewHome() {
         <a href="#/ordem" data-act="stage-go" data-v="${st.n}"><span>Etapa ${st.n}</span><b>${st.f ? plural(st.f, "falta", "faltam") : "completa!"}</b></a>
       </div>
     </section>
+    ${proximaHtml()}
     <div class="grid2">
       <a class="feat sage" href="#/achadinhos">
         <span class="ftop"><span class="fic">${ic("tag", 18, 2)}</span>${best ? `<span class="badge">-${best.off}% hoje</span>` : ""}</span>
@@ -1782,6 +1956,7 @@ function viewHome() {
         <span class="go">${li ? "Mandar para os convidados" : "Monte a lista do chá"}${ic("chev", 14, 2.4)}</span>
       </a>
     </div>
+    ${atividadeHomeHtml()}
     <div class="sec-h"><h2>Cômodos</h2><button class="lnk" data-act="rooms" style="min-height:32px">Editar</button></div>
     <div class="grid2 stagger">
       ${ROOMS.map((r, i) => { const l = inRoom(r.id), dd = done(l); return `<a class="room-card" href="#/c/${encodeURIComponent(r.id)}" style="--i:${i}">
@@ -2386,6 +2561,7 @@ function openAnotar(defaults = {}) {
       <div class="wrapchips" id="aTopics">${topicChips()}</div><input class="input hidden" id="aNewTopic" placeholder="Nome do tópico (ex.: Eletrodomésticos)">
     </div>
     <div class="err" id="aErr" role="alert"></div>
+    <div class="rep hidden" id="aRep" role="alert"></div>
     <button class="btn primary block lg" type="button" data-add>Anotar</button>
     <p class="just" id="aJust">${hint()}</p>`, {
     cancelLabel: "Fechar",
@@ -2415,6 +2591,11 @@ function openAnotar(defaults = {}) {
       };
       $("[data-add]", ov).onclick = () => saveOne(ov);
       nome.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); saveOne(ov); } });
+      nome.addEventListener("input", () => { if (st.repetido && chaveNome(nome.value) !== st.repetido) { st.repetido = null; $("#aRep", ov).classList.add("hidden"); } });
+      $("#aRep", ov).onclick = e => {
+        const ab = e.target.closest("[data-rep-open]"); if (ab) { $("[data-x]", ov).click(); setTimeout(() => go("#/i/" + encodeURIComponent(ab.dataset.repOpen)), 260); return; }
+        if (e.target.closest("[data-rep-ok]")) { st.repOk = st.repetido; saveOne(ov); }
+      };
     }
   });
   async function saveOne(ov) {
@@ -2424,6 +2605,18 @@ function openAnotar(defaults = {}) {
     let topico = st.newTopic ? $("#aNewTopic", ov).value.trim() : st.topic;
     if (st.newTopic && !topico) { $("#aErr", ov).textContent = "Escreve o nome do tópico novo."; if (!st.more) $("[data-more-toggle]", ov).click(); return false; }
     $("#aErr", ov).textContent = "";
+    /* já existe um item com esse nome (em qualquer cômodo)? avisa antes de anotar de novo */
+    const chave = chaveNome(nome), iguais = st.repOk === chave ? [] : itensIguais(nome);
+    if (iguais.length) {
+      st.repetido = chave;
+      const onde = i => `<b>${esc(i.nome)}</b> ${esc(noComodo(ROOM[i.comodo]?.nome || "outro cômodo"))}<small>${isDone(i) ? "já compraram" : isPartial(i) ? `já têm ${qtdTem(i)} de ${temQtd(i)}` : "ainda falta"}</small>`;
+      const box = $("#aRep", ov);
+      box.innerHTML = `<div class="rep-t">${ic("info", 18, 2.2)}<span>Já tem ${onde(iguais[0])}${iguais.length > 1 ? `<small>e mais ${plural(iguais.length - 1, "outro", "outros")} com o mesmo nome</small>` : ""}</span></div>
+        <div class="btns2"><button type="button" class="btn ghost sm" data-rep-open="${esc(iguais[0].id)}">Abrir o que já tem</button><button type="button" class="btn primary sm" data-rep-ok>Anotar mesmo assim</button></div>`;
+      box.classList.remove("hidden");
+      return false;
+    }
+    st.repOk = null; st.repetido = null; $("#aRep", ov).classList.add("hidden");
     st.busy = true;
     const v = parseMoney($("#aVal", ov).value);
     const it = { id: `${st.room}--${slug(topico || "geral")}--${slug(nome)}-${uid()}`, nome, comodo: st.room, topico: topico || "", etapa: st.etapa, comprado: st.sit > 0, presente: st.sit === 2, ordem: Date.now(), criadoEm: Date.now(), atualizadoEm: Date.now() };
@@ -2433,6 +2626,7 @@ function openAnotar(defaults = {}) {
     const photo = st.photo;
     if (photo) { try { it.thumb = await thumbFrom(photo); } catch (e) {} S.photos[it.id] = [photo]; }
     S.items.set(it.id, it); write(S.store.putItem(it));
+    const ativ = registrar(st.sit === 1 ? "comprou" : st.sit === 2 ? "ganhou" : "anotou", { alvo: nome, itemId: it.id, valor: st.sit === 1 ? v : 0, extra: st.sit === 2 ? it.presenteDe : "" });
     if (photo) write(S.store.putPhotos(it.id, [photo]), "A foto não salvou. Tenta de novo?");
     S.lastRoom = st.room; S.dirty = true;
     if (st.newTopic) { st.newTopic = false; st.topic = topico; $("#aNewTopic", ov).value = ""; $("#aNewTopic", ov).classList.add("hidden"); $("#aTopics", ov).innerHTML = topicChips(); $("#aTopicNow", ov).textContent = topico; }
@@ -2443,7 +2637,7 @@ function openAnotar(defaults = {}) {
     st.busy = false;
     const roomNome = ROOM[st.room]?.nome || "a lista";
     toast(`${nome} foi pra ${roomNome}`, "Desfazer", () => {
-      purgeItem(it.id);
+      purgeItem(it.id); desregistrar(ativ);
       st.just = st.just.filter((x, i) => !(x === nome && i === st.just.lastIndexOf(nome)));
       if (document.body.contains(ov)) { $("#aJust", ov).innerHTML = hint(); if (!nomeEl.value) { nomeEl.value = nome; nomeEl.focus(); } S.dirty = true; }
       else refresh();
@@ -2512,6 +2706,7 @@ async function openMarcar(id) {
       if (photosChanged) write(S.store.putPhotos(id, photos), "As fotos não salvaram. Tenta de novo?");
       S.popId = id; S.dirty = true;
       const n = S.items.get(id);
+      registrar(gift ? "ganhou" : "comprou", { alvo: it.nome, itemId: id, valor: gift ? 0 : patch.valorPago, extra: gift ? (patch.presenteDe ?? it.presenteDe) : isPartial(n) ? `${q} de ${need}` : need ? `${q} un` : "" });
       toast(gift ? `Que presente bom! ${it.nome}${patch.presenteDe ? " · " + patch.presenteDe : ""}` : isPartial(n) ? `${it.nome}: ${q} de ${need}. Quase lá!` : `${it.nome} comprado${patch.valorPago ? " · " + money(patch.valorPago) : ""}`);
       return true;
     }
@@ -2705,6 +2900,7 @@ function openLancar(compra = null, sugestao = 0) {
         const doc = { valor: v, onde, data: $("#cData", ov).value || today(), nota: $("#cNota", ov).value.trim() };
         S.compras = [...S.compras.filter(c => c.id !== id), { id, ...doc }];
         write(S.store.putDoc("compras", id, doc, false));
+        if (!compra) registrar("mercado", { valor: v, extra: onde });
         S.dirty = true; close();
         const orc = S.settings.orcMercado, gm = gastoMes(thisMonth());
         toast(orc ? (gm > orc ? `Lançado! Passou ${money0(gm - orc)} do orçamento do mês` : `Lançado! Ainda dá ${money0(orc - gm)} esse mês`) : "Compra lançada!");
@@ -2722,6 +2918,9 @@ function openMercadoQtd(ym, id) {
   if (!M_UNITS.includes(u)) M_UNITS.push(u);
   const step = () => u === "g" ? 100 : (u === "kg" || u === "L") && n < 3 && n % 1 ? 0.5 : 1;
   const fmt = x => String(Math.round(x * 10) / 10).replace(".", ",");
+  /* histórico: os meses anteriores com preço (o mês atual entra pelo que estiver escrito no campo) */
+  const hist = historicoPreco(it.nome, ym).filter(h => h.ym !== ym);
+  if (hist.length && it.preco) hist.push({ ym, preco: it.preco });
   openSheet(it.nome, `
     <div class="row" style="gap:8px;margin-top:-6px"><span class="pill" style="background:var(--soft);color:var(--muted)">${esc(it.cat || "Outros")}</span>${it.marca ? `<span class="pill" style="background:var(--chipbg);color:var(--ink2)">${esc(it.marca)}</span>` : ""}</div>
     <div class="card" style="flex-direction:row;align-items:center;gap:12px;padding:12px"><button type="button" class="qbtn" data-q="-1" aria-label="Menos">${ic("minus", 20, 2.6)}</button><b id="qN" class="disp" style="flex:1;text-align:center;font-size:30px" aria-live="polite">${fmt(n)}</b><button type="button" class="qbtn plus" data-q="1" aria-label="Mais">${ic("plus", 20, 2.6)}</button></div>
@@ -2731,6 +2930,7 @@ function openMercadoQtd(ym, id) {
       <div class="field"><label for="qMarca">Marca</label><input class="input" id="qMarca" value="${esc(it.marca || "")}" placeholder="Se quiser" autocomplete="off" autocapitalize="words"></div>
     </div>
     <span class="small muted" id="qTot" aria-live="polite"></span>
+    ${hist.length ? `<div class="phist" id="qHist"><div class="phist-h" id="qVar" aria-live="polite"></div><div class="phist-l">${hist.map(h => `<span${h.ym === ym ? ' class="on"' : ""}><small>${monthShort(h.ym)}</small><b>${money(h.preco)}</b></span>`).join("")}</div></div>` : ""}
     <button class="btn primary block lg" type="button" data-ok>Pronto</button>`, {
     cancelLabel: "Fechar",
     onMount(ov, close) {
@@ -2739,6 +2939,17 @@ function openMercadoQtd(ym, id) {
         $("#qN", ov).textContent = fmt(n); pickSeg($("#qU", ov), u); $("#qPrecoL", ov).textContent = precoRotulo(u);
         const pr = parseMoney($("#qPreco", ov).value), t = pr ? totalItemMercado({ preco: pr, qtd: fmt(n).replace(",", ".") + " " + u }) : 0;
         $("#qTot", ov).textContent = pr && !porPeso(u) && n > 1 ? `${fmt(n)} × ${money(pr)} = ${money(t)}` : "";
+        const hv = $("#qVar", ov);
+        if (hv) {
+          const antes = hist.filter(h => h.ym !== ym), ult = antes[antes.length - 1];
+          const v = variacaoPreco(antes, pr);
+          hv.className = "phist-h" + (v && v.p > 0 ? " sobe" : v && v.p < 0 ? " desce" : "");
+          hv.innerHTML = !v ? `Último preço: <b>${money(ult.preco)}</b> em ${monthName(ult.ym)}`
+            : v.p > 0 ? `${ic("sobe", 16, 2.4)}<span>Subiu ${v.p}% desde ${v.desde}</span>`
+            : v.p < 0 ? `${ic("desce", 16, 2.4)}<span>Caiu ${-v.p}% desde ${v.desde}</span>`
+            : `<span>Mesmo preço desde ${v.desde}</span>`;
+          const on = $(".phist-l span.on b", ov); if (on && pr) on.textContent = money(pr);
+        }
       };
       paint(); $("#qPreco", ov).addEventListener("input", paint);
       ov.addEventListener("click", e => {
@@ -2757,13 +2968,19 @@ function openMercadoQtd(ym, id) {
 }
 function novaListaMercado(ym) {
   const prevs = [...S.mercado.keys()].filter(k => k < ym).sort();
-  const base = prevs.length ? (S.mercado.get(prevs[prevs.length - 1]).itens || []).map(i => ({ ...i, ok: false }))
+  const ant = prevs[prevs.length - 1];
+  /* o que ficou sem comprar no mês anterior vai pro topo ("Ficou do mês passado") */
+  /* (só se usaram a lista: se nada foi pro carrinho, a lista inteira "ficar" não ajuda) */
+  const usou = ant && (S.mercado.get(ant).itens || []).some(i => i.ok);
+  const base = ant ? (S.mercado.get(ant).itens || []).map(({ sobrou, ...i }) => ({ ...i, ok: false, ...(i.ok || !usou ? {} : { sobrou: true }) }))
     : MERCADO_BASE.flatMap(([cat, l]) => l.map(([nome, qtd]) => ({ id: uid() + slug(nome).slice(0, 6), nome, qtd, cat, ok: false })));
+  const nSobrou = base.filter(i => i.sobrou).length;
   const doc = { itens: base, criadoEm: Date.now() };
+  if (nSobrou) doc.sobrouDe = ant;
   S.mercado.set(ym, { id: ym, ...doc });
   write(S.store.putDoc("mercado", ym, doc, false));
   S.mMonth = ym; S.mFilter = "all";
-  toast(prevs.length ? `Lista de ${monthName(ym)} pronta, com os mesmos itens desmarcados` : `Lista de ${monthName(ym)} pronta com o básico!`);
+  toast(!ant ? `Lista de ${monthName(ym)} pronta com o básico!` : nSobrou ? `Lista de ${monthName(ym)} pronta. ${plural(nSobrou, "item ficou", "itens ficaram")} de ${monthName(ant)} e ${nSobrou === 1 ? "está" : "estão"} no topo` : `Lista de ${monthName(ym)} pronta, com os mesmos itens desmarcados`);
 }
 function saveMercado(ym, itens) {
   const d = S.mercado.get(ym) || { id: ym };
@@ -3169,7 +3386,7 @@ function openSettings() {
   });
 }
 function baixarDados() {
-  const blob = new Blob([JSON.stringify({ exportadoEm: new Date().toISOString(), conta: { email: S.user.email, nome: meuNome() }, casa: S.settings, itens: all().map(({ thumb, ...r }) => r), caixinha: S.movs, mercado: [...S.mercado.values()], compras: S.compras }, null, 2)], { type: "application/json" });
+  const blob = new Blob([JSON.stringify({ exportadoEm: new Date().toISOString(), conta: { email: S.user.email, nome: meuNome() }, casa: S.settings, itens: all().map(({ thumb, ...r }) => r), caixinha: S.movs, mercado: [...S.mercado.values()], compras: S.compras, atividade: S.atividade }, null, 2)], { type: "application/json" });
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `cozily-meus-dados-${today()}.json`; a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   toast("Arquivo baixado");
@@ -3935,7 +4152,7 @@ document.addEventListener("click", e => {
   else if (a === "link-cancel") { S.linkMode = false; history.replaceState(null, "", location.pathname + location.hash); render(null); }
   else if (a === "add-sug") {
     const it = { id: `${el.dataset.room}--${slug(el.dataset.topic || "geral")}--${slug(el.dataset.name)}-${uid()}`, nome: el.dataset.name, comodo: el.dataset.room, topico: el.dataset.topic || "", etapa: +el.dataset.etapa || 0, comprado: false, ordem: Date.now(), criadoEm: Date.now() };
-    S.items.set(it.id, it); write(S.store.putItem(it)); S.popId = it.id; rerender();
+    S.items.set(it.id, it); write(S.store.putItem(it)); registrar("anotou", { alvo: it.nome, itemId: it.id }); S.popId = it.id; rerender();
   }
   else if (a.startsWith("ob-")) obAction(a, el);
   else if (a === "reset") {
@@ -4278,7 +4495,7 @@ async function handleAuth(user) {
       S.pendingName = null;
       if (S.linkMode) { S.linkMode = false; history.replaceState(null, "", location.pathname + location.hash); }
       S.loaded = false; S.items = new Map(); S.settings = {}; S.photos = {}; S.ob = null; S.introDone = false; S.post = null;
-      S.movs = []; S.compras = []; S.mercado = new Map(); S.reservas = []; membroOk = false; listaSent = "";
+      S.movs = []; S.compras = []; S.mercado = new Map(); S.reservas = []; S.atividade = []; membroOk = false; listaSent = "";
       S.authMode = "entrar"; S.authEmail = ""; S.authNome = ""; S.authAviso = ""; S.lastInvite = null;
       S.codigoAviso = ""; S.codigoConfirm = null; S.codigoErro = null;
       render(null);
@@ -4303,6 +4520,7 @@ async function handleAuth(user) {
       unsubs.push(S.store.watch("movs", l => { S.movs = l; onData(); }));
       unsubs.push(S.store.watch("compras", l => { S.compras = l; onData(); }));
       unsubs.push(S.store.watch("mercado", l => { S.mercado = new Map(l.map(d => [d.id, d])); onData(); }));
+      unsubs.push(S.store.watch("atividade", l => { S.atividade = l; onData(); }));
       unsubs.push(S.store.watchGlobal("ofertas", l => { S.ofertas = l; onData(); }));
       unsubs.push(S.store.watchGlobal("cupons", l => { S.cupons = l; onData(); }));
     } else { S.items = new Map(); S.settings = {}; S.loaded = false; applyRooms(); }

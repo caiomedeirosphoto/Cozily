@@ -13,7 +13,7 @@ async def main():
       await pg.evaluate("location.hash='#/mercado'"); await pg.wait_for_timeout(700)
       if await pg.query_selector('.card [data-act=m-new]'): await pg.click('.card [data-act=m-new]'); await pg.wait_for_timeout(600)
       ok(await pg.query_selector('#mQ') is not None,'search bar')
-      ok('pôr o preço' in await pg.inner_text('#mTot'),'price hint when no prices')
+      ok('Estimativa' in await pg.inner_text('#mTot'),'prices carried from last month')
       await pg.fill('#mQ','arroz'); await pg.wait_for_timeout(300)
       t=await pg.inner_text('#mList'); ok('Arroz' in t and 'Feijão' not in t,'search filters: '+t[:60].replace('\n',' '))
       await pg.click('#mList [data-act=m-qty] >> nth=0'); await pg.wait_for_timeout(600)

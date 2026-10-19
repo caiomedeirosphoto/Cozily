@@ -37,22 +37,17 @@ bash test_all.sh     # roda todos os testes Playwright. Tudo deve sair sem FAIL;
 - Liberar para o app: `git checkout main && git pull origin main && git merge --ff-only dev && git push origin main && git checkout dev`.
 
 ## Onde paramos (19/10/2026)
-Versão **2026.10.19-3 liberada no app** (`main`) em 19/10/2026, com o OK do Caio. **`dev` e `main` estão iguais**: comece a próxima tarefa a partir da `dev`. Ela contém:
-1. **Convite pelo WhatsApp corrigido.** Causa: o código do convite era salvo no mesmo toque que abria o WhatsApp, e o iPhone pausava o app antes de salvar. Agora o fluxo é "Criar convite pro WhatsApp", que espera o servidor confirmar, e só então aparecem "Mandar no WhatsApp" e "Copiar convite". Se o link falhar, a pessoa vê "Não achamos esse convite", com "Tentar de novo", em vez de cair numa casa nova. Quem tenta criar conta com um e-mail que já existe é levado para "Entrar", com orientação (Google ou "Esqueci minha senha").
-2. **Mercado**: busca na lista; preço por item (kg/g/L = valor da prateleira do pacote; un/pct/cx/dz = preço de cada × quantidade) com total da linha; estimativa da lista e valor do carrinho; "Lançar compra" já preenchido com o total do carrinho; o app lembra o último preço do item.
-3. **Avisos (toasts) arrastáveis** para dispensar: para os lados, ou para a borda.
-4. **App abre sem internet** (service worker com rede primeiro), com o aviso "Sem internet · salva quando o sinal voltar". Login protegido contra corrida dupla. "Tirar a lista do ar" agora apaga também as reservas.
-5. Ferramentas de build e teste levadas para `.dev/`, e este arquivo.
-
-Já está no app principal (versões anteriores): convite por e-mail com senha; nome e relação de quem é convidado; tela de boas-vindas; tirar pessoas da casa; excluir conta; política de privacidade (contato: e-mail do Caio); registro de erros (Ajustes › Sua conta › Erros do app, só ele vê); Ajustes organizados; "Colocar todos" na lista de presentes; confirmação de e-mail; regras mais rígidas.
+Versão **2026.10.19-3 liberada no app** (`main`). Na **`dev`** está a **2026.10.19-4**, **ainda NÃO liberada** (esperando o OK do Caio), com as 4 ideias:
+1. **Mercado**: ao começar um mês (`novaListaMercado`), o que ficou sem comprar no mês anterior ganha `sobrou: true` e aparece no topo em "Ficou do mês passado" (doc do mês guarda `sobrouDe`). Só marca se usaram a lista (algo foi pro carrinho). Na folha do item (`openMercadoQtd`) aparece o histórico de preço por mês (`historicoPreco`/`variacaoPreco`): "Subiu 15% desde julho", que muda conforme digita o preço.
+2. **Item repetido**: no "Anotar", se já existe item com o mesmo nome normalizado (`chaveNome`: sem acento e sem plural), aparece "Já tem Toalhas de banho no Banheiro" com "Abrir o que já tem" / "Anotar mesmo assim".
+3. **Início — "Próxima compra"** (`proximaCompra`/`proximaHtml`): item da Etapa 1 com valor previsto, comparado com o disponível da caixinha ("Dá pra comprar…" com botão "Já compramos", ou "Faltam R$ X").
+4. **Atividade da casa**: `registrar()` grava em `casas/{id}/atividade` (acao, quem, email, em, alvo, itemId, valor, extra; guarda as 100 últimas) ao anotar, marcar comprado/presente e lançar compra do mercado. Reservas de convidados e quem entrou na casa entram no feed sem gravar. Aparece no Início (3 últimas) e em `#/atividade`. Erros ao gravar não mostram aviso (antes das regras novas, só não grava).
+- **Regras novas** em `firestore.rules` (bloco `match /atividade/{id}`): depois de liberar, o Caio precisa colar o arquivo inteiro no Firebase Console.
+- Testes novos: `.dev/tests/tnovas.py` (entrou no `test_all.sh`); prints em `.dev/tests/tprints.py`. A prévia tem histórico de mercado e atividade de exemplo (`demoSamples`).
+- Depois de liberar: lembrar o Caio de criar um **convite novo pelo WhatsApp para a Mirielly** (ela abre o link, entra com a conta dela e confirma "Entrar na casa").
 
 ## PRÓXIMA TAREFA
-Implementar estas 4 ideias na `dev`, testar bem e **mandar um print de cada tela nova** (SendUserFile), depois perguntar se pode subir:
-1. **Mercado — virada do mês e histórico de preço**: ao começar o mês seguinte (`novaListaMercado`), o que ficou sem comprar aparece no topo, numa seção "Ficou do mês passado". Na folha do item (`openMercadoQtd`), mostrar o histórico de preço ("subiu 12% desde agosto"), usando os preços dos meses anteriores.
-2. **Item repetido**: ao anotar um item que já existe (mesmo nome normalizado, em outro cômodo ou no mesmo), avisar "Já tem Toalha de banho no Banheiro" com opção de abrir o existente ou anotar mesmo assim.
-3. **Início — "Próxima compra"**: card com o item mais importante que falta (Etapa 1, com valor previsto), comparando com o que tem na caixinha ("dá pra comprar com o que já guardaram" / "faltam R$ X").
-4. **Atividade da casa**: feed "Mirielly marcou Geladeira como comprada", "Caio anotou Cortina". Gravar quem fez (email/nome) e quando, nas ações principais (marcar comprado, anotar, presente reservado, compra do mercado lançada). Sugestão: subcoleção `casas/{id}/atividade` (limite ~100 últimas). **Precisa de regra nova** no `firestore.rules` (`match /atividade/{id} { allow read, write: if isMember(casaId); }`), e o Caio precisa colar as regras depois de liberar.
-Depois de liberar: lembrar o Caio de criar um **convite novo pelo WhatsApp para a Mirielly**. Ela abre o link, entra com a conta dela e confirma "Entrar na casa". A casa vazia que ela criou sem querer fica de lado.
+Esperar o OK do Caio para liberar a 2026.10.19-4 (ordem: subir o app, depois colar as regras). Já está no app principal tudo das versões anteriores (convites por e-mail e WhatsApp, mercado com preços, avisos arrastáveis, app sem internet, etc.).
 
 ## Pendências e riscos conhecidos
 - **Domínio cozily.com.br** (ele vai comprar): migrar para o Firebase Hosting com cabeçalhos de segurança; página no github.io que redireciona mantendo o `#`; `authDomain` no próprio domínio. Isso resolve o **login com Google no iPhone com o app instalado** (hoje pode falhar por bloqueio de armazenamento entre domínios) e os **e-mails caindo no spam** (remetente do próprio domínio). Depois: App Check e restringir a chave da API ao domínio.

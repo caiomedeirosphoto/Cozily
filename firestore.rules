@@ -44,6 +44,22 @@ service cloud.firestore {
       match /movs/{id} { allow read, write: if isMember(casaId); }
       match /compras/{id} { allow read, write: if isMember(casaId); }
       match /mercado/{id} { allow read, write: if isMember(casaId); }
+      // Atividade da casa ("Mirielly marcou Geladeira como comprado"): quem é da casa lê e apaga;
+      // cada um só grava em nome do próprio e-mail, e ninguém edita o que já foi gravado.
+      match /atividade/{id} {
+        allow read, delete: if isMember(casaId);
+        allow create: if isMember(casaId)
+          && request.resource.data.keys().hasOnly(['acao', 'quem', 'email', 'em', 'alvo', 'itemId', 'valor', 'extra'])
+          && request.resource.data.acao is string && request.resource.data.acao.size() <= 20
+          && request.resource.data.quem is string && request.resource.data.quem.size() <= 60
+          && request.resource.data.email == myEmail()
+          && request.resource.data.em is int
+          && request.resource.data.get('alvo', '') is string && request.resource.data.get('alvo', '').size() <= 120
+          && request.resource.data.get('itemId', '') is string && request.resource.data.get('itemId', '').size() <= 200
+          && request.resource.data.get('valor', 0) is number
+          && request.resource.data.get('extra', '') is string && request.resource.data.get('extra', '').size() <= 80;
+        allow update: if false;
+      }
       match /fotos/{id} {
         allow read, delete: if isMember(casaId);
         allow create, update: if isMember(casaId) && fotoOk();
