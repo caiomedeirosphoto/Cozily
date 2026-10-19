@@ -445,6 +445,8 @@ input[type=date].input,input[type=month].input{min-width:0;display:flex;align-it
 .erro summary b{font-size:14px;overflow-wrap:anywhere}
 .erro summary span{font-size:12px;color:var(--muted2)}
 .erro pre{margin:8px 0 0;font-size:11px;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--muted);max-height:220px;overflow:auto}
+.conv-pronto{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line3);padding-top:16px}
+.conv-pronto b{font-size:16px}
 .convite-quem{display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--line3);padding-top:16px}
 .chips.wrap{flex-wrap:wrap;overflow:visible;margin:4px 0 0;padding:0}
 .chips.wrap .chip{height:36px;padding:0 13px}
@@ -534,7 +536,7 @@ input[type=date].input,input[type=month].input{min-width:0;display:flex;align-it
 /* toast */
 .toast{position:fixed;left:16px;right:16px;bottom:calc(var(--bottom) + 16px);max-width:488px;margin:0 auto;z-index:80;background:var(--ink);color:var(--bg);border-radius:16px;padding:10px 8px 10px 16px;min-height:52px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.25);overflow:hidden;animation:toastIn var(--t-toast) var(--ease) both}
 body.has-tabs .toast{bottom:calc(var(--bottom) + 104px)}
-.toast{pointer-events:none}.toast span{min-width:0}
+.toast{pointer-events:auto;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}.toast span{min-width:0}
 .toast .tx{flex:1;display:flex;flex-direction:column;gap:1px;line-height:1.3}
 .toast .tx b{font-size:14px;font-weight:700}
 .toast .tx span{font-weight:500}
@@ -600,6 +602,13 @@ html.theme-fade,html.theme-fade *{transition:background-color .3s ease,color .3s
 .mname .mtx{display:flex;flex-direction:column;gap:1px;min-width:0}
 .mname .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mname .mk{font-size:12px;color:var(--faint)}
+.mname .mr{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex:none}
+.mname .pr{font-size:12px;font-weight:700;color:var(--ink2)}
+.mrow.on .mname .pr{color:var(--muted2)}
+.m-tot{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.m-tot>span{display:flex;flex-direction:column;gap:2px;background:var(--card);border:1px solid var(--line3);border-radius:16px;padding:10px 14px}
+.m-tot small{font-size:12px;color:var(--muted);font-weight:600}
+.m-tot b{font-size:18px}
 .mname .q.add{background:transparent;color:var(--faint);font-weight:600}
 .mname:active .q{transform:scale(.96)}
 .mrow .rm.del{width:36px;height:36px;margin:0 4px;border-radius:11px;background:var(--rose);color:var(--rose-ink);display:flex;align-items:center;justify-content:center;flex:none}
@@ -702,7 +711,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.14-10";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.19-1";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -1352,7 +1361,13 @@ async function makeFirebaseStore() {
     },
     uninvite: email => F.deleteDoc(F.doc(db, "convites", email)).catch(() => {}),
     criarCodigo: (code, de, nomeCasa, nome, rel) => F.setDoc(F.doc(db, "codigos", code), { casaId, de: de || "", casa: nomeCasa || "", nome: nome || "", rel: rel || "", em: Date.now(), exp: Date.now() + CODIGO_DIAS * 864e5 }),
-    async lerCodigo(code) { try { const d = await F.getDoc(F.doc(db, "codigos", code)); return d.exists() ? d.data() : null; } catch { return null; } },
+    async lerCodigo(code) {
+      for (let i = 0; i < 2; i++) {
+        try { const d = await F.getDoc(F.doc(db, "codigos", code)); if (d.exists()) return d.data(); if (i) return null; }
+        catch (x) { if (i) return { erro: true, code: x?.code || "" }; }
+        await new Promise(r => setTimeout(r, 1500));
+      }
+    },
     async usarCodigo(code) {
       const ref = F.doc(db, "codigos", code), d = await F.getDoc(ref);
       const email = (auth.currentUser?.email || "").toLowerCase();
@@ -1481,6 +1496,35 @@ function ritmo() {
   return Math.max(0, Math.round(sum(v, x => x) / meses));
 }
 function mercadoMes(ym) { return S.mercado.get(ym); }
+/* preço no mercado: guardado por unidade (cada, kg, litro...); o total da linha multiplica pela quantidade */
+function qtdNum(qtd) { const m = String(qtd || "").match(/^(\d+(?:[.,]\d+)?)\s*(.*)$/); return m ? { n: parseFloat(m[1].replace(",", ".")), u: (m[2] || "un").trim() || "un" } : { n: 1, u: "un" }; }
+function totalItemMercado(i) { if (!i.preco) return 0; const { n, u } = qtdNum(i.qtd); return Math.round((u === "g" ? i.preco * n / 1000 : i.preco * n) * 100) / 100; }
+const precoRotulo = u => u === "kg" || u === "g" ? "Preço do kg" : u === "L" ? "Preço do litro" : u === "pct" ? "Preço do pacote" : u === "cx" ? "Preço da caixa" : u === "dz" ? "Preço da dúzia" : "Preço de cada";
+function precoConhecido(nome) {
+  const k = norm(nome); const meses = [...S.mercado.keys()].sort().reverse();
+  for (const m of meses) { const it = (S.mercado.get(m).itens || []).find(i => i.preco && norm(i.nome) === k); if (it) return it.preco; }
+  return null;
+}
+function mercadoYm() { const cur = thisMonth(); return S.mMonth && S.mercado.has(S.mMonth) ? S.mMonth : cur; }
+function mercadoListaHtml() {
+  const ym = mercadoYm(), doc = mercadoMes(ym); if (!doc) return "";
+  const itens = doc.itens || [], f = S.mFilter, q = norm(S.mQ || "").trim();
+  const bate = i => !q || norm(i.nome + " " + (i.marca || "") + " " + (i.cat || "")).includes(q);
+  const groups = MERCADO_CATS.map(c => ({ c, l: itens.filter(i => (i.cat || "Outros") === c) })).filter(g => g.l.length);
+  const html = groups.map(g => { const v = g.l.filter(i => (f === "all" || (f === "ok" ? i.ok : !i.ok)) && bate(i)); return v.length ? `<section style="display:flex;flex-direction:column;gap:8px">
+      <div class="grp-h"><h3>${esc(g.c)}</h3><span>${g.l.filter(i => i.ok).length} de ${g.l.length}</span></div>
+      <div class="items">${v.map(i => { const t = totalItemMercado(i); return `<div class="mrow ${i.ok ? "on" : ""} ${S.mPop === i.id ? "pop" : ""}" style="padding-right:4px"><button class="mchk" data-act="m-toggle" data-ym="${ym}" data-id="${esc(i.id)}" aria-pressed="${!!i.ok}" aria-label="${i.ok ? "Tirar do carrinho" : "Pôr no carrinho"}: ${esc(i.nome)}"><span class="box">${ic("check", 14, 3)}</span></button><button class="mname" data-act="m-qty" data-ym="${ym}" data-id="${esc(i.id)}"><span class="mtx"><span class="nm">${esc(i.nome)}</span>${i.marca ? `<span class="mk">${esc(i.marca)}</span>` : ""}</span><span class="mr">${i.qtd ? `<span class="q">${esc(i.qtd)}</span>` : `<span class="q add">+ qtd</span>`}${t ? `<span class="pr">${money(t)}</span>` : ""}</span></button>${S.mEdit ? `<button class="rm del" data-act="m-rm" data-ym="${ym}" data-id="${esc(i.id)}" aria-label="Tirar ${esc(i.nome)}">${ic("minus", 16, 2.6)}</button>` : ""}</div>`; }).join("")}</div>
+    </section>` : ""; }).join("");
+  if (html) return html;
+  if (q) return empty(`Não tem “${esc(S.mQ.trim())}” ${f === "all" ? "na lista" : f === "ok" ? "no carrinho" : "entre os que faltam"}`, "", `<button class="btn ghost sm" data-act="m-addq" data-ym="${ym}">${ic("plus", 16, 2.2)} Colocar “${esc(S.mQ.trim())}” na lista</button>`);
+  return empty(f === "ok" ? "Nada no carrinho ainda" : "Tudo no carrinho!", f === "ok" ? "Marca os itens conforme for pegando." : "Agora é só passar no caixa.");
+}
+function mercadoTotaisHtml(itens) {
+  const com = itens.filter(i => i.preco);
+  if (!com.length) return `<span class="small muted">Toque num item pra pôr o preço. A gente soma tudo pra você.</span>`;
+  const est = sum(itens, totalItemMercado), car = sum(itens.filter(i => i.ok), totalItemMercado), sem = itens.length - com.length;
+  return `<div class="m-tot"><span><small>Estimativa da lista</small><b>${money(est)}</b></span><span><small>No carrinho</small><b>${money(car)}</b></span></div>${sem ? `<span class="small muted">${plural(sem, "item ainda sem preço", "itens ainda sem preço")}</span>` : ""}`;
+}
 function comprasMes(ym) { return S.compras.filter(c => (c.data || "").startsWith(ym)); }
 const gastoMes = ym => sum(comprasMes(ym), c => c.valor);
 function listaInfo() {
@@ -1985,7 +2029,7 @@ function presentesCard(list) {
 /* ---------------- MERCADO ---------------- */
 function viewMercado() {
   const cur = thisMonth();
-  const ym = S.mMonth && S.mercado.has(S.mMonth) ? S.mMonth : cur;
+  const ym = mercadoYm();
   const doc = mercadoMes(ym);
   const itens = doc ? (doc.itens || []) : [];
   const gm = gastoMes(cur), orc = S.settings.orcMercado || 0;
@@ -1997,7 +2041,6 @@ function viewMercado() {
     : `<span class="note" style="background:var(--sage);color:var(--sage-ink);font-size:13px;font-weight:700">Tudo certo! Dá pra gastar ${money0(sobra / restam)} por dia até o fim do mês</span>`;
   const f = S.mFilter;
   const okN = itens.filter(i => i.ok).length;
-  const groups = MERCADO_CATS.map(c => ({ c, l: itens.filter(i => (i.cat || "Outros") === c) })).filter(g => g.l.length);
   const nextYm = monthAdd(cur, 1);
   return `<main class="page">
     <div class="topbar" style="align-items:flex-end">
@@ -2016,12 +2059,11 @@ function viewMercado() {
     ${doc ? `<div class="sec-h"><span style="font-size:14px;font-weight:700;color:var(--ink)">Lista de ${monthName(ym)}</span><span>${okN} de ${itens.length} no carrinho</span></div>
     <div class="row" style="justify-content:space-between;gap:10px"><span class="small muted" style="line-height:1.4">${S.mEdit ? "Toque no − pra tirar. Escreva pra colocar: a gente separa por seção e reconhece a marca." : "Bolinha marca no carrinho. Toque no nome pra mudar a quantidade."}</span><button class="btn ${S.mEdit ? "primary" : "ghost"} sm" style="flex:none;min-height:40px" data-act="m-edit">${ic(S.mEdit ? "check" : "edit", 16, 2.2)} ${S.mEdit ? "Pronto" : "Editar lista"}</button></div>
     ${S.mEdit ? `<form class="addbar" id="mAdd" data-ym="${ym}"><label for="mNovo" class="sr">Colocar item</label><input id="mNovo" placeholder="Ex.: Rexona, 2 Coca-Cola, 1 kg de café" autocomplete="off" enterkeyhint="done"><button type="submit" aria-label="Colocar">${ic("plus", 22, 2.4)}</button></form>` : ""}
+    <div id="mTot" style="display:flex;flex-direction:column;gap:6px">${mercadoTotaisHtml(itens)}</div>
+    <label class="search">${ic("search", 19, 2.2)}<span class="sr">Procurar na lista do mercado</span><input id="mQ" type="search" placeholder="Procurar na lista" value="${esc(S.mQ || "")}" autocomplete="off" enterkeyhint="search"></label>
     <div class="chips" role="group" aria-label="Mostrar">${[["all", "Tudo"], ["falta", "Faltam"], ["ok", "No carrinho"]].map(([k, l]) => `<button class="chip" data-act="m-filter" data-v="${k}" aria-pressed="${f === k}">${l}</button>`).join("")}</div>
-    ${groups.map(g => { const v = g.l.filter(i => f === "all" || (f === "ok" ? i.ok : !i.ok)); return v.length ? `<section style="display:flex;flex-direction:column;gap:8px">
-      <div class="grp-h"><h3>${esc(g.c)}</h3><span>${g.l.filter(i => i.ok).length} de ${g.l.length}</span></div>
-      <div class="items">${v.map(i => `<div class="mrow ${i.ok ? "on" : ""} ${S.mPop === i.id ? "pop" : ""}" style="padding-right:4px"><button class="mchk" data-act="m-toggle" data-ym="${ym}" data-id="${esc(i.id)}" aria-pressed="${!!i.ok}" aria-label="${i.ok ? "Tirar do carrinho" : "Pôr no carrinho"}: ${esc(i.nome)}"><span class="box">${ic("check", 14, 3)}</span></button><button class="mname" data-act="m-qty" data-ym="${ym}" data-id="${esc(i.id)}"><span class="mtx"><span class="nm">${esc(i.nome)}</span>${i.marca ? `<span class="mk">${esc(i.marca)}</span>` : ""}</span>${i.qtd ? `<span class="q">${esc(i.qtd)}</span>` : `<span class="q add">+ qtd</span>`}</button>${S.mEdit ? `<button class="rm del" data-act="m-rm" data-ym="${ym}" data-id="${esc(i.id)}" aria-label="Tirar ${esc(i.nome)}">${ic("minus", 16, 2.6)}</button>` : ""}</div>`).join("")}</div>
-    </section>` : ""; }).join("") || empty(f === "ok" ? "Nada no carrinho ainda" : "Tudo no carrinho!", f === "ok" ? "Marca os itens conforme for pegando." : "Agora é só passar no caixa.")}
-    <div class="btns2"><button class="btn ghost" data-act="m-new" data-v="${nextYm}" style="font-size:14px">${S.mercado.has(nextYm) ? "Ver " + monthName(nextYm) : "Começar " + monthName(nextYm)}</button><button class="btn primary" data-act="lancar" style="font-size:14px">Lançar compra</button></div>`
+    <div id="mList" style="display:flex;flex-direction:column;gap:14px">${mercadoListaHtml()}</div>
+    <div class="btns2"><button class="btn ghost" data-act="m-new" data-v="${nextYm}" style="font-size:14px">${S.mercado.has(nextYm) ? "Ver " + monthName(nextYm) : "Começar " + monthName(nextYm)}</button><button class="btn primary" data-act="lancar" data-v="${sum(itens.filter(i => i.ok), totalItemMercado) || ""}" style="font-size:14px">Lançar compra</button></div>`
     : `<div class="card center" style="align-items:center;gap:10px;padding:22px 18px"><b>Lista de ${monthName(ym)}</b><span class="small muted">A gente monta uma lista com o básico de mercado, limpeza e higiene. Depois é só tirar e colocar o que quiser.</span><button class="btn primary" data-act="m-new" data-v="${ym}">Montar a lista do mês</button></div>`}
   </main>`;
 }
@@ -2636,10 +2678,10 @@ function openNumero(title, label, val, hint, onOk) {
 }
 
 /* ---------------- MERCADO ---------------- */
-function openLancar(compra = null) {
+function openLancar(compra = null, sugestao = 0) {
   let onde = compra?.onde || "Mercado";
   openSheet(compra ? "Compra" : "Lançar compra", `
-    <div class="field" style="align-items:center;gap:2px"><label for="cVal" class="lbl">Valor</label><input class="big-input" id="cVal" inputmode="decimal" placeholder="R$ 0" value="${compra ? "R$ " + moneyInput(compra.valor) : ""}" autocomplete="off"></div>
+    <div class="field" style="align-items:center;gap:2px"><label for="cVal" class="lbl">Valor</label><input class="big-input" id="cVal" inputmode="decimal" placeholder="R$ 0" value="${compra ? "R$ " + moneyInput(compra.valor) : sugestao ? "R$ " + moneyInput(sugestao) : ""}" autocomplete="off">${!compra && sugestao ? `<span class="small muted center">Somamos o que está no carrinho. Confere com o cupom e ajusta se precisar.</span>` : ""}</div>
     <div class="field"><span class="lbl">Onde</span><div class="wrapchips" id="cOnde">${ONDE.map(o => `<button type="button" class="chip" data-v="${o}" aria-pressed="${o === onde}">${o}</button>`).join("")}</div></div>
     <div class="two"><div class="field"><label for="cData">Data</label><input class="input" id="cData" type="date" value="${esc(compra?.data || today())}"></div>
       <div class="field"><label for="cNota">Nota</label><input class="input" id="cNota" placeholder="Ex.: compra do mês" value="${esc(compra?.nota || "")}"></div></div>
@@ -2680,19 +2722,30 @@ function openMercadoQtd(ym, id) {
     <div class="row" style="gap:8px;margin-top:-6px"><span class="pill" style="background:var(--soft);color:var(--muted)">${esc(it.cat || "Outros")}</span>${it.marca ? `<span class="pill" style="background:var(--chipbg);color:var(--ink2)">${esc(it.marca)}</span>` : ""}</div>
     <div class="card" style="flex-direction:row;align-items:center;gap:12px;padding:12px"><button type="button" class="qbtn" data-q="-1" aria-label="Menos">${ic("minus", 20, 2.6)}</button><b id="qN" class="disp" style="flex:1;text-align:center;font-size:30px" aria-live="polite">${fmt(n)}</b><button type="button" class="qbtn plus" data-q="1" aria-label="Mais">${ic("plus", 20, 2.6)}</button></div>
     <div class="seg" id="qU">${M_UNITS.map(x => `<button type="button" data-v="${esc(x)}" aria-pressed="${x === u}">${esc(x)}</button>`).join("")}</div>
-    <div class="field"><label for="qMarca">Marca (se quiser)</label><input class="input" id="qMarca" value="${esc(it.marca || "")}" placeholder="Ex.: Camil, Ypê, Coca-Cola" autocomplete="off" autocapitalize="words"></div>
+    <div class="two">
+      <div class="field"><label for="qPreco" id="qPrecoL">${precoRotulo(u)}</label><input class="input" id="qPreco" inputmode="decimal" placeholder="R$ 0,00" value="${it.preco ? "R$ " + moneyInput(it.preco) : ""}" autocomplete="off"></div>
+      <div class="field"><label for="qMarca">Marca</label><input class="input" id="qMarca" value="${esc(it.marca || "")}" placeholder="Se quiser" autocomplete="off" autocapitalize="words"></div>
+    </div>
+    <span class="small muted" id="qTot" aria-live="polite"></span>
     <button class="btn primary block lg" type="button" data-ok>Pronto</button>`, {
     cancelLabel: "Fechar",
     onMount(ov, close) {
       ov.querySelector(".sheet").classList.add("compact");
-      const paint = () => { $("#qN", ov).textContent = fmt(n); pickSeg($("#qU", ov), u); };
+      const paint = () => {
+        $("#qN", ov).textContent = fmt(n); pickSeg($("#qU", ov), u); $("#qPrecoL", ov).textContent = precoRotulo(u);
+        const pr = parseMoney($("#qPreco", ov).value), t = pr ? totalItemMercado({ preco: pr, qtd: fmt(n).replace(",", ".") + " " + u }) : 0;
+        $("#qTot", ov).textContent = t ? `Total desse item: ${money(t)}` : "";
+      };
+      paint(); $("#qPreco", ov).addEventListener("input", paint);
       ov.addEventListener("click", e => {
         const q = e.target.closest("[data-q]"); if (q) { const s = +q.dataset.q > 0 ? step() : (u === "g" ? 100 : n <= 3 && (u === "kg" || u === "L") && n % 1 ? 0.5 : 1); n = Math.max(u === "g" ? 50 : 0.5, Math.round((n + (+q.dataset.q) * s) * 10) / 10); if (u !== "g" && u !== "kg" && u !== "L") n = Math.max(1, Math.round(n)); paint(); return; }
         const b = e.target.closest("#qU button"); if (b) { u = b.dataset.v; if (u === "g" && n < 50) n = 500; else if (u !== "g" && n >= 50) n = 1; paint(); return; }
       });
       $("[data-ok]", ov).onclick = () => {
         const marca = $("#qMarca", ov).value.trim();
-        saveMercado(ym, doc.itens.map(i => i.id === id ? { ...i, qtd: fmt(n) + " " + u, marca: marca || null } : i));
+        const preco = parseMoney($("#qPreco", ov).value) || null;
+        saveMercado(ym, doc.itens.map(i => i.id === id ? { ...i, qtd: fmt(n) + " " + u, marca: marca || null, preco } : i));
+        rerender();
         S.dirty = true; close();
       };
     }
@@ -2864,42 +2917,51 @@ function membrosHtml() {
 }
 const linksPendentes = () => (S.settings.links || []).filter(l => l && l.exp > Date.now());
 const nomeDaCasa = () => S.settings.nomeCasa || S.ob?.casa || "";
-function waConvite(code) {
+function waConvite(code, nomeConv) {
   const url = location.origin + location.pathname + "?c=" + code;
   const casa = nomeDaCasa();
-  const quem = (S.conv?.nome || "").trim().split(/\s+/)[0];
+  const quem = (nomeConv || "").trim().split(/\s+/)[0];
   const msg = `Oi${quem ? ", " + quem : ""}! Te chamei pra montar ${casa ? "o " + casa : "a nossa casa"} comigo no Cozily 🏡\nEntra por aqui: ${url}\n\nO link vale por ${CODIGO_DIAS} dias.`;
   return { url, msg, wa: "https://wa.me/?text=" + encodeURIComponent(msg) };
 }
-let codigoPronto = null;
-const codigoDaVez = () => codigoPronto || (codigoPronto = novoCodigo());
-/* o link já fica pronto antes do toque: o WhatsApp abre na hora (iPhone bloqueia abrir depois de esperar a internet) */
-function registrarCodigo() {
-  const code = codigoDaVez(); codigoPronto = null;
-  const exp = Date.now() + CODIGO_DIAS * 864e5;
-  const nome = (S.conv?.nome || "").trim().slice(0, 40), rel = (S.conv?.rel || "").trim().slice(0, 30);
-  write(S.store.criarCodigo(code, meuNome() || nomeSugerido(), nomeDaCasa(), nome, rel), "Não deu pra criar o convite. Confere a internet?");
+/* o convite só aparece pra mandar depois que o servidor confirmou que salvou.
+   (antes ele era salvo no mesmo toque que abria o WhatsApp; no iPhone o app pausa e o convite não chegava a existir) */
+async function criarConvite(nome, rel) {
+  const code = novoCodigo(), exp = Date.now() + CODIGO_DIAS * 864e5;
+  const salvar = S.store.criarCodigo(code, meuNome() || nomeSugerido(), nomeDaCasa(), nome, rel);
+  await Promise.race([salvar, new Promise((_, rej) => setTimeout(() => rej({ code: "timeout" }), 12000))]);
   const l = { c: code, exp }; if (nome) l.nome = nome; if (rel) l.rel = rel;
   const links = [...linksPendentes(), l].slice(-10);
   S.settings = { ...S.settings, links };
   write(S.store.putSettings({ links }));
-  return code;
+  return { code, nome, rel, ...waConvite(code, nome) };
+}
+function convProntoHtml(p) {
+  const quem = (p.nome || "").split(/\s+/)[0];
+  return `<div class="conv-pronto">
+    <div class="row" style="gap:10px;align-items:center"><span class="fi" style="width:36px;height:36px;border-radius:11px;background:var(--sage);color:var(--sage-ink);display:flex;align-items:center;justify-content:center;flex:none">${ic("check", 18, 2.4)}</span>
+      <span style="display:flex;flex-direction:column;gap:1px"><b>Convite pronto${quem ? " pra " + esc(quem) : ""}!</b><span class="small muted">Agora é só mandar. Vale ${CODIGO_DIAS} dias e serve pra uma pessoa.</span></span></div>
+    <a class="btn sage block lg" id="jWa" href="${esc(p.wa)}" target="_blank" rel="noopener">${ic("chat", 19, 2)} Mandar no WhatsApp</a>
+    <button class="btn ghost block" type="button" id="jCopy">${ic("copy", 17, 2)} Copiar convite</button>
+    <button class="link-btn" type="button" id="jOutro">Convidar outra pessoa</button>
+  </div>`;
+}
+function convFormHtml() {
+  return `<div class="convite-quem">
+      <b class="disp" style="font-size:17px">Convidar alguém</b>
+      <div class="field"><label for="jQuem">Nome</label><input class="input" id="jQuem" value="${esc(S.conv.nome)}" placeholder="Ex.: Mirielly" autocapitalize="words" autocomplete="off" maxlength="40"></div>
+      <div class="field"><label for="jRel">Essa pessoa é...</label><input class="input" id="jRel" value="${esc(S.conv.rel)}" placeholder="Ex.: marido, namorada, filho..." autocapitalize="sentences" autocomplete="off" maxlength="30"></div>
+      <button class="btn primary block lg" type="button" id="jCriar">${ic("chat", 19, 2)} Criar convite pro WhatsApp</button>
+      <div class="err" id="jCErr" role="alert"></div>
+      <span class="small center" style="color:var(--muted2);line-height:1.45">Depois é só escolher a pessoa no WhatsApp. O link vale ${CODIGO_DIAS} dias e serve pra uma pessoa só.</span>
+    </div>`;
 }
 function juntosBody() {
   S.conv = S.conv || { nome: "", rel: "" };
   S.editNome = !meuNome(); S.removendo = null;
-  const w = waConvite(codigoDaVez());
+  if (S.convPronto && !linksPendentes().some(l => l.c === S.convPronto.code)) S.convPronto = null;
   return `<div class="card" style="gap:0;padding:4px 16px" id="jList">${membrosHtml()}</div>
-    <div class="convite-quem">
-      <b class="disp" style="font-size:17px">Convidar alguém</b>
-      <div class="field"><label for="jQuem">Nome</label><input class="input" id="jQuem" value="${esc(S.conv.nome)}" placeholder="Ex.: Mirielly" autocapitalize="words" autocomplete="off" maxlength="40"></div>
-      <div class="field"><label for="jRel">Essa pessoa é...</label><input class="input" id="jRel" value="${esc(S.conv.rel)}" placeholder="Ex.: marido, namorada, filho..." autocapitalize="sentences" autocomplete="off" maxlength="30"></div>
-    </div>
-    <div class="convite-wa">
-      <a class="btn sage block lg" id="jWa" href="${esc(w.wa)}" target="_blank" rel="noopener">${ic("chat", 19, 2)} Chamar pelo WhatsApp</a>
-      <span class="small center" style="color:var(--muted2);line-height:1.45">Abre o WhatsApp com o convite pronto. É só escolher a pessoa. O link vale ${CODIGO_DIAS} dias e serve pra uma pessoa só.</span>
-      <button class="link-btn" type="button" id="jCopy">${ic("copy", 15, 2)} Copiar link do convite</button>
-    </div>
+    <div id="jConv">${S.convPronto ? convProntoHtml(S.convPronto) : convFormHtml()}</div>
     <details class="convite-mail"${S.lastInvite ? " open" : ""}><summary>${ic("mail", 16, 2)} Prefiro mandar por e-mail ${ic("down", 14, 2.4)}</summary>
     <form id="jForm" class="field"><label for="jEmail">E-mail dela(e)</label>
       <div class="row"><input class="input grow" id="jEmail" type="email" inputmode="email" autocapitalize="off" placeholder="E-mail da pessoa" autocomplete="off"><button class="btn primary" type="submit" style="min-height:52px">Convidar</button></div>
@@ -2931,12 +2993,35 @@ function wireJuntos(root) {
     $("#jList", root).innerHTML = membrosHtml();
     S.lastInvite = { email, nome: dado.split(/\s+/)[0] || email.split("@")[0].replace(/[._-]+/g, " ").replace(/\d+/g, "").trim().replace(/^\w/, c => c.toUpperCase()) || "essa pessoa" };
     $("#jOk", root).innerHTML = inviteOkHtml(S.lastInvite.email, S.lastInvite.nome);
-    refreshWa();
+    if (!S.convPronto) resetConv();
   };
-  const quem = $("#jQuem", root);
-  const relInp = $("#jRel", root);
-  relInp.oninput = () => { S.conv.rel = relInp.value.trim(); };
-  quem.oninput = () => { S.conv.nome = quem.value; const a = $("#jWa", root); if (a) a.href = waConvite(codigoDaVez()).wa; };
+  const conv = $("#jConv", root);
+  const resetConv = () => { S.conv = { nome: "", rel: "" }; S.convPronto = null; conv.innerHTML = convFormHtml(); $("#jList", root).innerHTML = membrosHtml(); };
+  conv.addEventListener("input", e => {
+    if (e.target.id === "jQuem") S.conv.nome = e.target.value;
+    if (e.target.id === "jRel") S.conv.rel = e.target.value;
+  });
+  conv.addEventListener("click", async e => {
+    if (e.target.closest("#jCriar")) {
+      const btn = $("#jCriar", conv), err = $("#jCErr", conv); err.textContent = "";
+      btn.disabled = true; btn.textContent = "Criando o convite…";
+      try {
+        S.convPronto = await criarConvite((S.conv.nome || "").trim().slice(0, 40), (S.conv.rel || "").trim().slice(0, 30));
+        conv.innerHTML = convProntoHtml(S.convPronto); $("#jList", root).innerHTML = membrosHtml();
+      } catch (x) {
+        console.error(x); if (x?.code !== "timeout") logErro(x, "criar-convite");
+        btn.disabled = false; btn.innerHTML = `${ic("chat", 19, 2)} Criar convite pro WhatsApp`;
+        err.textContent = x?.code === "timeout" || /unavailable|network/.test(x?.code || "") ? "Sem conexão com a internet agora. Confere e tenta de novo." : x?.code === "permission-denied" ? "Sem permissão pra criar convite. Confere as regras do Firebase." : "Não deu pra criar o convite. Tenta de novo?";
+      }
+      return;
+    }
+    if (e.target.closest("#jCopy") && S.convPronto) {
+      try { await navigator.clipboard.writeText(S.convPronto.msg); toast("Convite copiado! Cola no WhatsApp ou onde quiser."); }
+      catch { toast("Não deu pra copiar aqui. Usa o botão do WhatsApp?"); }
+      return;
+    }
+    if (e.target.closest("#jOutro")) { resetConv(); setTimeout(() => $("#jQuem", conv)?.focus(), 30); }
+  });
   root.addEventListener("submit", e => {
     if (e.target.id !== "jNomeForm") return;
     e.preventDefault();
@@ -2946,17 +3031,6 @@ function wireJuntos(root) {
     write(S.store.setName(n)); salvarPessoa(S.user.email, { nome: n });
     $("#jList", root).innerHTML = membrosHtml(); toast("Nome salvo");
   });
-  const refreshWa = () => {
-    S.conv = { nome: "", rel: "" }; quem.value = ""; relInp.value = "";
-    const a = $("#jWa", root); if (a) a.href = waConvite(codigoDaVez()).wa; $("#jList", root).innerHTML = membrosHtml();
-  };
-  $("#jWa", root).onclick = () => { registrarCodigo(); setTimeout(refreshWa, 400); };
-  $("#jCopy", root).onclick = async () => {
-    const code = registrarCodigo(), w = waConvite(code);
-    try { await navigator.clipboard.writeText(w.msg); toast("Convite copiado! Cola no WhatsApp ou onde quiser."); }
-    catch { toast("Não deu pra copiar. Usa o botão do WhatsApp?"); }
-    refreshWa();
-  };
   root.addEventListener("click", async e => {
     const rmb = e.target.closest("[data-rm]");
     if (rmb) { S.removendo = rmb.dataset.rm; $("#jList", root).innerHTML = membrosHtml(); return; }
@@ -3337,7 +3411,45 @@ function toast(msg, actionLabel, action, ms = 3400, opt = {}) {
     + (actionLabel ? `<button type="button">${esc(actionLabel)}</button><i style="animation-duration:${ms}ms"></i>` : "");
   if (actionLabel) $("button", t).onclick = () => { clearTimeout(toastTimer); t.remove(); action(); };
   document.body.appendChild(t);
-  toastTimer = setTimeout(() => { t.classList.add("out"); setTimeout(() => t.remove(), 220); }, ms);
+  const sair = () => { t.classList.add("out"); setTimeout(() => t.remove(), 220); };
+  let restante = ms, inicio = Date.now();
+  toastTimer = setTimeout(sair, ms);
+  arrastarPraFechar(t, top, {
+    pausa() { clearTimeout(toastTimer); restante = Math.max(800, restante - (Date.now() - inicio)); const i = $("i", t); if (i) i.style.animationPlayState = "paused"; },
+    volta() { inicio = Date.now(); toastTimer = setTimeout(sair, restante); const i = $("i", t); if (i) i.style.animationPlayState = ""; }
+  });
+}
+/* arrastar o aviso pra fora (pros lados, ou pra borda da tela) dispensa */
+function arrastarPraFechar(el, noTopo, { pausa, volta }) {
+  let x0 = 0, y0 = 0, dx = 0, dy = 0, t0 = 0, ativo = false, eixo = null;
+  const fora = (y) => noTopo ? y < 0 : y > 0;
+  el.addEventListener("pointerdown", e => {
+    if (e.target.closest("button") || el.classList.contains("out")) return;
+    ativo = true; eixo = null; x0 = e.clientX; y0 = e.clientY; dx = dy = 0; t0 = Date.now();
+    el.style.animation = "none"; el.style.transition = "none";
+    try { el.setPointerCapture(e.pointerId); } catch {}
+    pausa();
+  });
+  el.addEventListener("pointermove", e => {
+    if (!ativo) return;
+    dx = e.clientX - x0; dy = e.clientY - y0;
+    if (!eixo && Math.hypot(dx, dy) > 6) eixo = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+    if (eixo === "x") { el.style.transform = `translateX(${dx}px)`; el.style.opacity = String(Math.max(.2, 1 - Math.abs(dx) / 260)); }
+    else if (eixo === "y") { const y = fora(dy) ? dy : dy * .25; el.style.transform = `translateY(${y}px)`; el.style.opacity = String(fora(dy) ? Math.max(.2, 1 - Math.abs(dy) / 160) : 1); }
+  });
+  const solta = () => {
+    if (!ativo) return; ativo = false;
+    const dt = Math.max(1, Date.now() - t0), vel = (eixo === "x" ? Math.abs(dx) : Math.abs(dy)) / dt;
+    const vai = eixo === "x" ? (Math.abs(dx) > 80 || (vel > .5 && Math.abs(dx) > 24)) : eixo === "y" && fora(dy) && (Math.abs(dy) > 40 || (vel > .4 && Math.abs(dy) > 16));
+    el.style.transition = "transform .22s cubic-bezier(.22,1,.36,1), opacity .22s ease";
+    if (vai) {
+      const tr = eixo === "x" ? `translateX(${dx > 0 ? innerWidth : -innerWidth}px)` : `translateY(${noTopo ? -160 : 160}px)`;
+      el.style.transform = tr; el.style.opacity = "0";
+      setTimeout(() => el.remove(), 230);
+    } else { el.style.transform = ""; el.style.opacity = ""; volta(); }
+  };
+  el.addEventListener("pointerup", solta);
+  el.addEventListener("pointercancel", solta);
 }
 
 /* avisos no celular */
@@ -3392,6 +3504,7 @@ function viewLogin() {
   return `<div class="login">
     ${brand}
     ${S.codigoAviso ? `<div class="tip honey" role="alert">${ic("info", 18, 2)}<p>${S.codigoAviso}</p></div>` : ""}
+    ${S.authAviso ? `<div class="tip mist" role="status">${ic("info", 18, 2)}<p>${S.authAviso}</p></div>` : ""}
     <form id="loginForm" novalidate>
       ${segHtml("authSeg", [["entrar", "Entrar"], ["criar", "Criar conta"]], criar ? "criar" : "entrar").replace(/<button /g, '<button data-act="authmode" ')}
       ${DEMO ? `<span class="demo">${criar ? "Prévia · crie uma conta de teste" : "Prévia · a lista de vocês é caio@exemplo.com"}</span>` : ""}
@@ -3419,9 +3532,14 @@ function viewCodigoConfirm() {
   </main>`;
 }
 function viewCodigoErro() {
+  const e = S.codigoErro || {}, quem = esc(e.de || "quem te chamou");
+  const [tit, txt] = e.faltando
+    ? (e.offline ? ["Não deu pra abrir o convite", "Parece que a internet oscilou. Confere a conexão e toca em <b>Tentar de novo</b>."]
+      : ["Não achamos esse convite", `Pode ser que ele não tenha sido criado direitinho. Pede pra ${quem} abrir o Cozily, ir em Ajustes › Quem mora junto e criar um convite novo.`])
+    : ["Esse convite não vale mais", `O link já foi usado ou passou dos ${CODIGO_DIAS} dias. Pede pra ${quem} mandar um novo pelo app, em Ajustes › Quem mora junto.`];
   return `<main class="page no-tabs" style="justify-content:center;gap:18px">
-    <div class="brand"><div class="logo">${LOGO(46)}</div><h1 style="font-size:26px;line-height:1.2">Esse convite não vale mais</h1><p>O link já foi usado ou passou dos ${CODIGO_DIAS} dias. Pede pra ${esc(S.codigoErro?.de || "quem te chamou")} mandar um novo pelo app, em Ajustes › Quem mora junto.</p></div>
-    <button class="btn primary block lg" data-act="cod-propria">Continuar sem o convite</button>
+    <div class="brand"><div class="logo">${LOGO(46)}</div><h1 style="font-size:26px;line-height:1.2">${tit}</h1><p>${txt}</p></div>
+    ${e.faltando ? `<button class="btn primary block lg" data-act="cod-retry">Tentar de novo</button><button class="btn ghost block" data-act="cod-propria">Continuar sem o convite</button>` : `<button class="btn primary block lg" data-act="cod-propria">Continuar sem o convite</button>`}
     <button class="link-btn" data-act="verify-out">Entrar com outra conta</button>
   </main>`;
 }
@@ -3758,7 +3876,8 @@ document.addEventListener("click", e => {
   else if (a === "mov-all") { S.movAll = !S.movAll; rerender(); }
   else if (a === "meta") openNumero("Meta da caixinha", "Quanto querem juntar?", S.settings.meta, "Pode ser o valor de tudo que falta ou só da etapa 1.", v => { S.settings.meta = v; write(S.store.putSettings({ meta: v })); });
   else if (a === "orc") openNumero("Orçamento do mercado", "Quanto querem gastar por mês?", S.settings.orcMercado, "Conta comida, limpeza e higiene. Fica separado da caixinha da casa.", v => { S.settings.orcMercado = v; write(S.store.putSettings({ orcMercado: v })); });
-  else if (a === "lancar") openLancar();
+  else if (a === "lancar") openLancar(null, +el.dataset.v || 0);
+  else if (a === "m-addq") { const ym = el.dataset.ym, d = S.mercado.get(ym); if (d) { addMercado(ym, S.mQ || ""); S.mQ = ""; rerender(); } }
   else if (a === "compra-edit") { const c = S.compras.find(x => x.id === id); if (c) openLancar(c); }
   else if (a === "m-filter") { S.mFilter = el.dataset.v; rerender(); }
   else if (a === "m-month") openMesMercado();
@@ -3787,10 +3906,11 @@ document.addEventListener("click", e => {
   else if (a === "post-push") askPush(postNext);
   else if (a === "post-install") { if (deferredInstall) { deferredInstall.prompt(); deferredInstall.userChoice.finally(() => { deferredInstall = null; postNext(); }); } else postNext(); }
   else if (a === "os") { S.os = el.dataset.v; rerender(); }
-  else if (a === "authmode") { S.authEmail = $("#lEmail")?.value || S.authEmail; S.authNome = $("#lNome")?.value || S.authNome; S.authMode = el.dataset.v; render(null); }
+  else if (a === "authmode") { S.authAviso = ""; S.authEmail = $("#lEmail")?.value || S.authEmail; S.authNome = $("#lNome")?.value || S.authNome; S.authMode = el.dataset.v; render(null); }
   else if (a === "cod-sim") { S.codigoAuto = true; el.disabled = true; el.textContent = "Entrando…"; S.codigoConfirm = null; handleAuth(S.user); }
   else if (a === "cod-nao") { largarCodigo(); S.codigoConfirm = null; handleAuth(S.user); }
-  else if (a === "cod-propria") { S.codigoErro = null; handleAuth(S.user); }
+  else if (a === "cod-propria") { largarCodigo(); S.codigoErro = null; handleAuth(S.user); }
+  else if (a === "cod-retry") { el.disabled = true; el.textContent = "Tentando…"; S.codigoErro = null; S.codigoAuto = true; handleAuth(S.user); }
   else if (a === "google") {
     if (S.codigo) S.codigoAuto = true;
     const err = $("#lErr"); if (err) err.textContent = "";
@@ -3823,6 +3943,7 @@ document.addEventListener("click", e => {
 
 document.addEventListener("input", e => {
   const id = e.target.id;
+  if (id === "mQ") { S.mQ = e.target.value; const box = $("#mList"); if (box) box.innerHTML = mercadoListaHtml(); return; }
   if (id === "lEmail") S.authEmail = e.target.value;
   if (id === "lNome") S.authNome = e.target.value;
   if (id === "obCasa" && S.ob) S.ob.casa = e.target.value;
@@ -3849,13 +3970,8 @@ document.addEventListener("submit", async e => {
     e.preventDefault();
     const inp = $("#mNovo"), txt = inp.value.trim(); if (!txt) return;
     const ym = f.dataset.ym, d = S.mercado.get(ym); if (!d) return;
-    const p = parseMercado(txt);
-    const it = { id: uid(), nome: p.nome, qtd: p.qtd, cat: p.cat || guessCat(p.nome), ok: false };
-    if (p.marca) it.marca = p.marca;
-    saveMercado(ym, [...d.itens, it]);
-    S.mFilter = S.mFilter === "ok" ? "all" : S.mFilter;
+    addMercado(ym, txt); inp.value = "";
     rerender(); setTimeout(() => $("#mNovo")?.focus(), 30);
-    toast(`${p.marca ? p.marca + ": " : ""}${p.nome} entrou em ${it.cat}`, null, null, 2600, { ok: true, title: "Na lista!" });
     return;
   }
   if (f.id === "linkForm") {
@@ -3890,17 +4006,31 @@ document.addEventListener("submit", async e => {
     else await S.store.login(email, senha);
   } catch (x) {
     const c = x?.code || "";
-    err.textContent = c.includes("email-already-in-use") ? "Já existe uma conta com esse e-mail. Toca em Entrar."
+    if (criar && c.includes("email-already-in-use")) {
+      S.authMode = "entrar"; S.authEmail = email; S.authAviso = "Você já tem conta com esse e-mail. Coloca sua senha, ou entra com o Google se for um Gmail. Nunca criou senha ou esqueceu? Toca em <b>Esqueci minha senha</b> que a gente manda um link pra criar uma.";
+      render(null); setTimeout(() => $("#lSenha")?.focus(), 50); return;
+    }
+    err.innerHTML = c.includes("email-already-in-use") ? "Já existe uma conta com esse e-mail. Toca em Entrar."
       : c.includes("invalid-email") ? "Esse e-mail não parece certinho."
       : c.includes("weak-password") ? "Escolhe uma senha mais forte (6 caracteres ou mais)."
       : c.includes("operation-not-allowed") || c.includes("admin-restricted") ? "A criação de contas está desligada no Firebase."
-      : c.includes("invalid") || c.includes("wrong-password") || c.includes("user-not-found") ? "E-mail ou senha não batem. Confere e tenta de novo?"
+      : c.includes("invalid") || c.includes("wrong-password") || c.includes("user-not-found") ? "E-mail ou senha não batem. Se nunca criou uma senha ou esqueceu, toca em <b>Esqueci minha senha</b>."
       : c.includes("too-many") ? "Muitas tentativas. Espera um pouquinho e tenta de novo."
       : c.includes("network") ? "Sem internet no momento." : (criar ? "Não deu pra criar a conta. Tenta de novo?" : "Não deu pra entrar. Tenta de novo?");
     btn.disabled = false; btn.textContent = criar ? "Criar conta" : "Entrar";
   }
 });
 
+function addMercado(ym, txt) {
+  const d = S.mercado.get(ym); txt = (txt || "").trim(); if (!d || !txt) return;
+  const p = parseMercado(txt);
+  const it = { id: uid(), nome: p.nome, qtd: p.qtd, cat: p.cat || guessCat(p.nome), ok: false };
+  if (p.marca) it.marca = p.marca;
+  const pr = precoConhecido(p.nome); if (pr) it.preco = pr;
+  saveMercado(ym, [...d.itens, it]);
+  S.mFilter = S.mFilter === "ok" ? "all" : S.mFilter;
+  toast(`${p.marca ? p.marca + ": " : ""}${p.nome} entrou em ${it.cat}${pr ? " · " + money(pr) : ""}`, null, null, 2600, { ok: true, title: "Na lista!" });
+}
 /* foto em tela cheia */
 function openViewer(list, start = 0, nome = "") {
   if (!list.length) return;
@@ -4064,8 +4194,9 @@ async function start() {
   if (S.codigo) {
     S.authMode = "criar";
     S.codigoInfo = await S.store.lerCodigo(S.codigo);
+    if (S.codigoInfo?.erro) S.codigoInfo = null;
     const ci = S.codigoInfo;
-    if (!ci || ci.usadoPor || ci.exp < Date.now()) {
+    if (ci && (ci.usadoPor || ci.exp < Date.now())) {
       S.codigoInfo = { invalido: true, de: ci?.de, casaId: ci?.casaId, usadoPor: ci?.usadoPor };
       if (ci) S.codigoAviso = `Esse convite já foi usado ou venceu. Pede pra ${esc(ci.de || "quem te chamou")} mandar um link novo.`;
     }
@@ -4111,15 +4242,21 @@ async function tratarCodigo(user) {
   const code = S.codigo, ci = (await S.store.lerCodigo(code)) || {};
   const atual = await S.store.resolveCasa(user);
   if (ci.casaId && ci.casaId === atual) { largarCodigo(); if (ci.usadoPor !== user.email) setTimeout(() => toast("Você já faz parte dessa casa"), 700); return true; }
-  const vencido = !ci.casaId || ci.usadoPor || ci.exp < Date.now();
-  if (vencido) {
+  // não achou o convite (ou caiu a internet): guarda o link e deixa tentar de novo, sem jogar a pessoa numa casa nova
+  if (ci.erro || !ci.casaId) { S.codigoErro = { faltando: true, offline: !!ci.erro }; return false; }
+  if (ci.usadoPor || ci.exp < Date.now()) {
     largarCodigo();
     if (atual !== user.uid) { setTimeout(() => toast("Esse convite já foi usado ou venceu"), 700); return true; }
     S.codigoErro = { de: ci.de }; return false;
   }
   if (!S.codigoAuto) { S.codigoConfirm = ci; return false; }
   try { await S.store.usarCodigo(code); S.codigoUsado = code; S.codigoUsadoInfo = ci; largarCodigo(); return true; }
-  catch (x) { console.error(x); largarCodigo(); S.codigoErro = { de: ci.de }; return false; }
+  catch (x) {
+    console.error(x); logErro(x, "usar-convite");
+    const negado = (x?.code || "").includes("permission");
+    if (negado) largarCodigo();
+    S.codigoErro = negado ? { de: ci.de } : { faltando: true, offline: true, de: ci.de }; return false;
+  }
 }
 async function handleAuth(user) {
     unsubs.forEach(u => u && u()); unsubs = []; resUnsub && resUnsub(); resUnsub = null; resSlug = null;
@@ -4135,7 +4272,7 @@ async function handleAuth(user) {
       if (S.linkMode) { S.linkMode = false; history.replaceState(null, "", location.pathname + location.hash); }
       S.loaded = false; S.items = new Map(); S.settings = {}; S.photos = {}; S.ob = null; S.introDone = false; S.post = null;
       S.movs = []; S.compras = []; S.mercado = new Map(); S.reservas = []; membroOk = false; listaSent = "";
-      S.authMode = "entrar"; S.authEmail = ""; S.authNome = ""; S.lastInvite = null;
+      S.authMode = "entrar"; S.authEmail = ""; S.authNome = ""; S.authAviso = ""; S.lastInvite = null;
       S.codigoAviso = ""; S.codigoConfirm = null; S.codigoErro = null;
       render(null);
       if (S.codigo && !(await tratarCodigo(user))) { render("enter-fade"); return; }
