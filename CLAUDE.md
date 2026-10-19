@@ -37,17 +37,17 @@ bash test_all.sh     # roda todos os testes Playwright. Tudo deve sair sem FAIL;
 - Liberar para o app: `git checkout main && git pull origin main && git merge --ff-only dev && git push origin main && git checkout dev`.
 
 ## Onde paramos (19/10/2026)
-Versão **2026.10.19-3 liberada no app** (`main`). Na **`dev`** está a **2026.10.19-4**, **ainda NÃO liberada** (esperando o OK do Caio), com as 4 ideias:
+Versão **2026.10.19-4 liberada no app** (`main`) em 19/10/2026, com o OK do Caio. **`dev` e `main` estão iguais**. Ela contém as 4 ideias:
 1. **Mercado**: ao começar um mês (`novaListaMercado`), o que ficou sem comprar no mês anterior ganha `sobrou: true` e aparece no topo em "Ficou do mês passado" (doc do mês guarda `sobrouDe`). Só marca se usaram a lista (algo foi pro carrinho). Na folha do item (`openMercadoQtd`) aparece o histórico de preço por mês (`historicoPreco`/`variacaoPreco`): "Subiu 15% desde julho", que muda conforme digita o preço.
 2. **Item repetido**: no "Anotar", se já existe item com o mesmo nome normalizado (`chaveNome`: sem acento e sem plural), aparece "Já tem Toalhas de banho no Banheiro" com "Abrir o que já tem" / "Anotar mesmo assim".
 3. **Início — "Próxima compra"** (`proximaCompra`/`proximaHtml`): item da Etapa 1 com valor previsto, comparado com o disponível da caixinha ("Dá pra comprar…" com botão "Já compramos", ou "Faltam R$ X").
 4. **Atividade da casa**: `registrar()` grava em `casas/{id}/atividade` (acao, quem, email, em, alvo, itemId, valor, extra; guarda as 100 últimas) ao anotar, marcar comprado/presente e lançar compra do mercado. Reservas de convidados e quem entrou na casa entram no feed sem gravar. Aparece no Início (3 últimas) e em `#/atividade`. Erros ao gravar não mostram aviso (antes das regras novas, só não grava).
-- **Regras novas** em `firestore.rules` (bloco `match /atividade/{id}`): depois de liberar, o Caio precisa colar o arquivo inteiro no Firebase Console.
+- **Regras novas** em `firestore.rules` (bloco `match /atividade/{id}`): texto entregue ao Caio para colar no Firebase Console. Se ele não confirmou que colou, perguntar (sem isso a atividade não grava).
 - Testes novos: `.dev/tests/tnovas.py` (entrou no `test_all.sh`); prints em `.dev/tests/tprints.py`. A prévia tem histórico de mercado e atividade de exemplo (`demoSamples`).
 - Depois de liberar: lembrar o Caio de criar um **convite novo pelo WhatsApp para a Mirielly** (ela abre o link, entra com a conta dela e confirma "Entrar na casa").
 
 ## PRÓXIMA TAREFA
-Esperar o OK do Caio para liberar a 2026.10.19-4 (ordem: subir o app, depois colar as regras). Já está no app principal tudo das versões anteriores (convites por e-mail e WhatsApp, mercado com preços, avisos arrastáveis, app sem internet, etc.).
+Nenhuma combinada. Confirmar com o Caio que as regras novas foram coladas e que a Mirielly entrou na casa pelo convite novo do WhatsApp.
 
 ## Pendências e riscos conhecidos
 - **Domínio cozily.com.br** (ele vai comprar): migrar para o Firebase Hosting com cabeçalhos de segurança; página no github.io que redireciona mantendo o `#`; `authDomain` no próprio domínio. Isso resolve o **login com Google no iPhone com o app instalado** (hoje pode falhar por bloqueio de armazenamento entre domínios) e os **e-mails caindo no spam** (remetente do próprio domínio). Depois: App Check e restringir a chave da API ao domínio.
