@@ -1,0 +1,42 @@
+import asyncio
+from playwright.async_api import async_playwright
+K='cozily-preview-v6'; res=[]
+def ok(c,m): res.append(('PASS ' if c else 'FAIL ')+m)
+async def main():
+  async with async_playwright() as p:
+    b=await p.chromium.launch(); errs=[]
+    for sch,w in [('dark',390),('light',320)]:
+      pg=await (await b.new_context(viewport={'width':w,'height':844},device_scale_factor=2,color_scheme=sch)).new_page(); pg.on('pageerror',lambda e: errs.append(str(e)))
+      n=lambda: pg.evaluate(f"(JSON.parse(localStorage.getItem('{K}')).casas['nosso-ap'].settings.lista||{{}}).itens?.length||0")
+      await pg.goto('http://localhost:8811/index.html'); await pg.wait_for_timeout(800)
+      await pg.fill('#lEmail','caio@exemplo.com'); await pg.fill('#lSenha','demonstracao'); await pg.click('#lBtn'); await pg.wait_for_timeout(2500)
+      if await pg.query_selector('[data-tour=skip]'): await pg.click('[data-tour=skip]')
+      await pg.evaluate("location.hash='#/presentes'"); await pg.wait_for_timeout(700)
+      if await pg.query_selector('[data-act=lista-criar]'): await pg.click('[data-act=lista-criar]'); await pg.wait_for_timeout(900); await pg.click('.save'); await pg.wait_for_timeout(500)
+      await pg.click('[data-act=pres-filter][data-v=add]'); await pg.wait_for_timeout(500)
+      ok(not await pg.query_selector('[data-act=pres-todos]'),'no button on room grid')
+      await pg.click('[data-act=pres-room][data-v=cozinha]'); await pg.wait_for_timeout(500)
+      t=await pg.inner_text('[data-act=pres-todos]'); ok('Colocar todos' in t,'button in room: '+t)
+      await pg.click('[data-act=pres-topic] >> nth=1'); await pg.wait_for_timeout(300)
+      t2=await pg.inner_text('[data-act=pres-todos]'); vis=await pg.locator('#presList [data-act=lista-item]').count()
+      ok(str(vis) in t2,'topic button counts visible: '+t2)
+      await pg.screenshot(path=f't2/todos-{sch}.png')
+      n0=await n(); await pg.click('[data-act=pres-todos]'); await pg.wait_for_timeout(500)
+      n1=await n(); ok(n1==n0+vis,f'added {n1-n0} == {vis}')
+      ok('Tudo desse tópico' in await pg.inner_text('#presList'),'empty topic msg')
+      await pg.screenshot(path=f't2/todos-{sch}-done.png')
+      await pg.click('.toast button'); await pg.wait_for_timeout(500)
+      ok(await n()==n0,'undo restores')
+      await pg.click('[data-act=pres-topic] >> nth=0'); await pg.wait_for_timeout(300)
+      room=await pg.locator('#presList [data-act=lista-item]').count()
+      await pg.click('[data-act=pres-todos]'); await pg.wait_for_timeout(500)
+      ok(await n()==n0+room,'whole room added')
+      ok(await pg.is_visible('#presGrid'),'room emptied -> back to rooms grid')
+      await pg.fill('#presQ','toalha'); await pg.wait_for_timeout(400)
+      tx=await pg.inner_text('#presList'); ok('Banheiro' in tx or 'BANHEIRO' in tx or 'banho' in tx.lower(),'search spans all rooms after: '+tx[:80].replace(chr(10),' '))
+      await pg.fill('#presQ',''); await pg.wait_for_timeout(300)
+      await pg.click('[data-act=pres-filter][data-v=on]'); await pg.wait_for_timeout(500)
+      ok(await pg.locator('#presList [data-act=lista-item]').count()==n0+room,'Na lista shows them')
+      ok(not await pg.query_selector('[data-act=pres-todos]'),'no button in Na lista')
+    print('\n'.join(res)); print('\n'.join(errs) or 'NO PAGE ERRORS'); await b.close()
+asyncio.run(main())
