@@ -426,6 +426,8 @@ input[type=date].input,input[type=month].input{min-width:0;display:flex;align-it
 .member:last-child{border-bottom:0}
 .pres-todos{margin-bottom:10px;border-style:dashed;white-space:nowrap}
 .pres-todos .n{font-size:13px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--tile);color:var(--ink2)}
+.offline{pointer-events:none;white-space:nowrap;position:fixed;left:16px;right:16px;margin:0 auto;width:fit-content;top:calc(var(--top) + 8px);z-index:90;display:flex;align-items:center;gap:8px;max-width:calc(100% - 32px);padding:8px 14px;border-radius:999px;background:var(--ink);color:var(--bg);font-size:13px;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,.2);animation:toastInTop var(--t-toast) var(--ease) both}
+.offline.out{animation:toastOutTop .2s ease-in both}
 .aj-sec{margin:10px 2px -6px;font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted2)}
 .aj-sec:first-child{margin-top:0}
 .aj-rodape{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 8px;font-size:13px;color:var(--faint);padding-top:4px}
@@ -711,7 +713,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.19-1";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.19-2";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -2821,7 +2823,7 @@ function openListaCfg(nova) {
         if (!off.dataset.sure) { off.dataset.sure = 1; off.textContent = "Toca de novo pra confirmar"; return; }
         const s = S.settings.lista.slug;
         S.settings = { ...S.settings, lista: null };
-        write(S.store.putSettings({ lista: null })); write(S.store.delLista(s));
+        write(S.store.putSettings({ lista: null })); write(S.store.apagarLista(s));
         listaSent = ""; S.reservas = []; close(); S.dirty = true; toast("A lista saiu do ar");
       };
     },
@@ -3467,7 +3469,7 @@ async function askPush(next) {
 }
 let swReg = null;
 function registerSW() {
-  if (DEMO || !("serviceWorker" in navigator) || !/^https:/.test(location.protocol)) return;
+  if (DEMO || !("serviceWorker" in navigator) || !(/^https:/.test(location.protocol) || location.hostname === "localhost")) return;
   navigator.serviceWorker.register("sw.js").then(r => { swReg = r; }).catch(() => {});
 }
 function notify(title, body, tag) {
@@ -4201,7 +4203,8 @@ async function start() {
       if (ci) S.codigoAviso = `Esse convite já foi usado ou venceu. Pede pra ${esc(ci.de || "quem te chamou")} mandar um link novo.`;
     }
   }
-  if (typeof Notification !== "undefined" && Notification.permission === "granted") registerSW();
+  registerSW();
+  avisoConexao();
   S.store.onAuth(handleAuth);
 }
 /* confirmação de e-mail: só entra na casa com o e-mail confirmado (Google e link já vêm confirmados) */
@@ -4258,7 +4261,9 @@ async function tratarCodigo(user) {
     S.codigoErro = negado ? { de: ci.de } : { faltando: true, offline: true, de: ci.de }; return false;
   }
 }
+let authRun = 0;
 async function handleAuth(user) {
+    const run = ++authRun;
     unsubs.forEach(u => u && u()); unsubs = []; resUnsub && resUnsub(); resUnsub = null; resSlug = null;
     S.user = user;
     S.needVerify = !!(user && user.verified === false);
@@ -4275,8 +4280,11 @@ async function handleAuth(user) {
       S.authMode = "entrar"; S.authEmail = ""; S.authNome = ""; S.authAviso = ""; S.lastInvite = null;
       S.codigoAviso = ""; S.codigoConfirm = null; S.codigoErro = null;
       render(null);
-      if (S.codigo && !(await tratarCodigo(user))) { render("enter-fade"); return; }
-      S.casaId = await S.store.resolveCasa(user);
+      if (S.codigo && !(await tratarCodigo(user))) { if (run === authRun) render("enter-fade"); return; }
+      if (run !== authRun) return;
+      const casa = await S.store.resolveCasa(user);
+      if (run !== authRun) return;   // outro login chegou no meio: esse aqui para
+      S.casaId = casa;
       applyRooms();
       let gotItems = false, gotSettings = false;
       const ready = () => { if (gotItems && gotSettings && !S.loaded) { S.loaded = true; saindoDaCasa = 0; render("enter-fade"); } onData(); };
@@ -4298,6 +4306,18 @@ async function handleAuth(user) {
     } else { S.items = new Map(); S.settings = {}; S.loaded = false; applyRooms(); }
     S.route = parseRoute();
     render("enter-fade");
+}
+/* sem internet: o app continua funcionando e salva quando o sinal voltar */
+function avisoConexao() {
+  const pinta = () => {
+    let el = document.querySelector(".offline");
+    if (navigator.onLine) { if (el) { el.classList.add("out"); setTimeout(() => el.remove(), 250); } return; }
+    if (el) return;
+    el = document.createElement("div"); el.className = "offline"; el.setAttribute("role", "status");
+    el.innerHTML = `${ic("info", 15, 2.2)}<span>Sem internet · salva quando o sinal voltar</span>`;
+    document.body.appendChild(el);
+  };
+  addEventListener("online", pinta); addEventListener("offline", pinta); pinta();
 }
 /* atualização automática */
 let lastCheck = 0;
