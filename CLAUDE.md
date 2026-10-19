@@ -39,7 +39,7 @@ bash test_all.sh     # roda todos os testes Playwright. Tudo deve sair sem FAIL;
 ## Onde paramos (19/10/2026)
 Versão **2026.10.19-2 liberada no app** (`main`) em 19/10/2026, com o OK do Caio. Ela contém:
 1. **Convite pelo WhatsApp corrigido.** Causa: o código do convite era salvo no mesmo toque que abria o WhatsApp, e o iPhone pausava o app antes de salvar. Agora o fluxo é "Criar convite pro WhatsApp", que espera o servidor confirmar, e só então aparecem "Mandar no WhatsApp" e "Copiar convite". Se o link falhar, a pessoa vê "Não achamos esse convite", com "Tentar de novo", em vez de cair numa casa nova. Quem tenta criar conta com um e-mail que já existe é levado para "Entrar", com orientação (Google ou "Esqueci minha senha").
-2. **Mercado**: busca na lista; preço por item (de cada, por kg, litro, pacote...) com total da linha; estimativa da lista e valor do carrinho; "Lançar compra" já preenchido com o total do carrinho; o app lembra o último preço do item.
+2. **Mercado**: busca na lista; preço por item (kg/g/L = valor da prateleira do pacote; un/pct/cx/dz = preço de cada × quantidade) com total da linha; estimativa da lista e valor do carrinho; "Lançar compra" já preenchido com o total do carrinho; o app lembra o último preço do item.
 3. **Avisos (toasts) arrastáveis** para dispensar: para os lados, ou para a borda.
 4. **App abre sem internet** (service worker com rede primeiro), com o aviso "Sem internet · salva quando o sinal voltar". Login protegido contra corrida dupla. "Tirar a lista do ar" agora apaga também as reservas.
 5. Ferramentas de build e teste levadas para `.dev/`, e este arquivo.

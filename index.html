@@ -713,7 +713,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.19-2";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.19-3";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -1500,8 +1500,10 @@ function ritmo() {
 function mercadoMes(ym) { return S.mercado.get(ym); }
 /* preço no mercado: guardado por unidade (cada, kg, litro...); o total da linha multiplica pela quantidade */
 function qtdNum(qtd) { const m = String(qtd || "").match(/^(\d+(?:[.,]\d+)?)\s*(.*)$/); return m ? { n: parseFloat(m[1].replace(",", ".")), u: (m[2] || "un").trim() || "un" } : { n: 1, u: "un" }; }
-function totalItemMercado(i) { if (!i.preco) return 0; const { n, u } = qtdNum(i.qtd); return Math.round((u === "g" ? i.preco * n / 1000 : i.preco * n) * 100) / 100; }
-const precoRotulo = u => u === "kg" || u === "g" ? "Preço do kg" : u === "L" ? "Preço do litro" : u === "pct" ? "Preço do pacote" : u === "cx" ? "Preço da caixa" : u === "dz" ? "Preço da dúzia" : "Preço de cada";
+/* peso/volume (kg, g, L) = um pacote só: o valor é o da prateleira. Contáveis (un, pct, cx, dz) = preço de cada × quantidade */
+const porPeso = u => u === "kg" || u === "g" || u === "L";
+function totalItemMercado(i) { if (!i.preco) return 0; const { n, u } = qtdNum(i.qtd); return Math.round((porPeso(u) ? i.preco : i.preco * n) * 100) / 100; }
+const precoRotulo = u => porPeso(u) ? "Valor" : u === "pct" ? "Preço de cada pacote" : u === "cx" ? "Preço de cada caixa" : u === "dz" ? "Preço de cada dúzia" : "Preço de cada";
 function precoConhecido(nome) {
   const k = norm(nome); const meses = [...S.mercado.keys()].sort().reverse();
   for (const m of meses) { const it = (S.mercado.get(m).itens || []).find(i => i.preco && norm(i.nome) === k); if (it) return it.preco; }
@@ -2736,7 +2738,7 @@ function openMercadoQtd(ym, id) {
       const paint = () => {
         $("#qN", ov).textContent = fmt(n); pickSeg($("#qU", ov), u); $("#qPrecoL", ov).textContent = precoRotulo(u);
         const pr = parseMoney($("#qPreco", ov).value), t = pr ? totalItemMercado({ preco: pr, qtd: fmt(n).replace(",", ".") + " " + u }) : 0;
-        $("#qTot", ov).textContent = t ? `Total desse item: ${money(t)}` : "";
+        $("#qTot", ov).textContent = pr && !porPeso(u) && n > 1 ? `${fmt(n)} × ${money(pr)} = ${money(t)}` : "";
       };
       paint(); $("#qPreco", ov).addEventListener("input", paint);
       ov.addEventListener("click", e => {
