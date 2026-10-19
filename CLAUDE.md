@@ -37,7 +37,7 @@ bash test_all.sh     # roda todos os testes Playwright. Tudo deve sair sem FAIL;
 - Liberar para o app: `git checkout main && git pull origin main && git merge --ff-only dev && git push origin main && git checkout dev`.
 
 ## Onde paramos (19/10/2026)
-`dev` está à frente de `main` com mudanças **testadas e ainda não liberadas** (versão 2026.10.19-2):
+Versão **2026.10.19-2 liberada no app** (`main`) em 19/10/2026, com o OK do Caio. Ela contém:
 1. **Convite pelo WhatsApp corrigido.** Causa: o código do convite era salvo no mesmo toque que abria o WhatsApp, e o iPhone pausava o app antes de salvar. Agora o fluxo é "Criar convite pro WhatsApp", que espera o servidor confirmar, e só então aparecem "Mandar no WhatsApp" e "Copiar convite". Se o link falhar, a pessoa vê "Não achamos esse convite", com "Tentar de novo", em vez de cair numa casa nova. Quem tenta criar conta com um e-mail que já existe é levado para "Entrar", com orientação (Google ou "Esqueci minha senha").
 2. **Mercado**: busca na lista; preço por item (de cada, por kg, litro, pacote...) com total da linha; estimativa da lista e valor do carrinho; "Lançar compra" já preenchido com o total do carrinho; o app lembra o último preço do item.
 3. **Avisos (toasts) arrastáveis** para dispensar: para os lados, ou para a borda.
@@ -46,7 +46,7 @@ bash test_all.sh     # roda todos os testes Playwright. Tudo deve sair sem FAIL;
 
 Já está no app principal (versões anteriores): convite por e-mail com senha; nome e relação de quem é convidado; tela de boas-vindas; tirar pessoas da casa; excluir conta; política de privacidade (contato: e-mail do Caio); registro de erros (Ajustes › Sua conta › Erros do app, só ele vê); Ajustes organizados; "Colocar todos" na lista de presentes; confirmação de e-mail; regras mais rígidas.
 
-## PRÓXIMA TAREFA (o Caio pediu antes de liberar)
+## PRÓXIMA TAREFA
 Implementar estas 4 ideias na `dev`, testar bem e **mandar um print de cada tela nova** (SendUserFile), depois perguntar se pode subir:
 1. **Mercado — virada do mês e histórico de preço**: ao começar o mês seguinte (`novaListaMercado`), o que ficou sem comprar aparece no topo, numa seção "Ficou do mês passado". Na folha do item (`openMercadoQtd`), mostrar o histórico de preço ("subiu 12% desde agosto"), usando os preços dos meses anteriores.
 2. **Item repetido**: ao anotar um item que já existe (mesmo nome normalizado, em outro cômodo ou no mesmo), avisar "Já tem Toalha de banho no Banheiro" com opção de abrir o existente ou anotar mesmo assim.
