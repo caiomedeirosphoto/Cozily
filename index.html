@@ -714,6 +714,7 @@ html.theme-fade,html.theme-fade *{transition:background-color .3s ease,color .3s
 .prox.ok .prox-msg{color:var(--sage-ink);display:flex;gap:6px;align-items:flex-start}
 .prox.ok .prox-msg svg{flex:none;margin-top:2px}
 .prox .btn.sm{align-self:flex-start}
+.prox-btn{width:100%}
 .rep{background:var(--honey);color:var(--honey-ink);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px;animation:rise var(--t-med) var(--ease) both}
 .rep-t{display:flex;gap:8px;align-items:flex-start;font-size:14px;line-height:1.4}
 .rep-t svg{flex:none;margin-top:1px}
@@ -841,7 +842,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.20-12";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.20-13";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -2010,7 +2011,7 @@ function proximaHtml() {
   const p = proximaCompra(); if (!p) return "";
   const { it, valor, disp } = p, r = ROOM[it.comodo] || ROOMS[0] || { nome: "", icon: "home" };
   const href = "#/i/" + encodeURIComponent(it.id), da = valor && disp >= valor, falta = valor - Math.max(0, disp);
-  const msg = !valor ? `Quanto custa mais ou menos? Coloca um valor previsto pra gente comparar com a caixinha.`
+  const msg = !valor ? `É o mais importante que falta pra morar. Comecem por ele.`
     : da ? `Dá pra comprar com o que já guardaram! Na caixinha tem ${money0(disp)}.`
     : `Faltam ${money0(falta)}. Na caixinha tem ${money0(Math.max(0, disp))}.`;
   return `<section class="prox ${da ? "ok" : ""}" aria-label="Próxima compra">
@@ -2018,8 +2019,7 @@ function proximaHtml() {
     <a class="prox-it" href="${href}">${tile(r)}<span class="item-txt grow"><span class="item-name">${esc(it.nome)}</span><span class="meta">${esc(r.nome)}${valor ? " · previsto " + money0(valor) : ""}</span></span>${ic("chev", 16, 2)}</a>
     ${valor ? `<div class="bar thick"><i data-w="${Math.min(100, pct(Math.max(0, disp), valor))}"></i></div>` : ""}
     <span class="prox-msg">${da ? ic("check", 15, 2.8) : ""}${msg}</span>
-    <a class="prox-ordem" href="#/ordem" data-act="stage-go" data-v="${it.etapa || 1}">${ic("flag", 15, 2.2)} Ver a ordem de compra<span>${ic("chev", 14, 2.4)}</span></a>
-    ${da ? `<button class="btn primary sm" data-act="toggle" data-id="${esc(it.id)}">${ic("bag", 16, 2.2)} Já compramos</button>` : !valor ? `<button class="btn ghost sm" data-act="edit" data-id="${esc(it.id)}">${ic("edit", 16, 2.2)} Colocar valor previsto</button>` : ""}
+    <a class="btn ghost sm prox-btn" href="#/ordem" data-act="stage-go" data-v="${it.etapa || 1}">${ic("flag", 16, 2.2)} Ver a ordem de compra</a>
   </section>`;
 }
 function viewHome() {
