@@ -842,7 +842,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.20-13";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.20-14";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -3338,7 +3338,7 @@ function convFormHtml() {
       <b class="disp" style="font-size:17px">Convidar alguém</b>
       <div class="field"><label for="jQuem">Nome</label><input class="input" id="jQuem" value="${esc(S.conv.nome)}" placeholder="Ex.: Mirielly" autocapitalize="words" autocomplete="off" maxlength="40"></div>
       <div class="field"><label for="jRel">Essa pessoa é...</label><input class="input" id="jRel" value="${esc(S.conv.rel)}" placeholder="Ex.: marido, namorada, filho..." autocapitalize="sentences" autocomplete="off" maxlength="30"></div>
-      <button class="btn primary block lg" type="button" id="jCriar">${ic("chat", 19, 2)} Criar convite pro WhatsApp</button>
+      <button class="btn sage block lg" type="button" id="jCriar">${ic("chat", 19, 2)} Criar convite do WhatsApp</button>
       <div class="err" id="jCErr" role="alert"></div>
       <span class="small center" style="color:var(--muted2);line-height:1.45">Depois é só escolher a pessoa no WhatsApp. O link vale ${CODIGO_DIAS} dias e serve pra uma pessoa só.</span>
     </div>`;
@@ -3397,7 +3397,7 @@ function wireJuntos(root) {
         conv.innerHTML = convProntoHtml(S.convPronto); $("#jList", root).innerHTML = membrosHtml();
       } catch (x) {
         console.error(x); if (x?.code !== "timeout") logErro(x, "criar-convite");
-        btn.disabled = false; btn.innerHTML = `${ic("chat", 19, 2)} Criar convite pro WhatsApp`;
+        btn.disabled = false; btn.innerHTML = `${ic("chat", 19, 2)} Criar convite do WhatsApp`;
         err.textContent = x?.code === "timeout" || /unavailable|network/.test(x?.code || "") ? "Sem conexão com a internet agora. Confere e tenta de novo." : x?.code === "permission-denied" ? "Sem permissão pra criar convite. Confere as regras do Firebase." : "Não deu pra criar o convite. Tenta de novo?";
       }
       return;
