@@ -39,7 +39,7 @@
   --tabbar:rgba(255,255,255,.92); --field:#FFFFFF; --seg-on:#FFFFFF;
   --shadow:0 1px 2px rgba(42,40,38,.04), 0 8px 24px rgba(42,40,38,.06);
   --top:env(safe-area-inset-top,0px); --bottom:env(safe-area-inset-bottom,0px);
-  --ease:cubic-bezier(.22,1,.36,1); --t-press:120ms; --t-screen:320ms; --t-sheet:360ms; --t-dim:200ms; --t-close:240ms; --t-toast:260ms;
+  --ease:cubic-bezier(.22,1,.36,1); --ease-in:var(--ease-in); --t-fast:160ms; --t-med:280ms; --t-slow:600ms; --t-press:120ms; --t-screen:var(--t-med); --t-sheet:340ms; --t-dim:var(--t-fast); --t-close:220ms; --t-toast:var(--t-med);
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
@@ -123,14 +123,14 @@ h1,h2,h3{margin:0}
 .big{font-family:Sora,sans-serif;font-size:44px;font-weight:700;letter-spacing:-.03em;line-height:1}
 .mid{font-family:Sora,sans-serif;font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
 .hbar{height:8px;border-radius:4px;background:var(--hero-track);overflow:hidden}
-.hbar i{display:block;height:100%;width:0;background:var(--hero-bar);border-radius:4px;transition:width .8s var(--ease)}
+.hbar i{display:block;height:100%;width:0;background:var(--hero-bar);border-radius:4px;transition:width var(--t-slow) var(--ease)}
 .mini3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .mini3 a,.mini3 div{background:var(--hero-glass);border-radius:16px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
 .mini3 span{font-size:12px;color:var(--hero-mut)}
 .mini3 b{font-size:15px;overflow-wrap:anywhere;line-height:1.25}
 @media (max-width:360px){.mini3 b{font-size:13px}.mini3 a,.mini3 div{padding:9px 10px}}
 .bar{height:5px;border-radius:3px;background:var(--line2);overflow:hidden}
-.bar i{display:block;height:100%;width:0;background:var(--taupe);border-radius:3px;transition:width .8s var(--ease)}
+.bar i{display:block;height:100%;width:0;background:var(--taupe);border-radius:3px;transition:width var(--t-slow) var(--ease)}
 .bar.thick{height:6px}
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 
@@ -148,11 +148,28 @@ h1,h2,h3{margin:0}
 .feat .d{font-size:12px;line-height:1.35}
 .feat .go{margin-top:auto;font-size:13px;font-weight:700;display:flex;align-items:center;gap:4px}
 .feat .fbar{height:5px;border-radius:3px;background:rgba(255,255,255,.7);overflow:hidden}
-.feat .fbar i{display:block;height:100%;background:var(--lav-fill);width:0;transition:width .8s var(--ease)}
+.feat .fbar i{display:block;height:100%;background:var(--lav-fill);width:0;transition:width var(--t-slow) var(--ease)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .feat .fbar{background:rgba(255,255,255,.12)}}
 :root[data-theme="dark"] .feat .fbar{background:rgba(255,255,255,.12)}
 
 /* cômodos */
+.anel-row{display:flex;align-items:center;gap:18px;color:inherit}
+.anel{--p:0;width:100px;height:100px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;background:conic-gradient(var(--hero-bar) calc(var(--p) * 1%),var(--hero-track) 0)}
+.anel b{width:78px;height:78px;border-radius:50%;background:var(--hero);display:flex;align-items:center;justify-content:center;font-family:Sora,sans-serif;font-size:24px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.anel-tx{display:flex;flex-direction:column;gap:4px;min-width:0}
+.anel-tx b{font-size:18px}
+.anel-tx span{font-size:13px;color:var(--hero-mut);line-height:1.4}
+.anel-tx small{font-size:12px;color:var(--hero-mut);opacity:.85}
+.carrossel{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;margin:0 -20px;padding:2px 20px 4px;scroll-snap-type:x proximity;scroll-padding-inline:20px}
+@media (max-width:360px){.anel{width:84px;height:84px}.anel b{width:66px;height:66px;font-size:20px}.anel-row{gap:14px}.anel-tx b{font-size:16px}.page>.topbar .icon-btn{width:40px;height:40px}.page>.topbar .row{gap:6px}.page>.topbar .hello h1{font-size:26px}}
+.carrossel::-webkit-scrollbar{display:none}
+.mini-room{flex:none;width:132px;background:var(--card);border:1px solid var(--line2);border-radius:20px;padding:12px;display:flex;flex-direction:column;gap:9px;scroll-snap-align:start}
+.mini-room .nm{font-size:14px;font-weight:700;line-height:1.25;min-height:35px;overflow-wrap:anywhere}
+.mini-room .ct{font-size:12px;color:var(--muted2)}
+.mini-room.todos{align-items:center;justify-content:center;color:var(--muted);border-style:dashed;text-align:center}
+.mini-room.todos .nm{min-height:0}
+.atalho{display:flex;align-items:center;gap:12px;padding:10px 12px 10px 12px;border-bottom:1px solid var(--line3);min-height:62px;color:var(--ink)}
+.atalho:last-child{border-bottom:0}
 .room-card{background:var(--card);border:1px solid var(--line2);border-radius:22px;padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
 .room-card .top{display:flex;align-items:center;justify-content:space-between}
 .room-card .pc{font-size:13px;font-weight:700;color:var(--muted)}
@@ -201,11 +218,11 @@ a.search span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-widt
 .meta .gift{color:var(--lav-ink);font-weight:700}
 .meta .part{color:var(--honey-ink);font-weight:700}
 .chk{width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex:none}
-.chk span{width:26px;height:26px;border-radius:50%;border:2px solid var(--ring-off);display:flex;align-items:center;justify-content:center;color:transparent;transition:background .2s,border-color .2s,transform .2s var(--ease)}
+.chk span{width:26px;height:26px;border-radius:50%;border:2px solid var(--ring-off);display:flex;align-items:center;justify-content:center;color:transparent;transition:background var(--t-fast),border-color var(--t-fast),transform var(--t-fast) var(--ease)}
 .chk[aria-pressed="true"] span{background:var(--sage-dk);border-color:var(--sage-dk);color:#fff}
 .item.gift .chk span{background:var(--lav-fill);border-color:var(--lav-fill);color:#fff}
 .item.part .chk span{border-color:var(--honey-bar);background:linear-gradient(90deg,var(--honey) 50%,transparent 50%)}
-.item.pop .chk span{animation:pop .45s var(--ease)}
+.item.pop .chk span{animation:pop var(--t-med) var(--ease)}
 @keyframes pop{40%{transform:scale(1.25)}}
 .add-inline{display:flex;align-items:center;gap:10px;min-height:50px;padding:0 14px;color:var(--muted2);font-size:15px;font-weight:600;width:100%;text-align:left}
 .room-hero{display:flex;align-items:center;gap:14px}
@@ -248,7 +265,7 @@ a.search span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-widt
 .chart{display:flex;align-items:flex-end;gap:10px;height:150px;padding-top:10px;position:relative}
 .chart .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;height:100%;justify-content:flex-end}
 .chart .bars{display:flex;align-items:flex-end;gap:3px;height:112px;width:100%;justify-content:center}
-.chart .bars i{display:block;width:12px;border-radius:5px 5px 2px 2px;height:4px;transition:height .9s var(--ease)}
+.chart .bars i{display:block;width:12px;border-radius:5px 5px 2px 2px;height:4px;transition:height var(--t-slow) var(--ease)}
 .chart .bars i.in{background:var(--sage-dk)}.chart .bars i.out{background:var(--spent)}
 .chart .bars i.one{width:26px;background:var(--taupe)}.chart .bars i.one.over{background:var(--rose-bar)}.chart .bars i.one.cur{background:var(--g)}
 .chart .lb{font-size:12px;color:var(--muted2);font-weight:600}
@@ -342,8 +359,8 @@ a.search span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-widt
 .note{font-size:12px;font-weight:600;padding:6px 10px;border-radius:10px;align-self:flex-start}
 
 /* abas */
-.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--tabbar);-webkit-backdrop-filter:saturate(1.4) blur(18px);backdrop-filter:saturate(1.4) blur(18px);border-top:1px solid var(--line);padding:8px 0 calc(var(--bottom) + 8px);transition:transform .3s var(--ease)}
-.tabbar.hide{transform:translateY(110%);visibility:hidden;transition:transform .3s var(--ease),visibility 0s .3s}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--tabbar);-webkit-backdrop-filter:saturate(1.4) blur(18px);backdrop-filter:saturate(1.4) blur(18px);border-top:1px solid var(--line);padding:8px 0 calc(var(--bottom) + 8px);transition:transform var(--t-med) var(--ease)}
+.tabbar.hide{transform:translateY(110%);visibility:hidden;transition:transform var(--t-med) var(--ease),visibility 0s var(--t-med)}
 .tabbar nav{max-width:520px;margin:0 auto;display:flex;justify-content:space-around;align-items:flex-start}
 .tab{min-width:60px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:600;color:var(--faint);padding-top:2px}
 .tab[aria-current="page"]{color:var(--ink);font-weight:700}
@@ -352,7 +369,7 @@ a.search span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-widt
 /* folhas */
 .overlay{position:fixed;inset:0;z-index:50;background:var(--overlay);display:flex;align-items:flex-end;justify-content:center;animation:fade var(--t-dim) ease both}
 .overlay.closing{animation:fadeOut var(--t-close) ease both}
-.overlay.closing .sheet{animation:sheetOut var(--t-close) cubic-bezier(.4,0,1,1) both}
+.overlay.closing .sheet{animation:sheetOut var(--t-close) var(--ease-in) both}
 .sheet{width:100%;max-width:560px;max-height:calc(100vh - var(--top) - 24px);background:var(--bg);border-radius:26px 26px 0 0;display:flex;flex-direction:column;animation:sheetIn var(--t-sheet) var(--ease) both;will-change:transform}
 .sheet-head{padding:8px 16px 0;flex:none;touch-action:none}
 .grab{display:block;width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 6px}
@@ -427,7 +444,7 @@ input[type=date].input,input[type=month].input{min-width:0;display:flex;align-it
 .pres-todos{margin-bottom:10px;border-style:dashed;white-space:nowrap}
 .pres-todos .n{font-size:13px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--tile);color:var(--ink2)}
 .offline{pointer-events:none;white-space:nowrap;position:fixed;left:16px;right:16px;margin:0 auto;width:fit-content;top:calc(var(--top) + 8px);z-index:90;display:flex;align-items:center;gap:8px;max-width:calc(100% - 32px);padding:8px 14px;border-radius:999px;background:var(--ink);color:var(--bg);font-size:13px;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,.2);animation:toastInTop var(--t-toast) var(--ease) both}
-.offline.out{animation:toastOutTop .2s ease-in both}
+.offline.out{animation:toastOutTop var(--t-fast) var(--ease-in) both}
 .aj-sec{margin:10px 2px -6px;font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted2)}
 .aj-sec:first-child{margin-top:0}
 .aj-rodape{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 8px;font-size:13px;color:var(--faint);padding-top:4px}
@@ -479,15 +496,15 @@ a.item.ativ:active{opacity:.75}
 .choice{border-radius:18px;border:1px solid var(--line);background:var(--card);padding:14px;text-align:left;display:flex;flex-direction:column;gap:4px}
 .choice b{font-size:15px}.choice span{font-size:13px;color:var(--muted);line-height:1.35}
 .choice[aria-pressed="true"]{border-color:var(--g);box-shadow:0 0 0 1px var(--g)}
-.switch{width:44px;height:26px;border-radius:13px;background:var(--line);position:relative;flex:none;transition:background .2s}
-.switch i{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s var(--ease)}
+.switch{width:44px;height:26px;border-radius:13px;background:var(--line);position:relative;flex:none;transition:background var(--t-fast)}
+.switch i{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform var(--t-fast) var(--ease)}
 .switch.on{background:var(--sage-dk)}
 .switch.on i{transform:translateX(18px)}
 .sgroom{background:var(--card);border:1px solid var(--line2);border-radius:18px;overflow:hidden}
 .sgroom .sh{display:flex;align-items:center;gap:10px;padding:12px 14px;min-height:56px}
 .sgroom .sh .open{flex:1;min-width:0;display:flex;align-items:center;gap:8px;text-align:left}
 .sgroom .sh .open b{font-size:15px}.sgroom .sh .open span{font-size:13px;color:var(--muted2)}
-.sgroom .sh .open svg{transition:transform .2s;flex:none;color:var(--faint)}
+.sgroom .sh .open svg{transition:transform var(--t-fast) var(--ease);flex:none;color:var(--faint)}
 .sgroom.is-open .sh .open svg{transform:rotate(90deg)}
 .sgroom .sb{padding:0 14px 14px;display:flex;flex-wrap:wrap;gap:6px}
 .sgroom .sb span{font-size:12px;font-weight:600;padding:4px 8px;border-radius:8px}
@@ -505,7 +522,7 @@ a.item.ativ:active{opacity:.75}
 
 /* tour */
 .tour{position:fixed;inset:0;z-index:60;background:rgba(42,40,38,.55);animation:fade var(--t-dim) ease both}
-.tour .ring{position:absolute;border-radius:50%;box-shadow:0 0 0 4px #F6F2EC;background:rgba(246,242,236,.12);transition:left .3s var(--ease),width .3s,height .3s,bottom .3s}
+.tour .ring{position:absolute;border-radius:50%;box-shadow:0 0 0 4px #F6F2EC;background:rgba(246,242,236,.12);transition:left var(--t-med) var(--ease),width var(--t-med) var(--ease),height var(--t-med) var(--ease),bottom var(--t-med) var(--ease)}
 .tour .box{position:absolute;left:16px;right:16px;max-width:488px;margin:0 auto;background:#FBF9F6;color:#2A2826;border-radius:24px;padding:18px;display:flex;flex-direction:column;gap:10px;box-shadow:0 12px 30px rgba(0,0,0,.2)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tour .box{background:#1E1E1E;color:#F3F0EB}
 :root:not([data-theme="light"]) .tour .ring{box-shadow:0 0 0 4px #E3D4BF}}
@@ -521,8 +538,8 @@ a.item.ativ:active{opacity:.75}
 :root[data-theme="dark"] .tour .dots i{background:#4A4A4A}
 
 /* foto em tela cheia */
-.viewer{position:fixed;inset:0;z-index:90;background:#000;display:flex;flex-direction:column;animation:fade .2s ease both}
-.viewer.closing{animation:fadeOut .2s ease both}
+.viewer{position:fixed;inset:0;z-index:90;background:#000;display:flex;flex-direction:column;animation:fade var(--t-fast) ease both}
+.viewer.closing{animation:fadeOut var(--t-fast) ease both}
 .vtrack{flex:1;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
 .vtrack::-webkit-scrollbar{display:none}
 .viewer.zoomed .vtrack{overflow:hidden}
@@ -550,7 +567,7 @@ body.has-tabs .toast{bottom:calc(var(--bottom) + 104px)}
 .toast .tx span{font-weight:500}
 .toast.ok{background:var(--sage);color:var(--sage-ink);border:1px solid var(--sage-bd);box-shadow:0 10px 28px rgba(0,0,0,.14);padding-left:12px}
 .toast.ok .tk{width:28px;height:28px;border-radius:50%;background:var(--sage-dk);color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
-.toast.ok .tk svg path{stroke-dasharray:24;animation:draw .3s .12s ease-out both}
+.toast.ok .tk svg path{stroke-dasharray:24;animation:draw var(--t-med) .12s ease-out both}
 .toast.ok button{background:var(--card);color:var(--sage-ink);min-height:40px;padding:0 14px;border-radius:12px}
 .toast.ok i{background:var(--sage-dk);opacity:.35}
 .toast.top{top:calc(var(--top) + 14px);bottom:auto!important;animation-name:toastInTop}
@@ -562,7 +579,7 @@ body.has-tabs .toast{bottom:calc(var(--bottom) + 104px)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .toast button{color:#6E8F72}}
 :root[data-theme="dark"] .toast button{color:#6E8F72}
 .toast i{position:absolute;left:0;bottom:0;height:3px;background:var(--taupe);opacity:.7;animation:toastTime linear both}
-.toast.out{animation:toastOut .2s ease-in both}
+.toast.out{animation:toastOut var(--t-fast) var(--ease-in) both}
 @keyframes toastTime{from{width:100%}to{width:0}}
 @keyframes toastOut{to{opacity:0;transform:translateY(12px)}}
 @keyframes toastIn{from{opacity:0;transform:translateY(16px)}}
@@ -581,24 +598,24 @@ body.has-tabs .toast{bottom:calc(var(--bottom) + 104px)}
 .a-photo-wrap{position:relative;flex:none;display:flex}
 .a-photo{width:56px;height:56px;border-radius:16px;border:1.5px dashed var(--line);background:var(--card);color:var(--muted);display:flex;align-items:center;justify-content:center;overflow:hidden;padding:0}
 .a-photo.has{border:0}
-.a-photo img{width:100%;height:100%;object-fit:cover;animation:fade .2s ease both}
+.a-photo img{width:100%;height:100%;object-fit:cover;animation:fade var(--t-fast) ease both}
 .a-photo .spinner{width:22px;height:22px;border-width:2.5px}
 .a-photo-rm{position:absolute;top:-6px;right:-6px;width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--bg);display:flex;align-items:center;justify-content:center;border:2px solid var(--bg)}
 .a-photo-rm::before{content:"";position:absolute;inset:-10px}
 .etapas.sm button{min-height:42px;flex-direction:row;gap:3px;font-size:13px;font-weight:700}
 .etapas.sm button b{font-size:13px}
 .a-more{display:flex;align-items:center;justify-content:space-between;min-height:44px;padding:0 2px;font-size:14px;font-weight:700;color:var(--muted);text-align:left}
-.a-more svg{transition:transform .24s var(--ease)}
+.a-more svg{transition:transform var(--t-fast) var(--ease)}
 .a-more[aria-expanded="true"] svg{transform:rotate(90deg)}
 .a-more>span{display:flex;align-items:center;gap:8px;min-width:0}
 .a-more-val{font-size:13px;font-weight:600;color:var(--ink2);background:var(--chipbg);border:1px solid var(--line);padding:4px 10px;border-radius:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
-.a-more-box{display:flex;flex-direction:column;gap:12px;margin-top:-6px;animation:rise .28s var(--ease) both}
+.a-more-box{display:flex;flex-direction:column;gap:12px;margin-top:-6px;animation:rise var(--t-med) var(--ease) both}
 .a-more-box[hidden]{display:none}
-.just.flash b{animation:fade .3s ease both}
+.just.flash b{animation:fade var(--t-med) ease both}
 .sheet.compact .err:empty{display:none}
 html.theme-fade,html.theme-fade *{transition:background-color .3s ease,color .3s ease,border-color .3s ease!important}
 
-.tip.bye{animation:byeOut .2s ease-in both}.tour.bye{animation:fadeOut .2s ease both}
+.tip.bye{animation:byeOut var(--t-fast) ease-in both}.tour.bye{animation:fadeOut var(--t-fast) ease both}
 @keyframes byeOut{to{opacity:0;transform:scale(.97)}}
 
 .juntos-card{width:100%;display:flex;align-items:center;gap:12px;min-height:70px;padding:12px 14px;background:var(--mist);border-radius:22px;text-align:left}
@@ -625,7 +642,7 @@ html.theme-fade,html.theme-fade *{transition:background-color .3s ease,color .3s
 .prox.ok .prox-msg{color:var(--sage-ink);display:flex;gap:6px;align-items:flex-start}
 .prox.ok .prox-msg svg{flex:none;margin-top:2px}
 .prox .btn.sm{align-self:flex-start}
-.rep{background:var(--honey);color:var(--honey-ink);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px;animation:rise .3s var(--ease) both}
+.rep{background:var(--honey);color:var(--honey-ink);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px;animation:rise var(--t-med) var(--ease) both}
 .rep-t{display:flex;gap:8px;align-items:flex-start;font-size:14px;line-height:1.4}
 .rep-t svg{flex:none;margin-top:1px}
 .rep-t b{color:var(--ink)}
@@ -654,9 +671,9 @@ html.theme-fade,html.theme-fade *{transition:background-color .3s ease,color .3s
 
 /* presentes que ganharam (finanças) */
 .ganhos-h{width:100%;display:flex;align-items:center;gap:12px;padding:16px;min-height:72px}
-.ganhos-h .chev{color:var(--faint);transition:transform .26s var(--ease);display:flex}
+.ganhos-h .chev{color:var(--faint);transition:transform var(--t-fast) var(--ease);display:flex}
 .ganhos.is-open .ganhos-h .chev{transform:rotate(180deg)}
-.ganhos-b{border-top:1px solid var(--line3);padding:4px 16px 14px;display:flex;flex-direction:column;gap:4px;animation:rise .28s var(--ease) both}
+.ganhos-b{border-top:1px solid var(--line3);padding:4px 16px 14px;display:flex;flex-direction:column;gap:4px;animation:rise var(--t-med) var(--ease) both}
 .ganhos-g{display:flex;flex-direction:column;padding-top:10px}
 .ganhos-q{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--lav-ink);padding-bottom:2px}
 .ganhos-q span:last-child{letter-spacing:0;text-transform:none;font-weight:500;color:var(--muted2)}
@@ -666,37 +683,37 @@ html.theme-fade,html.theme-fade *{transition:background-color .3s ease,color .3s
 
 /* transições de tela */
 .enter-push{animation:push var(--t-screen) var(--ease) both}
-.enter-pop{animation:popIn 240ms var(--ease) both}
+.enter-pop{animation:popIn var(--t-med) var(--ease) both}
 .enter-fade{animation:fade var(--t-screen) ease both}
-.enter-tab{animation:fade 140ms ease-out both}
+.enter-tab{animation:fade var(--t-fast) ease-out both}
 @keyframes push{from{opacity:0;transform:translateX(24px)}}
 @keyframes popIn{from{transform:translateX(-14px)}}
-.stagger>*{animation:rise .36s var(--ease) both;animation-delay:calc(min(var(--i,8),8) * 30ms)}
+.stagger>*{animation:rise var(--t-med) var(--ease) both;animation-delay:calc(min(var(--i,8),8) * 30ms)}
 @keyframes rise{from{opacity:0;transform:translateY(8px)}}
 /* animações leves */
-.btn,.chip,.icon-btn,.fab,.tab,.seg button,.etapas button,.pickrow button,.opt,.choice,.stage,.room-card,.feat,.offer,.stores a,.istep,.mov,.add-inline,.sug button,.mini3 a,a.hero,a.search,.chk,.mrow>button,.sgroom .sh button,.gitem .btn{transition:transform var(--t-press) var(--ease),background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease,opacity .2s ease}
+.btn,.chip,.icon-btn,.fab,.tab,.seg button,.etapas button,.pickrow button,.opt,.choice,.stage,.room-card,.feat,.offer,.stores a,.istep,.mov,.add-inline,.sug button,.mini3 a,a.hero,a.search,.chk,.mrow>button,.sgroom .sh button,.gitem .btn,.mini-room,.atalho,.item.ativ,.prox-it,.anel-row{transition:transform var(--t-press) var(--ease),background-color var(--t-fast) ease,border-color var(--t-fast) ease,color var(--t-fast) ease,box-shadow var(--t-fast) ease,opacity var(--t-fast) ease}
 .btn:active,.chip:active,.icon-btn:active,.seg button:active,.etapas button:active,.pickrow button:active,.opt:active,.choice:active,.stores a:active,.sug button:active,.mini3 a:active,.a-photo:active,.a-more:active,.toast button:active,.item-main:active .chk span{transform:scale(.96)}
-.room-card:active,.feat:active,.offer:active,.stage:active,a.hero:active,a.search:active,.istep:active{transform:scale(.98)}
+.room-card:active,.mini-room:active,.anel-row:active,.feat:active,.offer:active,.stage:active,a.hero:active,a.search:active,.istep:active{transform:scale(.98)}
 .fab:active{transform:scale(.92) rotate(90deg)}
 .tab:active{transform:translateY(1px) scale(.94)}
 .chk:active span{transform:scale(.85)}
 .mrow>button:active .box{transform:scale(.85)}
-.mrow .box{transition:background .2s,border-color .2s,transform .2s var(--ease)}
+.mrow .box{transition:background var(--t-fast),border-color var(--t-fast),transform var(--t-fast) var(--ease)}
 .mov:active,.add-inline:active{opacity:.7}
-.item-main{transition:opacity .2s ease}.item-main:active{opacity:.75}
-.tab[aria-current="page"] svg{animation:tabPop .3s var(--ease)}
+.item-main{transition:opacity var(--t-fast) ease}.item-main:active{opacity:.75}
+.tab[aria-current="page"] svg{animation:tabPop var(--t-med) var(--ease)}
 @keyframes tabPop{40%{transform:translateY(-3px) scale(1.12)}}
 .icon-btn .dot::after{content:"";position:absolute;inset:-2px;border-radius:50%;background:var(--danger);animation:dotPulse 2.4s ease-out infinite}
 @keyframes dotPulse{0%{transform:scale(1);opacity:.45}60%,100%{transform:scale(2.2);opacity:0}}
-.item.pop .chk span{animation:pop .3s var(--ease)}
-.item.pop .chk svg path,.mrow.pop .box svg path{stroke-dasharray:24;animation:draw .3s .06s ease-out both}
+.item.pop .chk span{animation:pop var(--t-med) var(--ease)}
+.item.pop .chk svg path,.mrow.pop .box svg path{stroke-dasharray:24;animation:draw var(--t-med) .06s ease-out both}
 @keyframes draw{from{stroke-dashoffset:24}}
-.item.pop{animation:rowGlow .8s ease-out}
+.item.pop{animation:rowGlow var(--t-slow) ease-out}
 @keyframes rowGlow{0%{background:var(--sage)}100%{background:transparent}}
 .item.gift.pop{animation-name:rowGlowLav}
 @keyframes rowGlowLav{0%{background:var(--lav)}100%{background:transparent}}
-.mrow.pop .box{animation:pop .3s var(--ease)}
-.page.enter-fade>*,.page.enter-push>*,.guest.enter-fade>*{animation:rise .36s var(--ease) both}
+.mrow.pop .box{animation:pop var(--t-med) var(--ease)}
+.page.enter-fade>*,.page.enter-push>*,.guest.enter-fade>*{animation:rise var(--t-med) var(--ease) both}
 .page.enter-fade>*:nth-child(2),.page.enter-push>*:nth-child(2),.guest>*:nth-child(2){animation-delay:30ms}
 .page.enter-fade>*:nth-child(3),.page.enter-push>*:nth-child(3),.guest>*:nth-child(3){animation-delay:60ms}
 .page.enter-fade>*:nth-child(4),.page.enter-push>*:nth-child(4){animation-delay:90ms}
@@ -704,20 +721,25 @@ html.theme-fade,html.theme-fade *{transition:background-color .3s ease,color .3s
 .page.enter-fade>*:nth-child(6),.page.enter-push>*:nth-child(6){animation-delay:150ms}
 .page.enter-fade>*:nth-child(7),.page.enter-push>*:nth-child(7){animation-delay:180ms}
 .page.enter-fade>*:nth-child(n+8),.page.enter-push>*:nth-child(n+8){animation-delay:210ms}
-.feat .fic{transition:transform .3s var(--ease)}
+.feat .fic{transition:transform var(--t-med) var(--ease)}
 .feat:active .fic{transform:rotate(-8deg) scale(1.08)}
-.sheet-body>*{animation:rise .3s var(--ease) both;animation-delay:60ms}
-.tour .box{animation:rise .32s var(--ease) both}
+.sheet-body>*{animation:rise var(--t-med) var(--ease) both;animation-delay:60ms}
+.tour .box{animation:rise var(--t-med) var(--ease) both}
 .tour .ring{animation:ringPulse 1.8s ease-in-out infinite}
 @keyframes ringPulse{0%,100%{box-shadow:0 0 0 4px #F6F2EC}50%{box-shadow:0 0 0 7px rgba(246,242,236,.75)}}
-.empty b{animation:rise .36s var(--ease) both}
-.switch i{transition:transform .25s var(--ease)}
+.empty b{animation:rise var(--t-med) var(--ease) both}
+.switch i{transition:transform var(--t-fast) var(--ease)}
 .big,.mid{font-variant-numeric:tabular-nums}
 
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0ms!important;transition-duration:.01ms!important}
   html.theme-fade,html.theme-fade *{transition:none!important}
 }
+
+.atalho:active,.item.ativ:active{background:var(--soft)}
+.troca{animation:fade var(--t-fast) ease-out both}
+@property --p{syntax:"<number>";inherits:false;initial-value:0}
+.anel{transition:--p var(--t-slow) var(--ease)}
 </style>
 </head>
 <body>
@@ -747,7 +769,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.20-1";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.20-2";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -1690,12 +1712,6 @@ function viewAtividade() {
     <p class="small muted center" style="margin:0">A gente guarda as ${ATIV_MAX} últimas.</p>
   </main>`;
 }
-function eventos() {
-  const ev = [];
-  (S.settings.chegadas || []).forEach(c => { if (c.email !== S.user?.email) ev.push({ em: c.em, kind: "chegou", t: `${c.nome || c.email} chegou no ${S.settings.nomeCasa || "Cozily"}!`, sub: quando(c.em), av: initials(c.nome || c.email) }); });
-  S.reservas.forEach(r => { const it = S.items.get(r.id); if (it) ev.push({ em: r.em, kind: "presente", t: `Presente reservado: ${it.nome}`, sub: `${r.nome} vai comprar · lista do chá · ` + quando(r.em) }); });
-  return ev.sort((a, b) => b.em - a.em).slice(0, 12);
-}
 function quando(ms) {
   if (!ms) return "";
   const d = Math.floor((Date.now() - ms) / 864e5);
@@ -1704,7 +1720,7 @@ function quando(ms) {
 function avisosNovos() {
   const seen = ls.get(`cozily-avisos-${S.user?.uid}`, 0);
   if (garantias().some(g => g.dias >= 0 && g.dias <= 30 && !ls.get(`cozily-gar-${S.user?.uid}-${g.it.id}-${g.dias <= 7 ? 7 : 30}`))) return true;
-  return eventos().some(e => e.em > seen);
+  return feedAtividade().some(e => e.av !== "eu" && e.em > seen);
 }
 
 /* ===================================================================
@@ -1721,6 +1737,7 @@ function parseRoute() {
   if (a === "mercado") return { name: "mercado", depth: 0, tab: "mercado", key: "mercado" };
   if (a === "financas" || a === "gastos") return { name: "financas", depth: 0, tab: "financas", key: "financas" };
   if (a === "busca") return { name: "busca", depth: 1, key: "busca" };
+  if (a === "comodos") return { name: "comodos", depth: 1, key: "comodos" };
   if (a === "avisos") return { name: "avisos", depth: 1, key: "avisos" };
   if (a === "atividade") return { name: "atividade", depth: 1, key: "atividade" };
   if (a === "achadinhos") return { name: "achadinhos", depth: 1, key: "achadinhos" };
@@ -1753,6 +1770,7 @@ function render(mode) {
       : r.name === "mgastos" ? viewMercadoGastos()
       : r.name === "financas" ? viewFinancas()
       : r.name === "busca" ? viewBusca()
+      : r.name === "comodos" ? viewComodos()
       : r.name === "avisos" ? viewAvisos()
       : r.name === "atividade" ? viewAtividade()
       : r.name === "achadinhos" ? viewAchadinhos()
@@ -1781,10 +1799,11 @@ function finish(app, mode, r, animate) {
   const fill = () => {
     $$("[data-w]").forEach(el => el.style.width = el.dataset.w + "%");
     $$("[data-h]").forEach(el => el.style.height = el.dataset.h + "px");
+    $$("[data-p]").forEach(el => el.style.setProperty("--p", el.dataset.p));
   };
   if (animate) { requestAnimationFrame(() => requestAnimationFrame(fill)); $$("[data-count]").forEach(countUp); }
   else {
-    const els = $$("[data-w],[data-h]");
+    const els = $$("[data-w],[data-h],[data-p]");
     $$(".stagger").forEach(el => el.classList.remove("stagger"));
     els.forEach(el => el.style.transition = "none");
     fill();
@@ -1825,6 +1844,8 @@ function refresh() {
   });
 }
 function rerender() { const y = window.scrollY; render(null); window.scrollTo(0, y); }
+/* troca de filtro/aba dentro da tela: só as listas fazem um fade curto */
+function trocaSuave() { rerender(); $$("#app .items, #app .grid2, #mList, #presList").forEach(el => el.classList.add("troca")); }
 
 function setTabs(active) {
   const bar = $("#tabbar");
@@ -1910,54 +1931,62 @@ function proximaHtml() {
 }
 function viewHome() {
   const items = all();
-  const d = done(items), t = items.length, p = pct(d, t);
+  const d = done(items), t = items.length;
+  const e1 = items.filter(i => i.etapa === 1), d1 = done(e1), p1 = pct(d1, e1.length);
   const nomes = nomesCasa();
   const titulo = S.settings.nomeCasa || (S.casaId === "nosso-ap" ? CASA_PADRAO : "Nossa casa");
   const h = new Date().getHours();
   const saud = h >= 5 && h < 12 ? "Bom dia" : h >= 12 && h < 18 ? "Boa tarde" : "Boa noite";
-  const cx = caixa();
-  const st = [1, 2, 3].map(n => ({ n, f: items.filter(i => i.etapa === n && !isDone(i)).length })).find(x => x.f) || { n: 1, f: 0 };
-  const best = melhorOferta();
-  const li = listaInfo();
+  const cx = caixa(), li = listaInfo(), best = melhorOferta();
+  const gm = gastoMes(thisMonth()), orc = S.settings.orcMercado || 0, md = mercadoMes(thisMonth());
+  const sobrou = md ? (md.itens || []).filter(i => i.sobrou && !i.ok).length : 0;
+  /* cômodos: os mais atrasados primeiro (os vazios no fim) */
+  const rooms = ROOMS.map(r => { const l = inRoom(r.id); return { r, n: l.length, dd: done(l), p: pct(done(l), l.length) }; })
+    .sort((a, b) => (!a.n - !b.n) || (a.p - b.p));
+  const sem1 = !e1.length;
+  const atalho = (href, cor, icon, nome, sub) => `<a class="atalho" href="${href}"><span class="tile" style="background:var(--${cor});color:var(--${cor}-ink)">${ic(icon, 19, 2)}</span><span class="item-txt grow"><span class="item-name">${nome}</span><span class="meta">${sub}</span></span>${ic("chev", 16, 2)}</a>`;
   return `<main class="page">
     <div class="topbar" style="align-items:flex-start">
       <div class="hello"><small>${saud}${nomes ? ", " + esc(nomes) : ""}</small><h1>${esc(titulo)}</h1></div>
       <div class="row">
+        <a class="icon-btn" href="#/busca" aria-label="Buscar em todos os cômodos">${ic("search", 19, 2.1)}</a>
         <a class="icon-btn" href="#/avisos" aria-label="Avisos${avisosNovos() ? ", tem novidade" : ""}">${ic("bell", 20, 1.9)}${avisosNovos() ? `<span class="dot"></span>` : ""}</a>
         <button class="icon-btn" data-act="settings" aria-label="Ajustes">${ic("gear", 20, 1.9)}</button>
       </div>
     </div>
     ${DEMO ? `<span class="demo">Prévia · os dados ficam só neste aparelho</span>` : ""}
-    <a class="search" href="#/busca" style="margin-top:-4px">${ic("search", 19, 2.2)}<span>Buscar em todos os cômodos</span></a>
     <section class="hero" aria-label="Progresso da casa">
       <span class="chip-glass">${ic("key", 14, 2)}${esc(chavesTxt())}</span>
-      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px">
-        <div style="display:flex;flex-direction:column;gap:2px"><span class="big" data-count="${p}" data-suf="%">${p}%</span><span class="mut" style="font-size:14px">da casa já montada</span></div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><b style="font-size:18px">${d} de ${t}</b><span class="mut" style="font-size:13px">itens</span></div>
-      </div>
-      <div class="hbar"><i data-w="${p}"></i></div>
-      <div class="mini3">
-        <a href="#/financas"><span>Guardado</span><b>${money0(cx.guardado)}</b></a>
-        <a href="#/financas"><span>Gasto</span><b>${money0(cx.gasto)}</b></a>
-        <a href="#/ordem" data-act="stage-go" data-v="${st.n}"><span>Etapa ${st.n}</span><b>${st.f ? plural(st.f, "falta", "faltam") : "completa!"}</b></a>
-      </div>
+      <a class="anel-row" href="#/ordem" data-act="stage-go" data-v="1">
+        <span class="anel" data-p="${sem1 ? pct(d, t) : p1}" aria-hidden="true"><b data-count="${sem1 ? pct(d, t) : p1}" data-suf="%">${sem1 ? pct(d, t) : p1}%</b></span>
+        <span class="anel-tx"><b>${sem1 ? "Da casa já montada" : "Pronto pra morar"}</b>
+          <span>${sem1 ? `${d} de ${plural(t, "item", "itens")}` : e1.length - d1 ? `Etapa 1: ${d1} de ${e1.length} itens. ${plural(e1.length - d1, "falta", "faltam")} pra poder mudar.` : "Etapa 1 completa! Já dá pra morar."}</span>
+          ${sem1 ? "" : `<small>A casa toda: ${pct(d, t)}% · ${d} de ${t} itens</small>`}</span>
+      </a>
     </section>
     ${proximaHtml()}
-    <div class="grid2">
-      <a class="feat sage" href="#/achadinhos">
-        <span class="ftop"><span class="fic">${ic("tag", 18, 2)}</span>${best ? `<span class="badge">-${best.off}% hoje</span>` : ""}</span>
-        <span><b class="t">Achadinhos</b><span class="d">${best ? `${esc(best.o.para || best.o.nome)} de ${money0(best.o.precoAntes)} por ${money0(best.o.preco)}${S.ofertas.length > 1 ? ` e mais ${S.ofertas.length - 1} ofertas da semana` : ""}` : "Ofertas boas e conferidas pro que ainda falta na casa"}</span></span>
-        <span class="go">Ver ofertas${ic("chev", 14, 2.4)}</span>
-      </a>
-      <a class="feat lav" href="#/presentes">
-        <span class="ftop"><span class="fic">${ic("gift", 18, 2)}</span>${li && li.L.data ? `<span class="badge">${fmtDay(li.L.data)}</span>` : ""}</span>
-        <span><b class="t">Lista de presentes</b><span class="d">${li ? (li.ids.length ? `${li.donos} de ${plural(li.ids.length, "presente já tem dono", "presentes já têm dono")}` : "Escolham os itens que querem ganhar") : "Pro chá ou casamento, sem ninguém dar repetido"}</span></span>
-        ${li && li.ids.length ? `<span class="fbar"><i data-w="${pct(li.donos, li.ids.length)}"></i></span>` : ""}
-        <span class="go">${li ? "Mandar para os convidados" : "Monte a lista do chá"}${ic("chev", 14, 2.4)}</span>
-      </a>
+    <div class="sec-h"><h2>Cômodos</h2><a class="lnk" href="#/comodos" style="min-height:32px;display:flex;align-items:center;gap:2px">Ver todos (${ROOMS.length})${ic("chev", 14, 2.4)}</a></div>
+    <div class="carrossel stagger" role="list">
+      ${rooms.map(({ r, n, dd, p }, i) => `<a class="mini-room" role="listitem" href="#/c/${encodeURIComponent(r.id)}" style="--i:${i}">${tile(r)}<span class="nm">${esc(r.nome)}</span><span class="bar"><i data-w="${p}"></i></span><span class="ct">${n ? `${dd} de ${n}` : "Vazio"}</span></a>`).join("")}
+      <a class="mini-room todos" role="listitem" href="#/comodos">${ic("home", 22, 1.9)}<span class="nm">Ver todos</span></a>
     </div>
     ${atividadeHomeHtml()}
-    <div class="sec-h"><h2>Cômodos</h2><button class="lnk" data-act="rooms" style="min-height:32px">Editar</button></div>
+    <div class="sec-h"><h2>Atalhos</h2></div>
+    <div class="items">
+      ${atalho("#/financas", "sage", "wallet", "Finanças", `${money0(cx.disp)} na caixinha`)}
+      ${atalho("#/mercado", "honey", "cart", "Mercado do mês", orc ? `${money0(gm)} de ${money0(orc)}` + (sobrou ? ` · ${plural(sobrou, "item ficou", "itens ficaram")} do mês passado` : "") : gm ? `${money0(gm)} gastos este mês` : "Lista de compras e gasto com comida")}
+      ${atalho("#/presentes", "lav", "gift", "Lista de presentes", li ? (li.ids.length ? `${li.donos} de ${li.ids.length} com dono` : "Escolham o que querem ganhar") + (li.L.data ? ` · ${fmtDay(li.L.data)}` : "") : "Pro chá ou casamento, sem presente repetido")}
+      ${S.ofertas.length ? atalho("#/achadinhos", "mist", "tag", "Achadinhos", best ? `${esc(best.o.para || best.o.nome)} -${best.off}%${S.ofertas.length > 1 ? ` · mais ${S.ofertas.length - 1} ofertas` : ""}` : plural(S.ofertas.length, "oferta", "ofertas")) : ""}
+    </div>
+  </main>`;
+}
+/* ---------------- TODOS OS CÔMODOS ---------------- */
+function viewComodos() {
+  const items = all(), d = done(items);
+  return `<main class="page no-tabs">
+    <div class="topbar">${backBtn()}<button class="btn ghost sm" data-act="rooms">${ic("edit", 16, 2.2)} Editar cômodos</button></div>
+    <div class="hello"><small>${d} de ${plural(items.length, "item", "itens")}</small><h1>Cômodos</h1></div>
+    <a class="search" href="#/busca">${ic("search", 19, 2.2)}<span>Buscar em todos os cômodos</span></a>
     <div class="grid2 stagger">
       ${ROOMS.map((r, i) => { const l = inRoom(r.id), dd = done(l); return `<a class="room-card" href="#/c/${encodeURIComponent(r.id)}" style="--i:${i}">
         <div class="top">${tile(r)}<span class="pc">${pct(dd, l.length)}%</span></div>
@@ -2302,7 +2331,7 @@ function viewBusca() {
 /* ---------------- AVISOS ---------------- */
 function viewAvisos() {
   const gs = garantias().filter(g => g.dias >= -30);
-  const ev = eventos();
+  const feed = feedAtividade();
   const perm = typeof Notification !== "undefined" ? Notification.permission : "unsupported";
   const quer = perm === "granted" && ls.get(`cozily-push-${S.user?.uid}`);
   setTimeout(() => { ls.set(`cozily-avisos-${S.user?.uid}`, Date.now()); gs.filter(g => g.dias >= 0 && g.dias <= 30).forEach(g => ls.set(`cozily-gar-${S.user?.uid}-${g.it.id}-${g.dias <= 7 ? 7 : 30}`, 1)); }, 400);
@@ -2322,9 +2351,9 @@ function viewAvisos() {
     }).join("")}</div>
     <p class="small muted" style="margin:-4px 4px 0">A gente te avisa 30 e 7 dias antes de acabar, pra dar tempo de testar tudo com calma.</p>`
     : `<div class="card"><span class="small muted">Quando marcarem algo como comprado, coloquem até quando vai a garantia. Aí a gente lembra vocês antes de acabar.</span></div>`}
-    <div class="grp-h"><h3>Outros</h3></div>
-    ${ev.length ? `<div class="items">${ev.map(e => `<div class="item"><span class="av ${e.kind === "presente" ? "lav" : ""}">${e.kind === "presente" ? ic("gift", 18, 2) : esc(e.av)}</span><span class="item-txt grow"><span class="item-name">${esc(e.t)}</span><span class="meta">${esc(e.sub)}</span></span></div>`).join("")}</div>`
-      : `<div class="card"><span class="small muted">Por aqui aparecem as novidades: quem entrou na casa, presentes reservados na lista do chá e mais.</span></div>`}
+    <div class="grp-h"><h3>Atividade da casa</h3>${feed.length > 8 ? `<a href="#/atividade" style="font-size:12px;font-weight:700;color:var(--muted)">Ver tudo</a>` : ""}</div>
+    ${feed.length ? `<div class="items">${feed.slice(0, 8).map(ativRowHtml).join("")}</div>`
+      : `<div class="card"><span class="small muted">Por aqui aparecem as novidades: quem entrou na casa, o que cada um anotou ou comprou e os presentes reservados na lista.</span></div>`}
   </main>`;
 }
 
@@ -4096,9 +4125,9 @@ document.addEventListener("click", e => {
   else if (a === "restore") restoreItem(id);
   else if (a === "settings") openSettings();
   else if (a === "rooms") openRoomsEditor();
-  else if (a === "filter") { S.roomFilter[el.dataset.room] = el.dataset.v; rerender(); }
-  else if (a === "topic") { S.roomTopic[el.dataset.room] = el.dataset.v; rerender(); }
-  else if (a === "stage") { S.stage = +el.dataset.v; rerender(); }
+  else if (a === "filter") { S.roomFilter[el.dataset.room] = el.dataset.v; trocaSuave(); }
+  else if (a === "topic") { S.roomTopic[el.dataset.room] = el.dataset.v; trocaSuave(); }
+  else if (a === "stage") { S.stage = +el.dataset.v; trocaSuave(); }
   else if (a === "stage-go") S.stage = +el.dataset.v;
   else if (a === "qfilter") { S.qFilter = el.dataset.v; $$("[data-act=qfilter]").forEach(b => b.setAttribute("aria-pressed", b === el)); $("#qres").innerHTML = buscaHtml(); }
   else if (a === "tip-x") { const g = guia(); if (g) guiaSet({ x: [...new Set([...(g.x || []), el.dataset.v])] }); const t = el.closest(".tip"); if (t) { t.classList.add("bye"); setTimeout(() => t.remove(), 220); } }
@@ -4111,7 +4140,7 @@ document.addEventListener("click", e => {
   else if (a === "lancar") openLancar(null, +el.dataset.v || 0);
   else if (a === "m-addq") { const ym = el.dataset.ym, d = S.mercado.get(ym); if (d) { addMercado(ym, S.mQ || ""); S.mQ = ""; rerender(); } }
   else if (a === "compra-edit") { const c = S.compras.find(x => x.id === id); if (c) openLancar(c); }
-  else if (a === "m-filter") { S.mFilter = el.dataset.v; rerender(); }
+  else if (a === "m-filter") { S.mFilter = el.dataset.v; trocaSuave(); }
   else if (a === "m-month") openMesMercado();
   else if (a === "m-new") { const ym = el.dataset.v; if (S.mercado.has(ym)) S.mMonth = ym; else novaListaMercado(ym); rerender(); window.scrollTo(0, 0); }
   else if (a === "m-toggle") { const ym = el.dataset.ym, d = S.mercado.get(ym); if (!d) return; const was = d.itens.find(i => i.id === id)?.ok; S.mPop = was ? null : id; saveMercado(ym, d.itens.map(i => i.id === id ? { ...i, ok: !i.ok } : i)); rerender(); setTimeout(() => { S.mPop = null; }, 600); }
@@ -4129,7 +4158,7 @@ document.addEventListener("click", e => {
   else if (a === "verify-send") { S.store.sendVerify().then(() => toast("Mandamos o link de novo. Confere também o spam.", null, null, 3400, { ok: true, title: "Enviado!" })).catch(err => toast(err?.code?.includes("too-many") ? "Muitos envios seguidos. Espera um pouquinho." : "Não deu pra reenviar agora.")); }
   else if (a === "verify-out") S.store.logout();
   else if (a === "ganhos") { S.ganhosOpen = !S.ganhosOpen; rerender(); }
-  else if (a === "pres-filter") { S.presFilter = el.dataset.v; S.presRoom = "*"; S.presQ = ""; rerender(); }
+  else if (a === "pres-filter") { S.presFilter = el.dataset.v; S.presRoom = "*"; S.presQ = ""; trocaSuave(); }
   else if (a === "pres-room") { S.presRoom = el.dataset.v; S.presQ = ""; S.presTopic = "*"; rerender(); window.scrollTo(0, Math.min(window.scrollY, ($("#presAnchor")?.offsetTop || 0))); }
   else if (a === "pres-topic") { S.presTopic = el.dataset.v; const box = $("#presList"); if (box) box.innerHTML = presListHtml(); $$('[data-act="pres-topic"]').forEach(b => b.setAttribute("aria-pressed", String(b === el))); }
   else if (a === "g-pick") guestPick(id);
