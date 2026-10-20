@@ -47,6 +47,7 @@ async def main():
       await logout(); await pg.goto(B+'?c='+code); await pg.wait_for_timeout(1200)
       await pg.fill('#lEmail',f'ana-{sch}@t.com'); await pg.fill('#lSenha','123456'); await pg.fill('#lSenha2','123456'); await pg.click('#lBtn'); await pg.wait_for_timeout(1800)
       ok('Você entrou no' in await pg.inner_text('#app'),'ana joined')
+      d=await db(); ok('Ana' in d['casas']['nosso-ap']['settings'].get('nomes',''),'Ana entrou na saudação')
       # caio removes ana
       await logout(); await login('caio@exemplo.com'); await ajustes(); await pg.click('[data-go=juntos]'); await pg.wait_for_timeout(700)
       await pg.click(f'[data-rm="ana-{sch}@t.com"]'); await pg.wait_for_timeout(300)
@@ -54,6 +55,7 @@ async def main():
       await pg.click(f'[data-rmsim="ana-{sch}@t.com"]'); await pg.wait_for_timeout(500)
       d=await db(); st=d['casas']['nosso-ap']['settings']
       ok(f'ana-{sch}@t.com' not in st['membros'] and f'ana-{sch}@t.com' not in d['convites'],'ana removed')
+      ok(st.get('nomes')=='Caio e Mirielly','saudação sem a Ana: '+str(st.get('nomes')))
       ok(not await pg.query_selector('[data-rm="mirielly@exemplo.com"]'),'pending invite has no Tirar (uses Cancelar)')
       ok(not await pg.query_selector('[data-rm="caio@exemplo.com"]'),'cannot remove self')
       await closesheet()

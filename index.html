@@ -747,7 +747,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.19-4";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.20-1";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -3106,6 +3106,16 @@ function guestPick(id) {
 
 /* ---------------- QUEM MORA JUNTO ---------------- */
 const pessoas = () => S.settings.pessoas || {};
+/* tira o nome de quem saiu da saudação ("Caio, Ana e Mirielly" -> "Caio e Mirielly") */
+const juntaNomes = l => l.length > 1 ? l.slice(0, -1).join(", ") + " e " + l[l.length - 1] : (l[0] || "");
+function nomesSem(email) {
+  const atual = nomesCasa(); if (!atual) return null;
+  const st = S.settings, cand = [(pessoas()[email] || {}).nome, ...(st.chegadas || []).filter(c => c.email === email).map(c => c.nome), email.split("@")[0]]
+    .filter(Boolean).flatMap(n => [norm(n).trim(), norm(n).trim().split(/\s+/)[0]]);
+  const partes = atual.split(/\s*(?:,|&|\s+e\s+)\s*/i).map(x => x.trim()).filter(Boolean);
+  const ficam = partes.filter(x => !cand.includes(norm(x).trim()) && !cand.includes(norm(x).trim().split(/\s+/)[0]));
+  return ficam.length && ficam.length < partes.length ? juntaNomes(ficam) : null;
+}
 function salvarPessoa(email, o) {
   const ps = { ...pessoas(), [email]: { ...(pessoas()[email] || {}), ...o } };
   S.settings = { ...S.settings, pessoas: ps }; write(S.store.putSettings({ pessoas: ps }));
@@ -3261,7 +3271,8 @@ function wireJuntos(root) {
       const email = rms.dataset.rmsim, nome = ((pessoas()[email] || {}).nome || email.split("@")[0]).split(" ")[0];
       const st = S.settings, ps = { ...pessoas() }; delete ps[email];
       const patch = { membros: (st.membros || []).filter(x => x !== email), membrosOk: (st.membrosOk || []).filter(x => x !== email), pessoas: ps };
-      S.settings = { ...st, ...patch }; S.removendo = null;
+      const ns = nomesSem(email); if (ns) patch.nomes = ns;
+      S.settings = { ...st, ...patch }; S.removendo = null; S.dirty = true;
       write(S.store.uninvite(email)); write(S.store.putSettings(patch));
       $("#jList", root).innerHTML = membrosHtml(); toast(`${nome} saiu da casa`);
       return;
@@ -4445,7 +4456,8 @@ async function excluirConta(senha, apagaCasa) {
     await S.store.apagarCasa(casa);
   } else {
     const ps = { ...(st.pessoas || {}) }; delete ps[email];
-    await S.store.putSettings({ membros: (st.membros || []).filter(x => x !== email), membrosOk: (st.membrosOk || []).filter(x => x !== email), pessoas: ps });
+    const ns = nomesSem(email);
+    await S.store.putSettings({ membros: (st.membros || []).filter(x => x !== email), membrosOk: (st.membrosOk || []).filter(x => x !== email), pessoas: ps, ...(ns ? { nomes: ns } : {}) });
   }
   await S.store.uninvite(email);
   ["cozily-codigo"].forEach(k => lsSet(k, null));
