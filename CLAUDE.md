@@ -46,7 +46,7 @@ Versão **2026.10.19-4 liberada no app** (`main`) em 19/10/2026, com o OK do Cai
 - Testes novos: `.dev/tests/tnovas.py` (entrou no `test_all.sh`); prints em `.dev/tests/tprints.py`. A prévia tem histórico de mercado e atividade de exemplo (`demoSamples`).
 - Depois de liberar: lembrar o Caio de criar um **convite novo pelo WhatsApp para a Mirielly** (ela abre o link, entra com a conta dela e confirma "Entrar na casa").
 
-## Liberado no app em 20/10/2026: versão 2026.10.20-14 (`dev` e `main` iguais)
+## Liberado no app em 20/10/2026: versão 2026.10.20-15 (`dev` e `main` iguais)
 - Saudação: quem sai da casa (ou exclui a conta) sai também de `nomes` (`nomesSem`).
 - Início novo: anel "Pronto pra morar" (Etapa 1), Próxima compra (com etiqueta de oferta e link "Ver a ordem de compra"), fileira de cômodos (mais atrasados primeiro) com "Ver todos" → `#/comodos` (quadradinhos), cartões Achadinhos + Lista de presentes, Atividade, atalhos Finanças e Mercado. Busca virou ícone no topo.
 - Barra de baixo: "Ordem" saiu; entrou **Ofertas** (foguinho) → `#/achadinhos`. Ordem agora é tela aberta pela Próxima compra.
@@ -57,6 +57,7 @@ Versão **2026.10.19-4 liberada no app** (`main`) em 19/10/2026, com o OK do Cai
 - Mercado em cards por seção (`S.mSec`, `M_CAT_IC`), barra "Ver a lista toda", busca em tudo; Editar junto dos filtros; textos curtos.
 - Cards de Achadinhos/Presentes mais baixos; link da lista mostrado como "cozily/<slug>" (copiar manda o endereço completo).
 - Próxima compra: um botão só ("Ver a ordem de compra"); sem valor previsto mostra "É o mais importante que falta pra morar".
+- Cômodos no Início: mais itens comprados primeiro; empate pela importância (cozinha, quarto, banheiro…).
 - Testes novos: `.dev/tests/tinicio.py`. Bateria inteira passou.
 
 ## PRÓXIMA TAREFA
