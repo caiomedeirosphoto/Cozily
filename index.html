@@ -673,6 +673,9 @@ html.theme-fade,html.theme-fade *{transition:background-color .3s ease,color .3s
 .mname .mr{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex:none}
 .mname .pr{font-size:12px;font-weight:700;color:var(--ink2)}
 .mrow.on .mname .pr{color:var(--muted2)}
+.m-bar{display:flex;align-items:center;gap:8px}.m-bar .chips{flex:1;min-width:0;margin-right:0;padding-right:0}.m-bar>.chip{flex:none}
+#mTot:empty{display:none!important}
+@media (max-width:360px){.m-bar>.chip .m-ed{display:none}.m-bar>.chip{width:38px;padding:0;justify-content:center}}
 .m-tot{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .prox{background:var(--card);border:1px solid var(--line2);border-radius:22px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
 .prox-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -812,7 +815,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.20-8";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.20-9";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -1663,7 +1666,6 @@ function mercadoListaHtml() {
   const groups = [...(sobrou.length ? [{ c: tituloSobrou, l: sobrou, sobra: true }] : []), ...MERCADO_CATS.map(c => ({ c, l: resto.filter(i => (i.cat || "Outros") === c) })).filter(g => g.l.length)];
   const html = groups.map(g => { const v = g.l.filter(passa); return v.length ? `<section style="display:flex;flex-direction:column;gap:8px"${g.sobra ? ` class="m-sobra" aria-label="${esc(g.c)}"` : ""}>
       <div class="grp-h"><h3>${g.sobra ? ic("voltar", 13, 2.4) + " " : ""}${esc(g.c)}</h3><span>${g.l.filter(i => i.ok).length} de ${g.l.length}</span></div>
-      ${g.sobra ? `<span class="small muted" style="margin:-4px 4px 0;line-height:1.4">Não deu pra comprar em ${monthName(de || monthAdd(ym, -1))}. Já está aqui pra não esquecer.</span>` : ""}
       <div class="items">${v.map(i => mercadoRowHtml(i, ym)).join("")}</div>
     </section>` : ""; }).join("");
   if (html) return html;
@@ -1672,9 +1674,9 @@ function mercadoListaHtml() {
 }
 function mercadoTotaisHtml(itens) {
   const com = itens.filter(i => i.preco);
-  if (!com.length) return `<span class="small muted">Toque num item pra pôr o preço. A gente soma tudo pra você.</span>`;
+  if (!com.length) return "";
   const est = sum(itens, totalItemMercado), car = sum(itens.filter(i => i.ok), totalItemMercado), sem = itens.length - com.length;
-  return `<div class="m-tot"><span><small>Estimativa da lista</small><b>${money(est)}</b></span><span><small>No carrinho</small><b>${money(car)}</b></span></div>${sem ? `<span class="small muted">${plural(sem, "item ainda sem preço", "itens ainda sem preço")}</span>` : ""}`;
+  return `<div class="m-tot"><span><small>Estimativa da lista</small><b>${money(est)}</b></span><span><small>No carrinho</small><b>${money(car)}</b></span></div>${sem ? `<span class="small muted">${sem} sem preço</span>` : ""}`;
 }
 function comprasMes(ym) { return S.compras.filter(c => (c.data || "").startsWith(ym)); }
 const gastoMes = ym => sum(comprasMes(ym), c => c.valor);
@@ -2342,11 +2344,10 @@ function viewMercado() {
       ${orc ? `<div class="hbar"><i data-w="${Math.min(100, pct(gm, orc))}"></i></div>${pill}` : ""}
     </a>
     ${doc ? `<div class="sec-h"><span style="font-size:14px;font-weight:700;color:var(--ink)">Lista de ${monthName(ym)}</span><span>${okN} de ${itens.length} no carrinho</span></div>
-    <div class="row" style="justify-content:space-between;gap:10px"><span class="small muted" style="line-height:1.4">${S.mEdit ? "Toque no − pra tirar. Escreva pra colocar: a gente separa por seção e reconhece a marca." : "Bolinha marca no carrinho. Toque no nome pra mudar a quantidade."}</span><button class="btn ${S.mEdit ? "primary" : "ghost"} sm" style="flex:none;min-height:40px" data-act="m-edit">${ic(S.mEdit ? "check" : "edit", 16, 2.2)} ${S.mEdit ? "Pronto" : "Editar lista"}</button></div>
-    ${S.mEdit ? `<form class="addbar" id="mAdd" data-ym="${ym}"><label for="mNovo" class="sr">Colocar item</label><input id="mNovo" placeholder="Ex.: Rexona, 2 Coca-Cola, 1 kg de café" autocomplete="off" enterkeyhint="done"><button type="submit" aria-label="Colocar">${ic("plus", 22, 2.4)}</button></form>` : ""}
     <div id="mTot" style="display:flex;flex-direction:column;gap:6px">${mercadoTotaisHtml(itens)}</div>
     <label class="search">${ic("search", 19, 2.2)}<span class="sr">Procurar na lista do mercado</span><input id="mQ" type="search" placeholder="Procurar na lista" value="${esc(S.mQ || "")}" autocomplete="off" enterkeyhint="search"></label>
-    <div class="chips" role="group" aria-label="Mostrar">${[["all", "Tudo"], ["falta", "Faltam"], ["ok", "No carrinho"]].map(([k, l]) => `<button class="chip" data-act="m-filter" data-v="${k}" aria-pressed="${f === k}">${l}</button>`).join("")}</div>
+    <div class="m-bar"><div class="chips" role="group" aria-label="Mostrar">${[["all", "Tudo"], ["falta", "Faltam"], ["ok", "Carrinho"]].map(([k, l]) => `<button class="chip" data-act="m-filter" data-v="${k}" aria-pressed="${f === k}">${l}</button>`).join("")}</div><button class="chip ${S.mEdit ? "on" : ""}" data-act="m-edit" aria-pressed="${!!S.mEdit}" aria-label="${S.mEdit ? "Pronto" : "Editar lista"}">${ic(S.mEdit ? "check" : "edit", 15, 2.2)}<span class="m-ed">${S.mEdit ? "Pronto" : "Editar"}</span></button></div>
+    ${S.mEdit ? `<form class="addbar" id="mAdd" data-ym="${ym}"><label for="mNovo" class="sr">Colocar item</label><input id="mNovo" placeholder="Colocar item (ex.: 2 Coca-Cola)" autocomplete="off" enterkeyhint="done"><button type="submit" aria-label="Colocar">${ic("plus", 22, 2.4)}</button></form>` : ""}
     <div id="mList" style="display:flex;flex-direction:column;gap:14px">${mercadoListaHtml()}</div>
     <div class="btns2"><button class="btn ghost" data-act="m-new" data-v="${nextYm}" style="font-size:14px">${S.mercado.has(nextYm) ? "Ver " + monthName(nextYm) : "Começar " + monthName(nextYm)}</button><button class="btn primary" data-act="lancar" data-v="${sum(itens.filter(i => i.ok), totalItemMercado) || ""}" style="font-size:14px">Lançar compra</button></div>`
     : `<div class="card center" style="align-items:center;gap:10px;padding:22px 18px"><b>Lista de ${monthName(ym)}</b><span class="small muted">A gente monta uma lista com o básico de mercado, limpeza e higiene. Depois é só tirar e colocar o que quiser.</span><button class="btn primary" data-act="m-new" data-v="${ym}">Montar a lista do mês</button></div>`}
