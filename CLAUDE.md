@@ -42,7 +42,7 @@ Versão **2026.10.19-4 liberada no app** (`main`) em 19/10/2026, com o OK do Cai
 2. **Item repetido**: no "Anotar", se já existe item com o mesmo nome normalizado (`chaveNome`: sem acento e sem plural), aparece "Já tem Toalhas de banho no Banheiro" com "Abrir o que já tem" / "Anotar mesmo assim".
 3. **Início — "Próxima compra"** (`proximaCompra`/`proximaHtml`): item da Etapa 1 com valor previsto, comparado com o disponível da caixinha ("Dá pra comprar…" com botão "Já compramos", ou "Faltam R$ X").
 4. **Atividade da casa**: `registrar()` grava em `casas/{id}/atividade` (acao, quem, email, em, alvo, itemId, valor, extra; guarda as 100 últimas) ao anotar, marcar comprado/presente e lançar compra do mercado. Reservas de convidados e quem entrou na casa entram no feed sem gravar. Aparece no Início (3 últimas) e em `#/atividade`. Erros ao gravar não mostram aviso (antes das regras novas, só não grava).
-- **Regras novas** em `firestore.rules` (bloco `match /atividade/{id}`): texto entregue ao Caio para colar no Firebase Console. Se ele não confirmou que colou, perguntar (sem isso a atividade não grava).
+- **Regras novas** em `firestore.rules` (bloco `match /atividade/{id}`): o Caio já colou no Firebase Console (20/10/2026).
 - Testes novos: `.dev/tests/tnovas.py` (entrou no `test_all.sh`); prints em `.dev/tests/tprints.py`. A prévia tem histórico de mercado e atividade de exemplo (`demoSamples`).
 - Depois de liberar: lembrar o Caio de criar um **convite novo pelo WhatsApp para a Mirielly** (ela abre o link, entra com a conta dela e confirma "Entrar na casa").
 
@@ -59,7 +59,7 @@ Versão **2026.10.19-4 liberada no app** (`main`) em 19/10/2026, com o OK do Cai
 - Testes novos: `.dev/tests/tinicio.py`. Bateria inteira passou.
 
 ## PRÓXIMA TAREFA
-Nenhuma combinada. Confirmar com o Caio que ele colou as regras da 2026.10.19-4 (atividade) e que a Mirielly entrou pelo convite novo do WhatsApp.
+Nenhuma combinada. Regras da atividade já coladas pelo Caio (20/10). Confirmar que a Mirielly entrou pelo convite novo do WhatsApp.
 
 ## Pendências e riscos conhecidos
 - **Domínio cozily.com.br** (ele vai comprar): migrar para o Firebase Hosting com cabeçalhos de segurança; página no github.io que redireciona mantendo o `#`; `authDomain` no próprio domínio. Isso resolve o **login com Google no iPhone com o app instalado** (hoje pode falhar por bloqueio de armazenamento entre domínios) e os **e-mails caindo no spam** (remetente do próprio domínio). Depois: App Check e restringir a chave da API ao domínio.
