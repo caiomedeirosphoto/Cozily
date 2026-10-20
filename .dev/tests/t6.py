@@ -17,7 +17,7 @@ async def main():
         if await pg.query_selector('.tour'): await pg.click('[data-tour=skip]'); await pg.wait_for_timeout(300)
         t=await T()
         ok('Quais cômodos' not in t and 'Sua moradia' not in t, 'no onboarding for existing data')
-        ok('53 de 292' in t, 'migration: 268+24 items, 53 done kept -> ' + t.split('da casa já montada')[1][:20].replace('\n',' '))
+        ok('53 de 292' in t, 'migration: 268+24 items, 53 done kept -> ' + t.split('A casa toda')[1][:24].replace('\n',' '))
         ok('Ferramentas e utilidades' in t, 'ferramentas room present')
         ok('Chaves em dez 2028' in t, 'keys chip legacy default')
         st = json.loads(await pg.evaluate("localStorage.getItem('cozily-preview-v6')"))
