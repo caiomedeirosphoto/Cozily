@@ -842,7 +842,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.20-14";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.20-15";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -2033,9 +2033,11 @@ function viewHome() {
   const cx = caixa(), li = listaInfo(), best = melhorOferta();
   const gm = gastoMes(thisMonth()), orc = S.settings.orcMercado || 0, md = mercadoMes(thisMonth());
   const sobrou = md ? (md.itens || []).filter(i => i.sobrou && !i.ok).length : 0;
-  /* cômodos: os mais atrasados primeiro (os vazios no fim) */
+  /* cômodos: quem tem mais coisa já comprada primeiro; empate (ou nada comprado) vai pela importância */
+  const IMPORTANCIA = ["cozinha", "quarto", "banheiro", "sala-estar", "lavanderia", "sala-jantar", "limpeza", "ferramentas", "organizacao", "escritorio", "varanda", "gourmet", "closet", "hall"];
+  const imp = r => { const k = IMPORTANCIA.indexOf(r.tipo || r.id); return k < 0 ? 99 : k; };
   const rooms = ROOMS.map(r => { const l = inRoom(r.id); return { r, n: l.length, dd: done(l), p: pct(done(l), l.length) }; })
-    .sort((a, b) => (!a.n - !b.n) || (a.p - b.p));
+    .sort((a, b) => (b.dd - a.dd) || (imp(a.r) - imp(b.r)));
   const sem1 = !e1.length;
   const atalho = (href, cor, icon, nome, sub) => `<a class="atalho" href="${href}"><span class="tile" style="background:var(--${cor});color:var(--${cor}-ink)">${ic(icon, 19, 2)}</span><span class="item-txt grow"><span class="item-name">${nome}</span><span class="meta">${sub}</span></span>${ic("chev", 16, 2)}</a>`;
   return `<main class="page">
