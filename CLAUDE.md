@@ -46,8 +46,18 @@ Versão **2026.10.19-4 liberada no app** (`main`) em 19/10/2026, com o OK do Cai
 - Testes novos: `.dev/tests/tnovas.py` (entrou no `test_all.sh`); prints em `.dev/tests/tprints.py`. A prévia tem histórico de mercado e atividade de exemplo (`demoSamples`).
 - Depois de liberar: lembrar o Caio de criar um **convite novo pelo WhatsApp para a Mirielly** (ela abre o link, entra com a conta dela e confirma "Entrar na casa").
 
+## Na `dev`, ainda NÃO liberado (20/10/2026): versão 2026.10.20-6
+- Saudação: quem sai da casa (ou exclui a conta) sai também de `nomes` (`nomesSem`).
+- Início novo: anel "Pronto pra morar" (Etapa 1), Próxima compra (com etiqueta de oferta e link "Ver a ordem de compra"), fileira de cômodos (mais atrasados primeiro) com "Ver todos" → `#/comodos` (quadradinhos), cartões Achadinhos + Lista de presentes, Atividade, atalhos Finanças e Mercado. Busca virou ícone no topo.
+- Barra de baixo: "Ordem" saiu; entrou **Ofertas** (foguinho) → `#/achadinhos`. Ordem agora é tela aberta pela Próxima compra.
+- Ofertas: `ofertaDoItem`/`etqOferta` (foguinho laranja `--orange`) nos itens dos cômodos, na Próxima compra e nos Avisos ("Ofertas do que falta"). Achadinhos: resumo "Dá pra economizar até", maior desconto, seções "Do que falta"/"Outras", dica que fecha (`cozily-x-ach`).
+- Item: "Pôr/Tirar da lista de presentes", mostra quem reservou; "Tirar da lista" só texto vermelho.
+- Avisos: atividade da casa no lugar de "Outros"; bolinha do sino acende com ações dos outros e reservas.
+- Animações: tempos `--t-fast/--t-med/--t-slow` e uma curva; troca de telas com View Transitions (barra de abas parada); filtros com fade (`trocaSuave`). Setinha de voltar presa no alto (topbar sticky, `.float-bar` fixa).
+- Testes novos: `.dev/tests/tinicio.py`. Bateria inteira passou.
+
 ## PRÓXIMA TAREFA
-Nenhuma combinada. Confirmar com o Caio que as regras novas foram coladas e que a Mirielly entrou na casa pelo convite novo do WhatsApp.
+Esperar o OK do Caio para liberar a 2026.10.20-6 (não muda regras do Firestore). Confirmar que ele colou as regras da 2026.10.19-4 e que a Mirielly entrou pelo convite novo.
 
 ## Pendências e riscos conhecidos
 - **Domínio cozily.com.br** (ele vai comprar): migrar para o Firebase Hosting com cabeçalhos de segurança; página no github.io que redireciona mantendo o `#`; `authDomain` no próprio domínio. Isso resolve o **login com Google no iPhone com o app instalado** (hoje pode falhar por bloqueio de armazenamento entre domínios) e os **e-mails caindo no spam** (remetente do próprio domínio). Depois: App Check e restringir a chave da API ao domínio.
