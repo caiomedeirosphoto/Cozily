@@ -147,7 +147,7 @@ h1,h2,h3{margin:0}
 :root[data-theme="dark"] .feat .fic{background:rgba(255,255,255,.08)}
 .feat .badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:8px;color:#fff;white-space:nowrap;display:inline-flex;align-items:center;gap:3px}
 .etq-of{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:2px 7px 2px 5px;border-radius:7px;background:var(--orange);color:var(--orange-ink);white-space:nowrap}
-.feat.sage .badge.hot,.feat .badge.hot{background:var(--orange-hot);color:#fff}
+.feat.sage .badge.hot,.feat .badge.hot{background:var(--orange);color:var(--orange-ink)}
 .prox-h>span:first-child{white-space:nowrap}
 @media (max-width:360px){.prox-h .etq-of~.pill{display:none}}
 .feat .d b{color:var(--ink)}.feat .d s{opacity:.7}
@@ -1988,7 +1988,7 @@ function viewHome() {
     <div class="grid2">
       <a class="feat sage" href="#/achadinhos">
         <span class="ftop"><span class="fic">${ic("tag", 18, 2)}</span>${best ? `<span class="badge hot">${ic("fogo", 11, 2.6)} -${best.off}%</span>` : ""}</span>
-        <span><b class="t">Achadinhos</b><span class="d">${best ? `${best.match ? "Do que falta aí: " : "Achado do dia: "}<b>${esc(best.o.para || best.o.nome)}</b> por <b>${money0(best.o.preco)}</b> <s>${money0(best.o.precoAntes)}</s>${S.ofertas.length > 1 ? `<br>+${S.ofertas.length - 1} ofertas pra casa de vocês` : ""}` : "As melhores ofertas pro que falta na casa"}</span></span>
+        <span><b class="t">Achadinhos</b><span class="d">${best ? `<b>${esc(best.o.para || best.o.nome)}</b> por <b>${money0(best.o.preco)}</b> <s>${money0(best.o.precoAntes)}</s>${S.ofertas.length > 1 ? `<br>+${S.ofertas.length - 1} ofertas` : ""}` : "As melhores ofertas pro que falta na casa"}</span></span>
         <span class="go">Ver ofertas${ic("chev", 14, 2.4)}</span>
       </a>
       <a class="feat lav" href="#/presentes">
