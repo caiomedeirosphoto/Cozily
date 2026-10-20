@@ -1870,7 +1870,7 @@ function setTabs(active) {
   const t = (id, href, icon, label) => `<a class="tab" data-tab="${id}" href="${href}" ${active === id ? 'aria-current="page"' : ""}>${ic(icon, 23, active === id ? 2 : 1.8)}${label}</a>`;
   bar.innerHTML = `<nav aria-label="Abas">
     ${t("home", "#/", "home", "Início")}
-    ${t("ofertas", "#/achadinhos", "cifrao", "Ofertas")}
+    ${t("ofertas", "#/achadinhos", "fogo", "Ofertas")}
     <button class="fab" data-act="anotar" data-tab="anotar" aria-label="Anotar item">${ic("plus", 26, 2.2)}</button>
     ${t("mercado", "#/mercado", "cart", "Mercado")}
     ${t("financas", "#/financas", "wallet", "Finanças")}
@@ -4109,7 +4109,7 @@ function postNext() {
 /* ---------------- TOUR (primeira vez no Início) ---------------- */
 const TOUR = [
   ["home", "home", "Aqui é a casa de vocês", "O quanto já está montado, os cômodos e a busca. Toca num cômodo pra ver e marcar os itens.", ["--tile", "--ink2"]],
-  ["ofertas", "cifrao", "Ofertas do que falta", "Achadinhos conferidos pro que ainda falta na casa de vocês, atualizados todo dia. O foguinho nos itens avisa quando tem desconto.", ["--orange", "--orange-ink"]],
+  ["ofertas", "fogo", "Ofertas do que falta", "Achadinhos conferidos pro que ainda falta na casa de vocês, atualizados todo dia. O foguinho nos itens avisa quando tem desconto.", ["--orange", "--orange-ink"]],
   ["anotar", "plus", "Lembrou de algo? Anota aqui", "Escreve o nome, escolhe o cômodo e pronto. Dá pra anotar vários seguidos, sem fechar.", ["--sage", "--sage-ink"]],
   ["mercado", "cart", "As compras do mês", "A lista do mercado já vem com o básico. Marca o que foi pro carrinho e acompanha quanto gastou com comida.", ["--mist", "--mist-ink"]],
   ["financas", "wallet", "A caixinha da casa", "Guarda dinheiro, define uma meta e vê quanto já saiu em compras. Tudo somado sozinho.", ["--lav", "--lav-ink"]]
