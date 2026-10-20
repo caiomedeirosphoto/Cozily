@@ -12,6 +12,7 @@ async def main():
       if await pg.query_selector('[data-tour=skip]'): await pg.click('[data-tour=skip]')
       await pg.evaluate("location.hash='#/mercado'"); await pg.wait_for_timeout(700)
       if await pg.query_selector('.card [data-act=m-new]'): await pg.click('.card [data-act=m-new]'); await pg.wait_for_timeout(600)
+      if await pg.query_selector('[data-act=m-sec][data-v="*"]'): await pg.click('[data-act=m-sec][data-v="*"]'); await pg.wait_for_timeout(400)
       ok(await pg.query_selector('#mQ') is not None,'search bar')
       ok('Estimativa' in await pg.inner_text('#mTot'),'prices carried from last month')
       await pg.fill('#mQ','arroz'); await pg.wait_for_timeout(300)

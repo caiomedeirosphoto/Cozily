@@ -19,6 +19,7 @@ async def main():
       await pg.click('.overlay [data-x]'); await pg.wait_for_timeout(500)
       await pg.evaluate("location.hash='#/mercado'"); await pg.wait_for_timeout(700)
       if await pg.query_selector('.card [data-act=m-new]'): await pg.click('.card [data-act=m-new]'); await pg.wait_for_timeout(500)
+      if await pg.query_selector('[data-act=m-sec][data-v="*"]'): await pg.click('[data-act=m-sec][data-v="*"]'); await pg.wait_for_timeout(400)
       await pg.evaluate("document.querySelector('.toast')?.remove()")
       y=await pg.evaluate("document.querySelector('.m-sobra').getBoundingClientRect().top+scrollY-300"); await pg.evaluate(f"scrollTo(0,{y})"); await pg.wait_for_timeout(500); await sh('4-mercado-ficou')
       await pg.click('.m-sobra [data-act=m-qty] >> nth=0'); await pg.wait_for_timeout(800); await sh('5-historico-preco')

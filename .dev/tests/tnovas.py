@@ -72,8 +72,15 @@ async def main():
       # ---------- 1. Mercado
       await pg.evaluate("location.hash='#/mercado'"); await pg.wait_for_timeout(700)
       if await pg.query_selector('.card [data-act=m-new]'): await pg.click('.card [data-act=m-new]'); await pg.wait_for_timeout(700)
+      ok(await pg.locator('.m-sec').count()>=9 and 'Ficou do mês passado' in await pg.inner_text('.m-sec.sobra'), f'{tag} cards das seções')
+      await pg.screenshot(path=f't2/merc-secoes-{tag}.png')
+      await pg.click('.m-sec >> text=Limpeza'); await pg.wait_for_timeout(500)
+      tl=await pg.inner_text('#mList'); ok('LIMPEZA' in tl.upper() and 'Arroz' not in tl and 'Seções' in tl, f'{tag} seção abre só ela')
+      await pg.click('[data-act=m-sec][data-v=""]'); await pg.wait_for_timeout(400); ok(await pg.locator('.m-sec').count()>=9, f'{tag} volta pras seções')
+      await pg.fill('#mQ','arroz'); await pg.wait_for_timeout(300); ok('Arroz' in await pg.inner_text('#mList'), f'{tag} busca procura em tudo'); await pg.fill('#mQ',''); await pg.dispatch_event('#mQ','input'); await pg.wait_for_timeout(300)
+      if await pg.query_selector('[data-act=m-sec][data-v="*"]'): await pg.click('[data-act=m-sec][data-v="*"]'); await pg.wait_for_timeout(400)
       tm=await pg.inner_text('#mList')
-      ok(tm.upper().startswith('FICOU DO MÊS PASSADO'), f'{tag} seção "Ficou do mês passado" no topo: {tm[:40]!r}')
+      ok(tm.upper().replace('SEÇÕES','',1).strip().startswith('FICOU DO MÊS PASSADO'), f'{tag} seção "Ficou do mês passado" no topo: {tm[:40]!r}')
       sob=await pg.inner_text('.m-sobra')
       ok(all(x in sob for x in ['Azeite','Queijo','Amaciante','Limão']) and 'Arroz' not in sob, f'{tag} só o que não foi comprado')
       ok(await pg.locator('#mList .mrow').count() > 40, f'{tag} lista completa continua')
@@ -111,6 +118,7 @@ async def main():
       # mês seguinte: só o que ficou sem comprar
       await pg.evaluate("location.hash='#/mercado'"); await pg.wait_for_timeout(600)
       await pg.click('.btns2 [data-act=m-new]'); await pg.wait_for_timeout(700)
+      if await pg.query_selector('[data-act=m-sec][data-v="*"]'): await pg.click('[data-act=m-sec][data-v="*"]'); await pg.wait_for_timeout(400)
       sob=await pg.inner_text('.m-sobra') if await pg.query_selector('.m-sobra') else ''
       ok('Azeite' not in sob and 'Queijo' in sob and len([1 for x in sob.split('\n') if x.strip()])>3, f'{tag} virada do mês seguinte: {sob[:60]!r}')
       # Mirielly vê o que o Caio fez

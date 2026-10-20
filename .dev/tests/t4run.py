@@ -107,6 +107,7 @@ async def main():
             # mercado
             await go('#/mercado', 700)
             if await pg.query_selector('[data-act=m-new]') and 'Montar' in await T(): await pg.click('[data-act=m-new]'); await pg.wait_for_timeout(500)
+            if await pg.query_selector('[data-act=m-sec][data-v="*"]'): await pg.click('[data-act=m-sec][data-v="*"]'); await pg.wait_for_timeout(400)
             if not await pg.query_selector('#mNovo'): await pg.click('[data-act=m-edit]'); await pg.wait_for_timeout(300)
             await pg.fill('#mNovo','2 kg de picanha'); await pg.press('#mNovo','Enter'); await pg.wait_for_timeout(500)
             t=await T(); ok('Picanha' in t and '2 kg' in t, 'mercado parse qty')
@@ -128,6 +129,7 @@ async def main():
             await pg.click('[data-act=lancar]'); await pg.wait_for_timeout(500); await pg.fill('#cVal','200'); await pg.click('#cOnde [data-v=Feira]'); await pg.click('.overlay [data-go]'); await pg.wait_for_timeout(600)
             ok('R$ 942' in await T(), 'lançar compra updates month spend')
             await pg.click('[data-act=m-new]'); await pg.wait_for_timeout(600)
+            if await pg.query_selector('[data-act=m-sec][data-v="*"]'): await pg.click('[data-act=m-sec][data-v="*"]'); await pg.wait_for_timeout(400)
             ok('Lista de novembro' in await T(), 'começar próximo mês')
             await pg.click('[data-act=m-month]'); await pg.wait_for_timeout(500); await pg.click('[data-m] >> nth=1'); await pg.wait_for_timeout(600)
             ok('Lista de outubro' in await T(), 'month picker back')

@@ -673,7 +673,26 @@ html.theme-fade,html.theme-fade *{transition:background-color .3s ease,color .3s
 .mname .mr{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex:none}
 .mname .pr{font-size:12px;font-weight:700;color:var(--ink2)}
 .mrow.on .mname .pr{color:var(--muted2)}
+.m-secs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.m-sec{position:relative;background:var(--card);border:1px solid var(--line2);border-radius:20px;padding:12px;display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;min-height:118px}
+.m-sec b{font-size:15px;line-height:1.25}
+.m-sec .m-ct{font-size:12px;color:var(--muted2)}
+.m-sec .bar{width:100%;margin-top:auto}
+.m-sec .bar i{background:var(--sage-dk)}
+.m-sec.sobra{background:var(--orange);border-color:transparent;color:var(--orange-ink)}
+.m-sec.sobra .tile{background:rgba(255,255,255,.5);color:inherit}
+.m-sec.sobra .m-ct{color:inherit}
+.m-sec.pronto{border-color:var(--sage-bd)}
+.m-sec .m-ok{position:absolute;top:12px;right:12px;width:24px;height:24px;border-radius:50%;background:var(--sage-dk);color:#fff;display:flex;align-items:center;justify-content:center}
+.m-sec.todos{border-style:dashed;color:var(--muted);justify-content:center;align-items:center;text-align:center}
+.m-sec.todos b{color:var(--ink)}
+.m-sec:active{transform:scale(.98)}
+.m-volta{align-self:flex-start;display:flex;align-items:center;gap:4px;min-height:36px;padding:0 12px 0 8px;border-radius:12px;background:var(--soft);font-size:14px;font-weight:700;color:var(--ink2);margin-bottom:-4px}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .m-sec.sobra .tile{background:rgba(255,255,255,.08)}}
+:root[data-theme="dark"] .m-sec.sobra .tile{background:rgba(255,255,255,.08)}
 .m-bar{display:flex;align-items:center;gap:8px}.m-bar .chips{flex:1;min-width:0;margin-right:0;padding-right:0}.m-bar>.chip{flex:none}
+.m-bar .chips[hidden]{display:none}
+.m-bar-t{flex:1;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted2);padding-left:4px}
 #mTot:empty{display:none!important}
 @media (max-width:360px){.m-bar>.chip .m-ed{display:none}.m-bar>.chip{width:38px;padding:0;justify-content:center}}
 .m-tot{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -737,7 +756,7 @@ html.theme-fade,html.theme-fade *{transition:background-color .3s ease,color .3s
 .stagger>*{animation:rise var(--t-med) var(--ease) both;animation-delay:calc(min(var(--i,8),8) * 30ms)}
 @keyframes rise{from{opacity:0;transform:translateY(8px)}}
 /* animações leves */
-.btn,.chip,.icon-btn,.fab,.tab,.seg button,.etapas button,.pickrow button,.opt,.choice,.stage,.room-card,.feat,.offer,.stores a,.istep,.mov,.add-inline,.sug button,.mini3 a,a.hero,a.search,.chk,.mrow>button,.sgroom .sh button,.gitem .btn,.mini-room,.atalho,.item.ativ,.prox-it,.anel-row{transition:transform var(--t-press) var(--ease),background-color var(--t-fast) ease,border-color var(--t-fast) ease,color var(--t-fast) ease,box-shadow var(--t-fast) ease,opacity var(--t-fast) ease}
+.m-sec,.btn,.chip,.icon-btn,.fab,.tab,.seg button,.etapas button,.pickrow button,.opt,.choice,.stage,.room-card,.feat,.offer,.stores a,.istep,.mov,.add-inline,.sug button,.mini3 a,a.hero,a.search,.chk,.mrow>button,.sgroom .sh button,.gitem .btn,.mini-room,.atalho,.item.ativ,.prox-it,.anel-row{transition:transform var(--t-press) var(--ease),background-color var(--t-fast) ease,border-color var(--t-fast) ease,color var(--t-fast) ease,box-shadow var(--t-fast) ease,opacity var(--t-fast) ease}
 .btn:active,.chip:active,.icon-btn:active,.seg button:active,.etapas button:active,.pickrow button:active,.opt:active,.choice:active,.stores a:active,.sug button:active,.mini3 a:active,.a-photo:active,.a-more:active,.toast button:active,.item-main:active .chk span{transform:scale(.96)}
 .room-card:active,.mini-room:active,.anel-row:active,.feat:active,.offer:active,.stage:active,a.hero:active,a.search:active,.istep:active{transform:scale(.98)}
 .fab:active{transform:scale(.92) rotate(90deg)}
@@ -815,7 +834,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.20-9";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.20-10";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -1122,6 +1141,9 @@ const IC = {
   sun: '<circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
   moon: '<path d="M20.5 13.5A8.5 8.5 0 1 1 10.5 3.5a6.5 6.5 0 0 0 10 10z"/>',
   cifrao: '<path d="M12 3v18M16.5 7.5C16 6 14.3 5 12 5c-2.6 0-4.5 1.3-4.5 3.3 0 4.7 9 2.6 9 7.4 0 2-1.9 3.3-4.5 3.3-2.4 0-4.2-1-4.7-2.6"/>',
+  copo: '<path d="M6 3h12l-1.5 17a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1z"/><path d="M6.5 8h11"/>',
+  pao: '<path d="M5 11a4 4 0 0 1 1-8h12a4 4 0 0 1 1 8v8a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1z"/>',
+  queijo: '<path d="M3 13l11-7 7 5v7H3z"/><path d="M3 13h18"/><circle cx="9" cy="16" r="1"/><circle cx="15" cy="15.5" r="1"/>',
   fogo: '<path d="M12 3c.5 3.5 4.5 5.5 4.5 10a4.5 4.5 0 0 1-9 0c0-2 1-3.5 2-4.5.3 1.7 1.2 2.6 2 2.8C11 9 11 6 12 3z"/>',
   voltar: '<path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
   sobe: '<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
@@ -1655,6 +1677,7 @@ function mercadoRowHtml(i, ym) {
   const t = totalItemMercado(i);
   return `<div class="mrow ${i.ok ? "on" : ""} ${S.mPop === i.id ? "pop" : ""}" style="padding-right:4px"><button class="mchk" data-act="m-toggle" data-ym="${ym}" data-id="${esc(i.id)}" aria-pressed="${!!i.ok}" aria-label="${i.ok ? "Tirar do carrinho" : "Pôr no carrinho"}: ${esc(i.nome)}"><span class="box">${ic("check", 14, 3)}</span></button><button class="mname" data-act="m-qty" data-ym="${ym}" data-id="${esc(i.id)}"><span class="mtx"><span class="nm">${esc(i.nome)}</span>${i.marca ? `<span class="mk">${esc(i.marca)}</span>` : ""}</span><span class="mr">${i.qtd ? `<span class="q">${esc(i.qtd)}</span>` : `<span class="q add">+ qtd</span>`}${t ? `<span class="pr">${money(t)}</span>` : ""}</span></button>${S.mEdit ? `<button class="rm del" data-act="m-rm" data-ym="${ym}" data-id="${esc(i.id)}" aria-label="Tirar ${esc(i.nome)}">${ic("minus", 16, 2.6)}</button>` : ""}</div>`;
 }
+const M_CAT_IC = { "Mercearia": "box", "Hortifrúti": "plant", "Carnes e ovos": "pot", "Laticínios e frios": "queijo", "Padaria": "pao", "Bebidas": "copo", "Limpeza": "broom", "Higiene": "bath", "Outros": "dots" };
 function mercadoListaHtml() {
   const ym = mercadoYm(), doc = mercadoMes(ym); if (!doc) return "";
   const itens = doc.itens || [], f = S.mFilter, q = norm(S.mQ || "").trim();
@@ -1663,14 +1686,21 @@ function mercadoListaHtml() {
   /* o que ficou sem comprar no mês anterior vem no topo, numa seção só dele */
   const sobrou = itens.filter(i => i.sobrou), resto = itens.filter(i => !i.sobrou);
   const de = doc.sobrouDe, tituloSobrou = !de || de === monthAdd(ym, -1) ? "Ficou do mês passado" : `Ficou de ${monthName(de)}`;
-  const groups = [...(sobrou.length ? [{ c: tituloSobrou, l: sobrou, sobra: true }] : []), ...MERCADO_CATS.map(c => ({ c, l: resto.filter(i => (i.cat || "Outros") === c) })).filter(g => g.l.length)];
+  const todos = [...(sobrou.length ? [{ c: tituloSobrou, k: "__sobra", l: sobrou, sobra: true }] : []), ...MERCADO_CATS.map(c => ({ c, k: c, l: resto.filter(i => (i.cat || "Outros") === c) })).filter(g => g.l.length)];
+  const sec = S.mSec && todos.some(g => g.k === S.mSec || S.mSec === "*") ? S.mSec : null;
+  /* sem busca e sem seção escolhida: os cards das seções (como os corredores do mercado) */
+  if (!sec && !q && !S.mEdit) return `<div class="m-secs">${todos.map((g, i) => { const n = g.l.filter(x => x.ok).length, tudo = n === g.l.length;
+      return `<button class="m-sec ${g.sobra ? "sobra" : ""} ${tudo ? "pronto" : ""}" data-act="m-sec" data-v="${esc(g.k)}" style="--i:${i}"><span class="tile">${ic(g.sobra ? "voltar" : M_CAT_IC[g.c] || "dots", 19, 2)}</span>${tudo ? `<span class="m-ok">${ic("check", 13, 3)}</span>` : ""}<b>${esc(g.c)}</b><span class="m-ct">${n} de ${g.l.length}</span><span class="bar"><i data-w="${pct(n, g.l.length)}"></i></span></button>`; }).join("")}
+      <button class="m-sec todos" data-act="m-sec" data-v="*">${ic("search", 19, 2)}<b>Ver tudo</b><span class="m-ct">${plural(itens.length, "item", "itens")}</span></button></div>`;
+  const groups = sec && sec !== "*" && !q ? todos.filter(g => g.k === sec) : todos;
+  const voltar = sec && !q ? `<button class="m-volta" data-act="m-sec" data-v="">${ic("back", 16, 2.4)} Seções</button>` : "";
   const html = groups.map(g => { const v = g.l.filter(passa); return v.length ? `<section style="display:flex;flex-direction:column;gap:8px"${g.sobra ? ` class="m-sobra" aria-label="${esc(g.c)}"` : ""}>
       <div class="grp-h"><h3>${g.sobra ? ic("voltar", 13, 2.4) + " " : ""}${esc(g.c)}</h3><span>${g.l.filter(i => i.ok).length} de ${g.l.length}</span></div>
       <div class="items">${v.map(i => mercadoRowHtml(i, ym)).join("")}</div>
     </section>` : ""; }).join("");
-  if (html) return html;
+  if (html) return voltar + html;
   if (q) return empty(`Não tem “${esc(S.mQ.trim())}” ${f === "all" ? "na lista" : f === "ok" ? "no carrinho" : "entre os que faltam"}`, "", `<button class="btn ghost sm" data-act="m-addq" data-ym="${ym}">${ic("plus", 16, 2.2)} Colocar “${esc(S.mQ.trim())}” na lista</button>`);
-  return empty(f === "ok" ? "Nada no carrinho ainda" : "Tudo no carrinho!", f === "ok" ? "Marca os itens conforme for pegando." : "Agora é só passar no caixa.");
+  return voltar + empty(f === "ok" ? "Nada no carrinho ainda" : "Tudo no carrinho!", f === "ok" ? "Marca os itens conforme for pegando." : "Agora é só passar no caixa.");
 }
 function mercadoTotaisHtml(itens) {
   const com = itens.filter(i => i.preco);
@@ -2346,7 +2376,7 @@ function viewMercado() {
     ${doc ? `<div class="sec-h"><span style="font-size:14px;font-weight:700;color:var(--ink)">Lista de ${monthName(ym)}</span><span>${okN} de ${itens.length} no carrinho</span></div>
     <div id="mTot" style="display:flex;flex-direction:column;gap:6px">${mercadoTotaisHtml(itens)}</div>
     <label class="search">${ic("search", 19, 2.2)}<span class="sr">Procurar na lista do mercado</span><input id="mQ" type="search" placeholder="Procurar na lista" value="${esc(S.mQ || "")}" autocomplete="off" enterkeyhint="search"></label>
-    <div class="m-bar"><div class="chips" role="group" aria-label="Mostrar">${[["all", "Tudo"], ["falta", "Faltam"], ["ok", "Carrinho"]].map(([k, l]) => `<button class="chip" data-act="m-filter" data-v="${k}" aria-pressed="${f === k}">${l}</button>`).join("")}</div><button class="chip ${S.mEdit ? "on" : ""}" data-act="m-edit" aria-pressed="${!!S.mEdit}" aria-label="${S.mEdit ? "Pronto" : "Editar lista"}">${ic(S.mEdit ? "check" : "edit", 15, 2.2)}<span class="m-ed">${S.mEdit ? "Pronto" : "Editar"}</span></button></div>
+    <div class="m-bar">${!S.mSec && !S.mEdit ? `<span class="m-bar-t">Seções</span>` : ""}<div class="chips" role="group" aria-label="Mostrar"${!S.mSec && !S.mEdit ? " hidden" : ""}>${[["all", "Tudo"], ["falta", "Faltam"], ["ok", "Carrinho"]].map(([k, l]) => `<button class="chip" data-act="m-filter" data-v="${k}" aria-pressed="${f === k}">${l}</button>`).join("")}</div><button class="chip ${S.mEdit ? "on" : ""}" data-act="m-edit" aria-pressed="${!!S.mEdit}" aria-label="${S.mEdit ? "Pronto" : "Editar lista"}">${ic(S.mEdit ? "check" : "edit", 15, 2.2)}<span class="m-ed">${S.mEdit ? "Pronto" : "Editar"}</span></button></div>
     ${S.mEdit ? `<form class="addbar" id="mAdd" data-ym="${ym}"><label for="mNovo" class="sr">Colocar item</label><input id="mNovo" placeholder="Colocar item (ex.: 2 Coca-Cola)" autocomplete="off" enterkeyhint="done"><button type="submit" aria-label="Colocar">${ic("plus", 22, 2.4)}</button></form>` : ""}
     <div id="mList" style="display:flex;flex-direction:column;gap:14px">${mercadoListaHtml()}</div>
     <div class="btns2"><button class="btn ghost" data-act="m-new" data-v="${nextYm}" style="font-size:14px">${S.mercado.has(nextYm) ? "Ver " + monthName(nextYm) : "Começar " + monthName(nextYm)}</button><button class="btn primary" data-act="lancar" data-v="${sum(itens.filter(i => i.ok), totalItemMercado) || ""}" style="font-size:14px">Lançar compra</button></div>`
@@ -3099,7 +3129,7 @@ function novaListaMercado(ym) {
   S.mercado.set(ym, { id: ym, ...doc });
   write(S.store.putDoc("mercado", ym, doc, false));
   S.mMonth = ym; S.mFilter = "all";
-  toast(!ant ? `Lista de ${monthName(ym)} pronta com o básico!` : nSobrou ? `Lista de ${monthName(ym)} pronta. ${plural(nSobrou, "item ficou", "itens ficaram")} de ${monthName(ant)} e ${nSobrou === 1 ? "está" : "estão"} no topo` : `Lista de ${monthName(ym)} pronta, com os mesmos itens desmarcados`);
+  toast(!ant ? `Lista de ${monthName(ym)} pronta com o básico!` : nSobrou ? `Lista de ${monthName(ym)} pronta. ${plural(nSobrou, "item ficou", "itens ficaram")} de ${monthName(ant)}` : `Lista de ${monthName(ym)} pronta, com os mesmos itens desmarcados`);
 }
 function saveMercado(ym, itens) {
   const d = S.mercado.get(ym) || { id: ym };
@@ -4230,6 +4260,7 @@ document.addEventListener("click", e => {
   else if (a === "lancar") openLancar(null, +el.dataset.v || 0);
   else if (a === "m-addq") { const ym = el.dataset.ym, d = S.mercado.get(ym); if (d) { addMercado(ym, S.mQ || ""); S.mQ = ""; rerender(); } }
   else if (a === "compra-edit") { const c = S.compras.find(x => x.id === id); if (c) openLancar(c); }
+  else if (a === "m-sec") { S.mSec = el.dataset.v || null; trocaSuave(); const l = $("#mList"); if (l && l.getBoundingClientRect().top < 0) window.scrollTo(0, l.getBoundingClientRect().top + window.scrollY - 90); }
   else if (a === "m-filter") { S.mFilter = el.dataset.v; trocaSuave(); }
   else if (a === "m-month") openMesMercado();
   else if (a === "m-new") { const ym = el.dataset.v; if (S.mercado.has(ym)) S.mMonth = ym; else novaListaMercado(ym); rerender(); window.scrollTo(0, 0); }
@@ -4295,7 +4326,7 @@ document.addEventListener("click", e => {
 
 document.addEventListener("input", e => {
   const id = e.target.id;
-  if (id === "mQ") { S.mQ = e.target.value; const box = $("#mList"); if (box) box.innerHTML = mercadoListaHtml(); return; }
+  if (id === "mQ") { S.mQ = e.target.value; const box = $("#mList"); if (box) { box.innerHTML = mercadoListaHtml(); $$("[data-w]", box).forEach(el => el.style.width = el.dataset.w + "%"); } return; }
   if (id === "lEmail") S.authEmail = e.target.value;
   if (id === "lNome") S.authNome = e.target.value;
   if (id === "obCasa" && S.ob) S.ob.casa = e.target.value;
