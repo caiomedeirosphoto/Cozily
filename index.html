@@ -371,7 +371,12 @@ html[data-nav="tab"]::view-transition-new(root){animation:vtSurge var(--t-med) v
 .photo-empty button{min-height:40px;padding:0 14px;border-radius:12px;background:rgba(255,255,255,.7);color:var(--ink);font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .photo-empty button{background:rgba(255,255,255,.08)}}
 :root[data-theme="dark"] .photo-empty button{background:rgba(255,255,255,.08)}
-.float-bar{position:absolute;left:20px;right:20px;top:calc(var(--top) + 14px);display:flex;justify-content:space-between}
+.float-bar{position:fixed;z-index:20;left:max(20px,calc(50% - 240px));right:max(20px,calc(50% - 240px));top:calc(var(--top) + 14px);display:flex;justify-content:space-between;pointer-events:none}
+.float-bar>*{pointer-events:auto}
+/* setinha de voltar sempre à mão: o topo das telas abertas fica preso no alto ao rolar */
+.page.no-tabs>.topbar:first-child{position:sticky;top:calc(var(--top) + 10px);z-index:20;pointer-events:none}
+.page.no-tabs>.topbar:first-child>*{pointer-events:auto}
+.page.no-tabs>.topbar:first-child .icon-btn,.page.no-tabs>.topbar:first-child .btn{box-shadow:var(--shadow)}
 .float-bar .icon-btn{border:0;box-shadow:0 2px 10px rgba(0,0,0,.12)}
 .dots{position:absolute;bottom:38px;left:0;right:0;display:flex;justify-content:center;gap:6px}
 .dots i{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.6)}
@@ -806,7 +811,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.20-5";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.20-6";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
