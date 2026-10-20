@@ -138,7 +138,8 @@ h1,h2,h3{margin:0}
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 
 /* destaques do início */
-.feat{border-radius:22px;padding:14px;display:flex;flex-direction:column;gap:10px;min-height:168px}
+.feat{border-radius:22px;padding:14px;display:flex;flex-direction:column;gap:8px;min-height:0}
+.feat .go{white-space:nowrap}
 .feat.sage{background:var(--sage);color:var(--sage-ink)}
 .feat.lav{background:var(--lav);color:var(--lav-ink)}
 .feat .ftop{display:flex;align-items:center;justify-content:space-between;gap:6px}
@@ -811,7 +812,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.20-7";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.20-8";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -2031,9 +2032,8 @@ function viewHome() {
       </a>
       <a class="feat lav" href="#/presentes">
         <span class="ftop"><span class="fic">${ic("gift", 18, 2)}</span>${li && li.L.data ? `<span class="badge">${fmtDay(li.L.data)}</span>` : ""}</span>
-        <span><b class="t">Lista de presentes</b><span class="d">${li ? (li.ids.length ? `${li.donos} de ${plural(li.ids.length, "presente já tem dono", "presentes já têm dono")}` : "Escolham os itens que querem ganhar") : "Pro chá ou casamento, sem ninguém dar repetido"}</span></span>
-        ${li && li.ids.length ? `<span class="fbar"><i data-w="${pct(li.donos, li.ids.length)}"></i></span>` : ""}
-        <span class="go">${li ? "Mandar pros convidados" : "Montar a lista"}${ic("chev", 14, 2.4)}</span>
+        <span><b class="t">Lista de presentes</b><span class="d">${li ? (li.ids.length ? `${li.donos} de ${li.ids.length} já com dono` : "Escolham o que querem ganhar") : "Pro chá ou casamento, sem ninguém dar repetido"}</span></span>
+        <span class="go">${li ? "Mandar a lista" : "Montar a lista"}${ic("chev", 14, 2.4)}</span>
       </a>
     </div>
     ${atividadeHomeHtml()}
