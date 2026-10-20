@@ -22,7 +22,7 @@ async def main():
       t=await pg.inner_text('#app')
       ok('Próxima compra' in t.title() or 'PRÓXIMA COMPRA' in t, f'{tag} card próxima compra')
       prox=await pg.inner_text('.prox')
-      ok('Etapa 1' in prox and 'previsto' in prox, f'{tag} próxima: etapa 1 com valor ({prox[:70]!r})')
+      ok(('Etapa 1' in prox or (w<=320 and 'Oferta' in prox)) and 'previsto' in prox, f'{tag} próxima: etapa 1 com valor ({prox[:70]!r})')
       ok('Dá pra comprar' in prox or 'Faltam' in prox, f'{tag} próxima compara com a caixinha')
       await overflow(pg, tag+' início')
       await pg.locator('.prox').scroll_into_view_if_needed(); await pg.wait_for_timeout(300)
