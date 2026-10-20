@@ -328,7 +328,7 @@ a.search span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-widt
 .offer .rate{display:block;font-size:12px;color:var(--ink2)}
 .offer .rate svg{vertical-align:-2px;color:#B08A5A}
 .offer .off{font-size:11px;font-weight:700;color:var(--orange-ink);background:var(--orange);padding:2px 7px;border-radius:7px}
-.ach-t{display:flex;align-items:center;gap:8px}.ach-t span{display:flex;color:var(--orange-hot)}
+.ach-t{display:flex;align-items:center;gap:2px}.ach-t span{display:flex;color:var(--orange-hot);transform:translateY(-2px)}
 .ach-hero{background:var(--orange);color:var(--orange-ink);border-radius:24px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
 .ach-n{display:flex;flex-direction:column;gap:1px}
 .ach-n small{font-size:13px;font-weight:600}
@@ -811,7 +811,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.20-6";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.20-7";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -2451,7 +2451,7 @@ function viewAchadinhos() {
   const horas = recente ? Math.max(1, Math.round((Date.now() - recente) / 36e5)) : 0;
   const lista = (t, l) => l.length ? `<div class="grp-h"><h3>${t}</h3><span>${plural(l.length, "oferta", "ofertas")}</span></div><div style="display:flex;flex-direction:column;gap:10px">${l.map(o => offerCard(o, { para: true })).join("")}</div>` : "";
   return `<main class="page">
-    <div class="hello"><small>${horas ? `Preços conferidos há ${horas} h` : "Ofertas conferidas todo dia"}</small><h1 class="ach-t">Achadinhos <span>${ic("fogo", 26, 2.2)}</span></h1></div>
+    <div class="hello"><small>${horas ? `Preços conferidos há ${horas < 48 ? horas + " h" : Math.round(horas / 24) + " dias"}` : "Ofertas conferidas todo dia"}</small><h1 class="ach-t">Achadinhos<span>${ic("fogo", 32, 2.2)}</span></h1></div>
     ${S.ofertas.length ? `<section class="ach-hero">
       <div class="ach-n"><small>Dá pra economizar até</small><b>${money0(economia)}</b><span>${doQueFalta.length ? `em ${plural(doQueFalta.length, "item que falta", "itens que faltam")} na casa` : "nas ofertas da semana"}</span></div>
       ${maior && offOf(maior) ? `<div class="ach-maior">${ic("fogo", 14, 2.4)}<span>Maior desconto: <b>${esc(maior.para || maior.nome)} -${offOf(maior)}%</b></span></div>` : ""}
