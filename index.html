@@ -684,6 +684,9 @@ html.theme-fade,html.theme-fade *{transition:background-color .3s ease,color .3s
 .m-sec.sobra .m-ct{color:inherit}
 .m-sec.pronto{border-color:var(--sage-bd)}
 .m-sec .m-ok{position:absolute;top:12px;right:12px;width:24px;height:24px;border-radius:50%;background:var(--sage-dk);color:#fff;display:flex;align-items:center;justify-content:center}
+.m-tudo{width:100%;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 12px 0 14px;border-radius:14px;background:var(--card);border:1px solid var(--line2);color:var(--ink2);margin-bottom:-4px}
+.m-tudo b{font-size:14px}.m-tudo span{margin-left:auto;font-size:12px;color:var(--muted2)}
+.m-tudo:active{background:var(--soft)}
 .m-sec.todos{border-style:dashed;color:var(--muted);justify-content:center;align-items:center;text-align:center}
 .m-sec.todos b{color:var(--ink)}
 .m-sec:active{transform:scale(.98)}
@@ -834,7 +837,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.20-10";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.20-11";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -1144,6 +1147,7 @@ const IC = {
   copo: '<path d="M6 3h12l-1.5 17a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1z"/><path d="M6.5 8h11"/>',
   pao: '<path d="M5 11a4 4 0 0 1 1-8h12a4 4 0 0 1 1 8v8a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1z"/>',
   queijo: '<path d="M3 13l11-7 7 5v7H3z"/><path d="M3 13h18"/><circle cx="9" cy="16" r="1"/><circle cx="15" cy="15.5" r="1"/>',
+  lista: '<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>',
   fogo: '<path d="M12 3c.5 3.5 4.5 5.5 4.5 10a4.5 4.5 0 0 1-9 0c0-2 1-3.5 2-4.5.3 1.7 1.2 2.6 2 2.8C11 9 11 6 12 3z"/>',
   voltar: '<path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
   sobe: '<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
@@ -1689,9 +1693,8 @@ function mercadoListaHtml() {
   const todos = [...(sobrou.length ? [{ c: tituloSobrou, k: "__sobra", l: sobrou, sobra: true }] : []), ...MERCADO_CATS.map(c => ({ c, k: c, l: resto.filter(i => (i.cat || "Outros") === c) })).filter(g => g.l.length)];
   const sec = S.mSec && todos.some(g => g.k === S.mSec || S.mSec === "*") ? S.mSec : null;
   /* sem busca e sem seção escolhida: os cards das seções (como os corredores do mercado) */
-  if (!sec && !q && !S.mEdit) return `<div class="m-secs">${todos.map((g, i) => { const n = g.l.filter(x => x.ok).length, tudo = n === g.l.length;
-      return `<button class="m-sec ${g.sobra ? "sobra" : ""} ${tudo ? "pronto" : ""}" data-act="m-sec" data-v="${esc(g.k)}" style="--i:${i}"><span class="tile">${ic(g.sobra ? "voltar" : M_CAT_IC[g.c] || "dots", 19, 2)}</span>${tudo ? `<span class="m-ok">${ic("check", 13, 3)}</span>` : ""}<b>${esc(g.c)}</b><span class="m-ct">${n} de ${g.l.length}</span><span class="bar"><i data-w="${pct(n, g.l.length)}"></i></span></button>`; }).join("")}
-      <button class="m-sec todos" data-act="m-sec" data-v="*">${ic("search", 19, 2)}<b>Ver tudo</b><span class="m-ct">${plural(itens.length, "item", "itens")}</span></button></div>`;
+  if (!sec && !q && !S.mEdit) return `<button class="m-tudo" data-act="m-sec" data-v="*">${ic("lista", 17, 2.2)}<b>Ver a lista toda</b><span>${plural(itens.length, "item", "itens")}</span>${ic("chev", 15, 2.4)}</button><div class="m-secs">${todos.map((g, i) => { const n = g.l.filter(x => x.ok).length, tudo = n === g.l.length;
+      return `<button class="m-sec ${g.sobra ? "sobra" : ""} ${tudo ? "pronto" : ""}" data-act="m-sec" data-v="${esc(g.k)}" style="--i:${i}"><span class="tile">${ic(g.sobra ? "voltar" : M_CAT_IC[g.c] || "dots", 19, 2)}</span>${tudo ? `<span class="m-ok">${ic("check", 13, 3)}</span>` : ""}<b>${esc(g.c)}</b><span class="m-ct">${n} de ${g.l.length}</span><span class="bar"><i data-w="${pct(n, g.l.length)}"></i></span></button>`; }).join("")}</div>`;
   const groups = sec && sec !== "*" && !q ? todos.filter(g => g.k === sec) : todos;
   const voltar = sec && !q ? `<button class="m-volta" data-act="m-sec" data-v="">${ic("back", 16, 2.4)} Seções</button>` : "";
   const html = groups.map(g => { const v = g.l.filter(passa); return v.length ? `<section style="display:flex;flex-direction:column;gap:8px"${g.sobra ? ` class="m-sobra" aria-label="${esc(g.c)}"` : ""}>
