@@ -34,6 +34,7 @@
   --honey:#F1E4D6; --honey-ink:#76502F; --honey-bar:#B08A5A;
   --mist:#DFE6EC; --mist-ink:#3D5466; --mist-btn:#B9C8D5; --mist-btn-ink:#233A4C;
   --lav:#E9E2EE; --lav-ink:#5E4B6E; --lav-fill:#8C79A0;
+  --orange:#FBE3D0; --orange-ink:#A4480F; --orange-hot:#E8701F;
   --e1:#F1E4D6; --e1-ink:#76502F; --e2:#E4E7E7; --e2-ink:#45535A; --e3:#ECE7E1; --e3-ink:#5C5248;
   --spent:#CBBBA6; --danger:#A2453B; --overlay:rgba(42,40,38,.45);
   --tabbar:rgba(255,255,255,.92); --field:#FFFFFF; --seg-on:#FFFFFF;
@@ -53,6 +54,7 @@
     --honey:#2C251C; --honey-ink:#E6C79F; --honey-bar:#C79E6A;
     --mist:#1A2530; --mist-ink:#AFC6DA; --mist-btn:#34495B; --mist-btn-ink:#E4EEF6;
     --lav:#26202C; --lav-ink:#D0C0E0; --lav-fill:#9E8BB4;
+    --orange:#33200F; --orange-ink:#FFB37A; --orange-hot:#F07C2C;
     --e1:#2C251C; --e1-ink:#E6C79F; --e2:#222829; --e2-ink:#B7C6CB; --e3:#2A2A2A; --e3-ink:#D8D2CA;
     --spent:#57534E; --danger:#E08A7E; --overlay:rgba(0,0,0,.6);
     --tabbar:rgba(28,28,28,.94); --field:#191919; --seg-on:#383838;
@@ -70,6 +72,7 @@
     --honey:#2C251C; --honey-ink:#E6C79F; --honey-bar:#C79E6A;
     --mist:#1A2530; --mist-ink:#AFC6DA; --mist-btn:#34495B; --mist-btn-ink:#E4EEF6;
     --lav:#26202C; --lav-ink:#D0C0E0; --lav-fill:#9E8BB4;
+    --orange:#33200F; --orange-ink:#FFB37A; --orange-hot:#F07C2C;
     --e1:#2C251C; --e1-ink:#E6C79F; --e2:#222829; --e2-ink:#B7C6CB; --e3:#2A2A2A; --e3-ink:#D8D2CA;
     --spent:#57534E; --danger:#E08A7E; --overlay:rgba(0,0,0,.6);
     --tabbar:rgba(28,28,28,.94); --field:#191919; --seg-on:#383838;
@@ -143,7 +146,13 @@ h1,h2,h3{margin:0}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .feat .fic{background:rgba(255,255,255,.08)}}
 :root[data-theme="dark"] .feat .fic{background:rgba(255,255,255,.08)}
 .feat .badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:8px;color:#fff;white-space:nowrap;display:inline-flex;align-items:center;gap:3px}
-.etq-of{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:2px 7px 2px 5px;border-radius:7px;background:var(--rose);color:var(--rose-ink);white-space:nowrap}
+.etq-of{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:2px 7px 2px 5px;border-radius:7px;background:var(--orange);color:var(--orange-ink);white-space:nowrap}
+.feat.sage .badge.hot,.feat .badge.hot{background:var(--orange-hot);color:#fff}
+.prox-h>span:first-child{white-space:nowrap}
+@media (max-width:360px){.prox-h .etq-of~.pill{display:none}}
+.feat .d b{color:var(--ink)}.feat .d s{opacity:.7}
+.prox-ordem{display:flex;align-items:center;gap:6px;min-height:40px;margin:-2px 0 -6px;border-top:1px solid var(--line3);padding-top:8px;font-size:13px;font-weight:700;color:var(--muted)}
+.prox-ordem span{margin-left:auto;display:flex}
 .feat.sage .badge{background:#34503B}.feat.lav .badge{background:#5E4B6E}
 .feat b.t{font-family:Sora,sans-serif;font-size:16px;color:var(--ink);display:block}
 .feat .d{font-size:12px;line-height:1.35}
@@ -247,6 +256,7 @@ a.search span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-widt
 .btn.sage{background:var(--sage);color:var(--sage-ink);border-color:var(--sage-bd)}
 .btn.mist{background:var(--mist-btn);color:var(--mist-btn-ink)}
 .btn.danger{background:transparent;color:var(--danger)}
+.link-btn.danger-link{color:var(--danger);gap:6px;font-weight:700}
 .btn.block{width:100%}
 .btn.lg{min-height:54px}
 .btn.sm{min-height:40px;font-size:14px;padding:0 14px;border-radius:12px}
@@ -770,7 +780,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.20-3";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.20-4";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -1076,6 +1086,7 @@ const IC = {
   auto: '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/>',
   sun: '<circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
   moon: '<path d="M20.5 13.5A8.5 8.5 0 1 1 10.5 3.5a6.5 6.5 0 0 0 10 10z"/>',
+  cifrao: '<path d="M12 3v18M16.5 7.5C16 6 14.3 5 12 5c-2.6 0-4.5 1.3-4.5 3.3 0 4.7 9 2.6 9 7.4 0 2-1.9 3.3-4.5 3.3-2.4 0-4.2-1-4.7-2.6"/>',
   fogo: '<path d="M12 3c.5 3.5 4.5 5.5 4.5 10a4.5 4.5 0 0 1-9 0c0-2 1-3.5 2-4.5.3 1.7 1.2 2.6 2 2.8C11 9 11 6 12 3z"/>',
   voltar: '<path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
   sobe: '<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
@@ -1735,7 +1746,7 @@ function parseRoute() {
   if (a === "l" && b) return { name: "guest", id: b, depth: 0, key: "l/" + b, public: true };
   if (a === "c" && b) return { name: "room", id: b, depth: 1, key: "c/" + b };
   if (a === "i" && b) return { name: "item", id: b, depth: 2, key: "i/" + b };
-  if (a === "ordem") return { name: "ordem", depth: 0, tab: "ordem", key: "ordem" };
+  if (a === "ordem") return { name: "ordem", depth: 1, key: "ordem" };
   if (a === "mercado" && b === "gastos") return { name: "mgastos", depth: 1, key: "mgastos" };
   if (a === "mercado") return { name: "mercado", depth: 0, tab: "mercado", key: "mercado" };
   if (a === "financas" || a === "gastos") return { name: "financas", depth: 0, tab: "financas", key: "financas" };
@@ -1743,7 +1754,7 @@ function parseRoute() {
   if (a === "comodos") return { name: "comodos", depth: 1, key: "comodos" };
   if (a === "avisos") return { name: "avisos", depth: 1, key: "avisos" };
   if (a === "atividade") return { name: "atividade", depth: 1, key: "atividade" };
-  if (a === "achadinhos") return { name: "achadinhos", depth: 1, key: "achadinhos" };
+  if (a === "achadinhos") return { name: "achadinhos", depth: 0, tab: "ofertas", key: "achadinhos" };
   if (a === "presentes") return { name: "presentes", depth: 1, key: "presentes" };
   return { name: "home", depth: 0, tab: "home", key: "home" };
 }
@@ -1859,7 +1870,7 @@ function setTabs(active) {
   const t = (id, href, icon, label) => `<a class="tab" data-tab="${id}" href="${href}" ${active === id ? 'aria-current="page"' : ""}>${ic(icon, 23, active === id ? 2 : 1.8)}${label}</a>`;
   bar.innerHTML = `<nav aria-label="Abas">
     ${t("home", "#/", "home", "Início")}
-    ${t("ordem", "#/ordem", "flag", "Ordem")}
+    ${t("ofertas", "#/achadinhos", "cifrao", "Ofertas")}
     <button class="fab" data-act="anotar" data-tab="anotar" aria-label="Anotar item">${ic("plus", 26, 2.2)}</button>
     ${t("mercado", "#/mercado", "cart", "Mercado")}
     ${t("financas", "#/financas", "wallet", "Finanças")}
@@ -1929,6 +1940,7 @@ function proximaHtml() {
     <a class="prox-it" href="${href}">${tile(r)}<span class="item-txt grow"><span class="item-name">${esc(it.nome)}</span><span class="meta">${esc(r.nome)}${valor ? " · previsto " + money0(valor) : ""}</span></span>${ic("chev", 16, 2)}</a>
     ${valor ? `<div class="bar thick"><i data-w="${Math.min(100, pct(Math.max(0, disp), valor))}"></i></div>` : ""}
     <span class="prox-msg">${da ? ic("check", 15, 2.8) : ""}${msg}</span>
+    <a class="prox-ordem" href="#/ordem" data-act="stage-go" data-v="${it.etapa || 1}">${ic("flag", 15, 2.2)} Ver a ordem de compra<span>${ic("chev", 14, 2.4)}</span></a>
     ${da ? `<button class="btn primary sm" data-act="toggle" data-id="${esc(it.id)}">${ic("bag", 16, 2.2)} Já compramos</button>` : !valor ? `<button class="btn ghost sm" data-act="edit" data-id="${esc(it.id)}">${ic("edit", 16, 2.2)} Colocar valor previsto</button>` : ""}
   </section>`;
 }
@@ -1975,8 +1987,8 @@ function viewHome() {
     </div>
     <div class="grid2">
       <a class="feat sage" href="#/achadinhos">
-        <span class="ftop"><span class="fic">${ic("tag", 18, 2)}</span>${best ? `<span class="badge">${ic("fogo", 11, 2.6)} -${best.off}%</span>` : ""}</span>
-        <span><b class="t">Achadinhos</b><span class="d">${best ? `${esc(best.o.para || best.o.nome)} de ${money0(best.o.precoAntes)} por ${money0(best.o.preco)}${S.ofertas.length > 1 ? ` e mais ${S.ofertas.length - 1} ofertas` : ""}` : "As melhores ofertas pro que falta na casa"}</span></span>
+        <span class="ftop"><span class="fic">${ic("tag", 18, 2)}</span>${best ? `<span class="badge hot">${ic("fogo", 11, 2.6)} -${best.off}%</span>` : ""}</span>
+        <span><b class="t">Achadinhos</b><span class="d">${best ? `${best.match ? "Do que falta aí: " : "Achado do dia: "}<b>${esc(best.o.para || best.o.nome)}</b> por <b>${money0(best.o.preco)}</b> <s>${money0(best.o.precoAntes)}</s>${S.ofertas.length > 1 ? `<br>+${S.ofertas.length - 1} ofertas pra casa de vocês` : ""}` : "As melhores ofertas pro que falta na casa"}</span></span>
         <span class="go">Ver ofertas${ic("chev", 14, 2.4)}</span>
       </a>
       <a class="feat lav" href="#/presentes">
@@ -2154,7 +2166,7 @@ function viewItem(id) {
         return res ? `<div class="status gift">${ic("gift", 20, 2.2)}<span class="st"><b>${esc(res.nome)} reservou</b><span>Na lista de presentes · ${quando(res.em)}</span></span></div>`
           : L ? `<button class="btn ${na ? "ghost" : "sage"} block" data-act="lista-item" data-id="${esc(id)}" data-toast="1">${ic("gift", 18, 2)} ${na ? "Tirar da lista de presentes" : "Pôr na lista de presentes"}</button>`
           : `<a class="btn sage block" href="#/presentes">${ic("gift", 18, 2)} Pôr na lista de presentes</a>`; })() : ""}
-      <button class="btn danger" data-act="delete" data-id="${esc(id)}">${ic("trash", 18, 2)} Tirar da lista</button>
+      <button class="link-btn danger-link" data-act="delete" data-id="${esc(id)}">${ic("trash", 18, 2)} Tirar da lista</button>
     </section>
   </main>`;
 }
@@ -2167,7 +2179,8 @@ function viewOrdem() {
   const falta = list.filter(i => !isDone(i));
   const prev = sum(falta, i => i.valorPrevisto);
   const sem = all().filter(i => !i.etapa).length;
-  return `<main class="page">
+  return `<main class="page no-tabs">
+    <div class="topbar">${backBtn()}<span></span></div>
     <div class="hello"><small>Ordem de compra</small><h1>O que comprar primeiro</h1></div>
     ${tipCard("ordem", "<b>Sem pressa:</b> não precisa ter tudo antes de mudar. Começa pelo que deixa dormir, tomar banho, cozinhar e lavar roupa. O resto vem aos pouquinhos.", "honey")}
     <div style="display:flex;flex-direction:column;gap:10px" class="stagger">
@@ -2379,7 +2392,7 @@ function viewAvisos() {
     <p class="small muted" style="margin:-4px 4px 0">A gente te avisa 30 e 7 dias antes de acabar, pra dar tempo de testar tudo com calma.</p>`
     : `<div class="card"><span class="small muted">Quando marcarem algo como comprado, coloquem até quando vai a garantia. Aí a gente lembra vocês antes de acabar.</span></div>`}
     ${ofs.length ? `<div class="grp-h"><h3>Ofertas do que falta</h3><a href="#/achadinhos" style="font-size:12px;font-weight:700;color:var(--muted)">Ver todas</a></div>
-    <div class="items">${ofs.slice(0, 4).map(({ it, of }) => `<a class="item" href="#/i/${encodeURIComponent(it.id)}"><span class="tile" style="background:var(--rose);color:var(--rose-ink)">${ic("fogo", 19, 2)}</span><span class="item-txt grow"><span class="item-name">${esc(it.nome)} com ${of.off}% de desconto</span><span class="meta">${money0(of.o.precoAntes)} por ${money0(of.o.preco)}${of.o.loja ? " · " + esc(of.o.loja) : ""}</span></span>${ic("chev", 16, 2)}</a>`).join("")}</div>` : ""}
+    <div class="items">${ofs.slice(0, 4).map(({ it, of }) => `<a class="item" href="#/i/${encodeURIComponent(it.id)}"><span class="tile" style="background:var(--orange);color:var(--orange-ink)">${ic("fogo", 19, 2)}</span><span class="item-txt grow"><span class="item-name">${esc(it.nome)} com ${of.off}% de desconto</span><span class="meta">${money0(of.o.precoAntes)} por ${money0(of.o.preco)}${of.o.loja ? " · " + esc(of.o.loja) : ""}</span></span>${ic("chev", 16, 2)}</a>`).join("")}</div>` : ""}
     <div class="grp-h"><h3>Atividade da casa</h3>${feed.length > 8 ? `<a href="#/atividade" style="font-size:12px;font-weight:700;color:var(--muted)">Ver tudo</a>` : ""}</div>
     ${feed.length ? `<div class="items">${feed.slice(0, 8).map(ativRowHtml).join("")}</div>`
       : `<div class="card"><span class="small muted">Por aqui aparecem as novidades: quem entrou na casa, o que cada um anotou ou comprou e os presentes reservados na lista.</span></div>`}
@@ -2393,8 +2406,7 @@ function viewAchadinhos() {
   const ofs = [...S.ofertas].sort((a, b) => (falta.has(slug(b.para || "")) - falta.has(slug(a.para || ""))) || ((a.top || 99) - (b.top || 99))).slice(0, 10);
   const recente = Math.max(0, ...S.ofertas.map(o => o.atualizadoEm || 0));
   const horas = recente ? Math.max(1, Math.round((Date.now() - recente) / 36e5)) : 0;
-  return `<main class="page no-tabs">
-    <div class="topbar">${backBtn()}<span></span></div>
+  return `<main class="page">
     <div class="hello"><h1>Achadinhos</h1><small>${horas ? `Preços fresquinhos, conferidos há ${horas} h` : "Ofertas conferidas todo dia"}</small></div>
     <div class="seg" role="tablist">${[["top", "Top 10 da semana"], ["cupons", "Cupons"]].map(([k, l]) => `<button role="tab" data-act="ach-tab" data-v="${k}" aria-pressed="${tab === k}" aria-selected="${tab === k}">${l}</button>`).join("")}</div>
     ${tab === "top" ? `<div class="tip sage">${ic("check", 18, 2)}<p><b>Aqui só entra o que vale a pena:</b> nota 4,7 ou mais, mais de mil vendas e gente elogiando nos comentários. Tudo pensado no que ainda falta na casa de vocês.</p></div>
@@ -4097,7 +4109,7 @@ function postNext() {
 /* ---------------- TOUR (primeira vez no Início) ---------------- */
 const TOUR = [
   ["home", "home", "Aqui é a casa de vocês", "O quanto já está montado, os cômodos e a busca. Toca num cômodo pra ver e marcar os itens.", ["--tile", "--ink2"]],
-  ["ordem", "flag", "O que comprar primeiro", "A gente separou tudo em 3 etapas: o essencial pra morar, o que deixa funcional e o que deixa bonita. Começa pela 1 e sem estresse.", ["--honey", "--honey-ink"]],
+  ["ofertas", "cifrao", "Ofertas do que falta", "Achadinhos conferidos pro que ainda falta na casa de vocês, atualizados todo dia. O foguinho nos itens avisa quando tem desconto.", ["--orange", "--orange-ink"]],
   ["anotar", "plus", "Lembrou de algo? Anota aqui", "Escreve o nome, escolhe o cômodo e pronto. Dá pra anotar vários seguidos, sem fechar.", ["--sage", "--sage-ink"]],
   ["mercado", "cart", "As compras do mês", "A lista do mercado já vem com o básico. Marca o que foi pro carrinho e acompanha quanto gastou com comida.", ["--mist", "--mist-ink"]],
   ["financas", "wallet", "A caixinha da casa", "Guarda dinheiro, define uma meta e vê quanto já saiu em compras. Tudo somado sozinho.", ["--lav", "--lav-ink"]]
