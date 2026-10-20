@@ -327,7 +327,33 @@ a.search span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-widt
 .offer s{color:var(--faint)}
 .offer .rate{display:block;font-size:12px;color:var(--ink2)}
 .offer .rate svg{vertical-align:-2px;color:#B08A5A}
-.offer .off{font-size:11px;font-weight:700;color:var(--sage-ink);background:var(--sage);padding:2px 7px;border-radius:7px}
+.offer .off{font-size:11px;font-weight:700;color:var(--orange-ink);background:var(--orange);padding:2px 7px;border-radius:7px}
+.ach-t{display:flex;align-items:center;gap:8px}.ach-t span{display:flex;color:var(--orange-hot)}
+.ach-hero{background:var(--orange);color:var(--orange-ink);border-radius:24px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.ach-n{display:flex;flex-direction:column;gap:1px}
+.ach-n small{font-size:13px;font-weight:600}
+.ach-n b{font-family:Sora,sans-serif;font-size:32px;letter-spacing:-.02em;color:var(--ink)}
+.ach-n span{font-size:13px}
+.ach-maior{display:flex;align-items:flex-start;gap:6px;line-height:1.4;font-size:13px;background:rgba(255,255,255,.55);border-radius:12px;padding:8px 10px}
+.ach-maior b{color:var(--ink)}.ach-maior svg{flex:none;margin-top:3px}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .ach-maior{background:rgba(255,255,255,.06)}}
+:root[data-theme="dark"] .ach-maior{background:rgba(255,255,255,.06)}
+/* transição entre telas (View Transitions): a barra de abas fica parada, só o conteúdo troca */
+#tabbar{view-transition-name:tabbar}
+::view-transition-group(tabbar){animation:none}
+::view-transition-old(root),::view-transition-new(root){animation-duration:var(--t-med);animation-timing-function:var(--ease);animation-fill-mode:both}
+html[data-nav="push"]::view-transition-old(root){animation-name:vtSaiEsq}
+html[data-nav="push"]::view-transition-new(root){animation-name:vtEntraDir}
+html[data-nav="pop"]::view-transition-old(root){animation-name:vtSaiDir}
+html[data-nav="pop"]::view-transition-new(root){animation-name:vtEntraEsq}
+html[data-nav="tab"]::view-transition-old(root){animation:vtSome var(--t-fast) ease-out both}
+html[data-nav="tab"]::view-transition-new(root){animation:vtSurge var(--t-med) var(--ease) both}
+@keyframes vtEntraDir{from{transform:translateX(28%);opacity:0}}
+@keyframes vtSaiEsq{to{transform:translateX(-10%);opacity:0}}
+@keyframes vtEntraEsq{from{transform:translateX(-10%);opacity:0}}
+@keyframes vtSaiDir{to{transform:translateX(28%);opacity:0}}
+@keyframes vtSome{to{opacity:0}}
+@keyframes vtSurge{from{opacity:0;transform:translateY(6px)}}
 .stores{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .stores.two{grid-template-columns:repeat(2,minmax(0,1fr))}
 .stores a{min-height:44px;border-radius:14px;border:1px solid var(--line);background:var(--card);font-size:13px;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 8px;text-align:center}
@@ -780,7 +806,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.20-4";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.20-5";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -1800,7 +1826,7 @@ function render(mode) {
     S.seenTab = S.seenTab || {};
     const firstTab = r.tab && !S.seenTab[r.tab];
     if (r.tab) S.seenTab[r.tab] = 1;
-    animate = !S.introDone || mode === "enter-push" || (mode === "enter-fade" && !!r.tab) || (mode === "enter-tab" && firstTab);
+    animate = !S.vtMode && (!S.introDone || mode === "enter-push" || (mode === "enter-fade" && !!r.tab) || (mode === "enter-tab" && firstTab));
     S.introDone = true;
   }
   finish(app, mode, r, animate);
@@ -1809,7 +1835,7 @@ function render(mode) {
 }
 function finish(app, mode, r, animate) {
   const page = app.firstElementChild;
-  if (mode && page) page.classList.add(mode);
+  if (mode && page && !S.vtMode) page.classList.add(mode);
   const fill = () => {
     $$("[data-w]").forEach(el => el.style.width = el.dataset.w + "%");
     $$("[data-h]").forEach(el => el.style.height = el.dataset.h + "px");
@@ -1844,8 +1870,15 @@ function navigate() {
   if (r.name === "guest") startGuest(r.id);
   let mode = "enter-fade";
   if (prev) { if (r.depth > prev.depth) mode = "enter-push"; else if (r.depth < prev.depth) mode = "enter-pop"; else if (prev.tab && r.tab) mode = "enter-tab"; }
-  render(mode);
-  window.scrollTo(0, (prev && r.depth < prev.depth) ? (S.scroll[r.key] || 0) : 0);
+  const y = (prev && r.depth < prev.depth) ? (S.scroll[r.key] || 0) : 0;
+  /* com View Transitions o navegador cruza as duas telas sem piscar; sem ele, fica a animação de antes */
+  const vt = document.startViewTransition && prev && S.loaded && S.introDone && !document.querySelector(".overlay")
+    && !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  if (!vt) { render(mode); window.scrollTo(0, y); return; }
+  const html = document.documentElement;
+  html.dataset.nav = mode === "enter-push" ? "push" : mode === "enter-pop" ? "pop" : "tab";
+  const t = document.startViewTransition(() => { S.vtMode = true; render(mode); S.vtMode = false; window.scrollTo(0, y); });
+  t.finished.finally(() => { delete html.dataset.nav; });
 }
 let raf = 0;
 function refresh() {
@@ -2402,22 +2435,32 @@ function viewAvisos() {
 /* ---------------- ACHADINHOS ---------------- */
 function viewAchadinhos() {
   const tab = S.achTab;
-  const falta = new Set(all().filter(i => !isDone(i)).map(i => slug(i.nome)));
-  const ofs = [...S.ofertas].sort((a, b) => (falta.has(slug(b.para || "")) - falta.has(slug(a.para || ""))) || ((a.top || 99) - (b.top || 99))).slice(0, 10);
+  const faltam = all().filter(i => !isDone(i)), falta = new Set(faltam.map(i => slug(i.nome)));
+  const offOf = o => o.precoAntes > o.preco ? Math.round((1 - o.preco / o.precoAntes) * 100) : 0;
+  const ord = (a, b) => ((a.top || 99) - (b.top || 99)) || (offOf(b) - offOf(a));
+  const doQueFalta = S.ofertas.filter(o => falta.has(slug(o.para || ""))).sort(ord);
+  const outras = S.ofertas.filter(o => !falta.has(slug(o.para || ""))).sort(ord);
+  const economia = sum(doQueFalta, o => o.precoAntes > o.preco ? o.precoAntes - o.preco : 0);
+  const maior = [...S.ofertas].sort((a, b) => offOf(b) - offOf(a))[0];
   const recente = Math.max(0, ...S.ofertas.map(o => o.atualizadoEm || 0));
   const horas = recente ? Math.max(1, Math.round((Date.now() - recente) / 36e5)) : 0;
+  const lista = (t, l) => l.length ? `<div class="grp-h"><h3>${t}</h3><span>${plural(l.length, "oferta", "ofertas")}</span></div><div style="display:flex;flex-direction:column;gap:10px">${l.map(o => offerCard(o, { para: true })).join("")}</div>` : "";
   return `<main class="page">
-    <div class="hello"><h1>Achadinhos</h1><small>${horas ? `Preços fresquinhos, conferidos há ${horas} h` : "Ofertas conferidas todo dia"}</small></div>
-    <div class="seg" role="tablist">${[["top", "Top 10 da semana"], ["cupons", "Cupons"]].map(([k, l]) => `<button role="tab" data-act="ach-tab" data-v="${k}" aria-pressed="${tab === k}" aria-selected="${tab === k}">${l}</button>`).join("")}</div>
-    ${tab === "top" ? `<div class="tip sage">${ic("check", 18, 2)}<p><b>Aqui só entra o que vale a pena:</b> nota 4,7 ou mais, mais de mil vendas e gente elogiando nos comentários. Tudo pensado no que ainda falta na casa de vocês.</p></div>
-      ${ofs.length ? `<div style="display:flex;flex-direction:column;gap:10px">${ofs.map(o => offerCard(o, { para: true })).join("")}</div>`
+    <div class="hello"><small>${horas ? `Preços conferidos há ${horas} h` : "Ofertas conferidas todo dia"}</small><h1 class="ach-t">Achadinhos <span>${ic("fogo", 26, 2.2)}</span></h1></div>
+    ${S.ofertas.length ? `<section class="ach-hero">
+      <div class="ach-n"><small>Dá pra economizar até</small><b>${money0(economia)}</b><span>${doQueFalta.length ? `em ${plural(doQueFalta.length, "item que falta", "itens que faltam")} na casa` : "nas ofertas da semana"}</span></div>
+      ${maior && offOf(maior) ? `<div class="ach-maior">${ic("fogo", 14, 2.4)}<span>Maior desconto: <b>${esc(maior.para || maior.nome)} -${offOf(maior)}%</b></span></div>` : ""}
+    </section>` : ""}
+    <div class="seg" role="tablist">${[["top", "Ofertas"], ["cupons", `Cupons${S.cupons.length ? ` (${S.cupons.length})` : ""}`]].map(([k, l]) => `<button role="tab" data-act="ach-tab" data-v="${k}" aria-pressed="${tab === k}" aria-selected="${tab === k}">${l}</button>`).join("")}</div>
+    ${tab === "top" ? `${lsGet("cozily-x-ach") ? "" : `<div class="tip sage" data-tip="ach">${ic("check", 18, 2)}<p><b>Só entra o que vale a pena:</b> nota 4,7 ou mais, mais de mil vendas e bons comentários.</p><button class="x" data-act="ach-x" aria-label="Fechar dica">${ic("x", 16, 2.2)}</button></div>`}
+      ${S.ofertas.length ? lista("Do que falta na casa", doQueFalta) + lista("Outras boas ofertas", outras)
         : empty("Os achadinhos estão chegando", "Estamos preparando as ofertas da semana. Enquanto isso, cada item que falta tem atalhos pra procurar na Shopee, Amazon e Mercado Livre.")}`
     : (S.cupons.length ? `<div style="display:flex;flex-direction:column;gap:10px">${S.cupons.map(c => `<div class="card" style="gap:8px">
         <div class="row" style="justify-content:space-between"><span class="small" style="font-weight:700;color:var(--muted)">${esc(c.loja || "")}</span>${c.codigo ? `<span class="code">${esc(c.codigo)}</span>` : ""}</div>
         <b style="font-size:16px">${esc(c.titulo || "")}</b>
         <div class="row" style="justify-content:space-between;gap:10px"><span class="small muted">${esc(c.regras || "")}</span>${c.codigo ? `<button class="btn sage sm" data-act="copy" data-v="${esc(c.codigo)}">${ic("copy", 15, 2)} Copiar</button>` : ""}</div>
       </div>`).join("")}</div>` : empty("Nenhum cupom por enquanto", "Quando aparecer cupom bom pras lojas que vocês mais usam, ele fica aqui."))}
-    <p class="small muted center" style="margin:6px 0 0;line-height:1.5">Preços podem mudar na loja.</p>
+    <p class="small muted center" style="margin:6px 0 0;line-height:1.5">Preços podem mudar na loja. Algumas ofertas têm link de parceiro.</p>
   </main>`;
 }
 
@@ -4188,6 +4231,7 @@ document.addEventListener("click", e => {
   else if (a === "m-edit") { S.mEdit = !S.mEdit; rerender(); if (S.mEdit) setTimeout(() => $("#mNovo")?.focus(), 60); }
   else if (a === "m-qty") openMercadoQtd(el.dataset.ym, id);
   else if (a === "m-rm") { const ym = el.dataset.ym, d = S.mercado.get(ym); if (!d) return; const old = d.itens; const it = old.find(i => i.id === id); saveMercado(ym, old.filter(i => i.id !== id)); rerender(); toast(`${it?.nome || "Item"} saiu da lista`, "Desfazer", () => { saveMercado(ym, old); rerender(); }); }
+  else if (a === "ach-x") { lsSet("cozily-x-ach", "1"); const t = el.closest(".tip"); if (t) { t.classList.add("bye"); setTimeout(() => t.remove(), 220); } }
   else if (a === "ach-tab") { S.achTab = el.dataset.v; rerender(); }
   else if (a === "push") askPush(() => rerender());
   else if (a === "lista-criar") criarLista();
