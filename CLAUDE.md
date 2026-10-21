@@ -65,7 +65,9 @@ Versão **2026.10.19-4 liberada no app** (`main`) em 19/10/2026, com o OK do Cai
 - Quem entra grava em `chegadas` o nome exato que entrou (`parte`). Ao sair, `nomesSem` tira só esse nome. Casas antigas sem `parte`: tira pelo nome inteiro ou primeiro nome, mas nunca o primeiro da saudação nem o nome de quem fica (antes, uma conta "Caio Medeiros" apagava o "Caio" também).
 
 ## PRÓXIMA TAREFA
-Nenhuma combinada. Regras da atividade já coladas pelo Caio (20/10). A Mirielly já entrou na casa (aparece em Quem mora junto). Botão de convite agora verde: "Criar convite do WhatsApp".
+**Painel de ofertas automático** (21/10): storyboard em https://claude.ai/artifact/SP2NWUCebeLdNoHSoUXBfk, esperando o OK do Caio. Painel em `ofertas.cozily.com.br`, só Caio e Mirielly (login Google). Tem que ser 100% automático (robô no plano Blaze: rodada diária 6h, checagem de hora em hora, comissões diárias, avisos máx. 1/dia por pessoa). Depende do domínio + Firebase Hosting; depois o repositório vira privado.
+
+Antes: Regras da atividade já coladas pelo Caio (20/10). A Mirielly já entrou na casa (aparece em Quem mora junto). Botão de convite agora verde: "Criar convite do WhatsApp".
 
 ## Pendências e riscos conhecidos
 - **Domínio cozily.com.br** (ele vai comprar): migrar para o Firebase Hosting com cabeçalhos de segurança; página no github.io que redireciona mantendo o `#`; `authDomain` no próprio domínio. Isso resolve o **login com Google no iPhone com o app instalado** (hoje pode falhar por bloqueio de armazenamento entre domínios) e os **e-mails caindo no spam** (remetente do próprio domínio). Depois: App Check e restringir a chave da API ao domínio.
