@@ -60,6 +60,10 @@ Versão **2026.10.19-4 liberada no app** (`main`) em 19/10/2026, com o OK do Cai
 - Cômodos no Início: mais itens comprados primeiro; empate pela importância (cozinha, quarto, banheiro…).
 - Testes novos: `.dev/tests/tinicio.py`. Bateria inteira passou.
 
+## Na `dev` (21/10/2026), esperando o OK: versão 2026.10.21-1
+- Saudação: nomes com vírgula e "e" só antes do último ("Caio, Mirielly e Ana"); `partesNomes`/`juntaNomes`/`nomesCom`. Textos antigos ("Caio e Mirielly e Ana") aparecem já arrumados.
+- Quem entra grava em `chegadas` o nome exato que entrou (`parte`). Ao sair, `nomesSem` tira só esse nome. Casas antigas sem `parte`: tira pelo nome inteiro ou primeiro nome, mas nunca o primeiro da saudação nem o nome de quem fica (antes, uma conta "Caio Medeiros" apagava o "Caio" também).
+
 ## PRÓXIMA TAREFA
 Nenhuma combinada. Regras da atividade já coladas pelo Caio (20/10). A Mirielly já entrou na casa (aparece em Quem mora junto). Botão de convite agora verde: "Criar convite do WhatsApp".
 

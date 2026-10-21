@@ -842,7 +842,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.20-15";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.21-1";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -2026,7 +2026,7 @@ function viewHome() {
   const items = all();
   const d = done(items), t = items.length;
   const e1 = items.filter(i => i.etapa === 1), d1 = done(e1), p1 = pct(d1, e1.length);
-  const nomes = nomesCasa();
+  const nomes = juntaNomes(partesNomes(nomesCasa()));
   const titulo = S.settings.nomeCasa || (S.casaId === "nosso-ap" ? CASA_PADRAO : "Nossa casa");
   const h = new Date().getHours();
   const saud = h >= 5 && h < 12 ? "Bom dia" : h >= 12 && h < 18 ? "Boa tarde" : "Boa noite";
@@ -3162,7 +3162,7 @@ function listaPublica() {
     ofertasDo(i).forEach(o => { const k = slug(o.loja || "").replace(/-/g, ""); if (LOJAS[k] && (!precos[k] || o.preco < precos[k])) precos[k] = o.preco; });
     return { id: i.id, nome: i.nome, sub: (r ? r.nome : "") + (i.valorPrevisto ? " · cerca de " + money0(i.valorPrevisto) : ""), precos };
   });
-  return { casaId: S.casaId, ativa: true, tipo: L.tipo || "Chá de casa nova", data: L.data || "", pix: L.pix || "", nomes: nomesCasa() || S.settings.nomeCasa || "", itens };
+  return { casaId: S.casaId, ativa: true, tipo: L.tipo || "Chá de casa nova", data: L.data || "", pix: L.pix || "", nomes: juntaNomes(partesNomes(nomesCasa())) || S.settings.nomeCasa || "", itens };
 }
 function syncLista(now) {
   clearTimeout(listaTimer);
@@ -3264,15 +3264,39 @@ function guestPick(id) {
 
 /* ---------------- QUEM MORA JUNTO ---------------- */
 const pessoas = () => S.settings.pessoas || {};
-/* tira o nome de quem saiu da saudação ("Caio, Ana e Mirielly" -> "Caio e Mirielly") */
+/* nomes da saudação: "Caio, Ana e Mirielly" (vírgula entre os nomes, "e" só antes do último) */
 const juntaNomes = l => l.length > 1 ? l.slice(0, -1).join(", ") + " e " + l[l.length - 1] : (l[0] || "");
+const partesNomes = s => String(s || "").split(/\s*,\s*|\s*&\s*|\s+e\s+/i).map(x => x.trim()).filter(Boolean);
+const nk = n => norm(n || "").trim().replace(/\s+/g, " "), nk1 = n => nk(n).split(" ")[0];
+/* põe um nome no fim da saudação, sem repetir quem já está */
+function nomesCom(atual, nome) {
+  const partes = partesNomes(atual);
+  if (!nome || partes.some(x => nk(x) === nk(nome) || nk(x) === nk1(nome))) return null;
+  return juntaNomes([...partes, nome.trim()]);
+}
+/* tira da saudação só o nome de quem saiu ("Caio, Ana e Mirielly" -> "Caio e Mirielly") */
 function nomesSem(email) {
   const atual = nomesCasa(); if (!atual) return null;
-  const st = S.settings, cand = [(pessoas()[email] || {}).nome, ...(st.chegadas || []).filter(c => c.email === email).map(c => c.nome), email.split("@")[0]]
-    .filter(Boolean).flatMap(n => [norm(n).trim(), norm(n).trim().split(/\s+/)[0]]);
-  const partes = atual.split(/\s*(?:,|&|\s+e\s+)\s*/i).map(x => x.trim()).filter(Boolean);
-  const ficam = partes.filter(x => !cand.includes(norm(x).trim()) && !cand.includes(norm(x).trim().split(/\s+/)[0]));
-  return ficam.length && ficam.length < partes.length ? juntaNomes(ficam) : null;
+  const st = S.settings, partes = partesNomes(atual);
+  if (partes.length < 2) return null;
+  const cheg = (st.chegadas || []).filter(c => c.email === email);
+  const ultimo = (ok, pula = () => false) => { for (let i = partes.length - 1; i >= 0; i--) if (ok(partes[i]) && !pula(partes[i])) return i; return -1; };
+  /* 1º: exatamente o nome que entrou na saudação quando a pessoa chegou */
+  const partesDela = cheg.map(c => c.parte).filter(Boolean).map(nk);
+  let k = ultimo(x => partesDela.includes(nk(x)));
+  /* 2º (casas antigas): o nome inteiro, depois só o primeiro nome ou o começo do e-mail.
+     Nunca tira o primeiro da saudação (quem criou a casa) nem quem continua na casa. */
+  if (k < 0 && !partesDela.length) {
+    const fica = new Set([...Object.entries(pessoas()).filter(([e]) => e !== email).map(([, p]) => p.nome),
+      ...(st.chegadas || []).filter(c => c.email !== email).map(c => c.nome),
+      S.user && S.user.email !== email ? meuNome() : ""].filter(Boolean).map(nk));
+    const inteiros = [(pessoas()[email] || {}).nome, ...cheg.map(c => c.nome)].filter(Boolean).map(nk);
+    const prim = new Set([...inteiros.map(n => n.split(" ")[0]), nk(email.split("@")[0])]);
+    const primero = x => partes.indexOf(x) === 0;
+    k = ultimo(x => inteiros.includes(nk(x)), x => primero(x) || fica.has(nk(x)));
+    if (k < 0) k = ultimo(x => prim.has(nk1(x)) || prim.has(nk(x)), x => primero(x) || [...fica].some(f => f.split(" ")[0] === nk1(x)));
+  }
+  return k < 0 ? null : juntaNomes(partes.filter((_, i) => i !== k));
 }
 function salvarPessoa(email, o) {
   const ps = { ...pessoas(), [email]: { ...(pessoas()[email] || {}), ...o } };
@@ -4542,9 +4566,10 @@ function ensureMembro() {
   if (!dono && !(st.membrosOk || []).includes(email)) {
     const nome = meuNome() || email.split("@")[0];
     patch.membrosOk = [...new Set([...(st.membrosOk || []), email])];
-    patch.chegadas = [...(st.chegadas || []), { email, nome, em: Date.now() }];
+    const nn = st.nomes ? nomesCom(st.nomes, nome) : null;
+    patch.chegadas = [...(st.chegadas || []), { email, nome, em: Date.now(), ...(nn ? { parte: nome.trim() } : {}) }];
     Object.assign(patch, guiaNovo());
-    if (st.nomes && !norm(st.nomes).includes(norm(nome))) patch.nomes = st.nomes + " e " + nome;
+    if (nn) patch.nomes = nn;
     S.post = isStandalone() ? ["bemvindo", "avisos"] : ["bemvindo", "avisos", "instalar"];
   }
   if (S.codigoUsado && (st.links || []).some(l => l.c === S.codigoUsado)) patch.links = st.links.filter(l => l.c !== S.codigoUsado);

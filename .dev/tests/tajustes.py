@@ -48,6 +48,7 @@ async def main():
       await pg.fill('#lEmail',f'ana-{sch}@t.com'); await pg.fill('#lSenha','123456'); await pg.fill('#lSenha2','123456'); await pg.click('#lBtn'); await pg.wait_for_timeout(1800)
       ok('Você entrou no' in await pg.inner_text('#app'),'ana joined')
       d=await db(); ok('Ana' in d['casas']['nosso-ap']['settings'].get('nomes',''),'Ana entrou na saudação')
+      nm=d['casas']['nosso-ap']['settings'].get('nomes',''); ok(nm.startswith('Caio, Mirielly e ') and nm.count(' e ')==1,'saudação com vírgula: '+nm)
       # caio removes ana
       await logout(); await login('caio@exemplo.com'); await ajustes(); await pg.click('[data-go=juntos]'); await pg.wait_for_timeout(700)
       await pg.click(f'[data-rm="ana-{sch}@t.com"]'); await pg.wait_for_timeout(300)
