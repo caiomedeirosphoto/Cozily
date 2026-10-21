@@ -147,6 +147,7 @@ h1,h2,h3{margin:0}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .feat .fic{background:rgba(255,255,255,.08)}}
 :root[data-theme="dark"] .feat .fic{background:rgba(255,255,255,.08)}
 .feat .badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:8px;color:#fff;white-space:nowrap;display:inline-flex;align-items:center;gap:3px}
+.etq-of.leve{background:var(--tile2);color:var(--ink2);padding:2px 7px}
 .etq-of{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:2px 7px 2px 5px;border-radius:7px;background:var(--orange);color:var(--orange-ink);white-space:nowrap}
 .feat.sage .badge.hot,.feat .badge.hot{background:var(--orange);color:var(--orange-ink)}
 .prox-h>span:first-child{white-space:nowrap}
@@ -842,7 +843,7 @@ const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.21-1";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.21-2";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -1289,7 +1290,7 @@ function demoSamples(db) {
     o1: { nome: "Air fryer 4,2 L antiaderente", para: "Air fryer", etapa: 2, preco: 349, precoAntes: 449, loja: "Amazon", nota: 4.8, avaliacoes: "5 mil", vendidos: "+10 mil", top: 1, atualizadoEm: Date.now() - 2 * 36e5 },
     o2: { nome: "Kit 4 toalhas de banho fio penteado", para: "Toalhas de banho", etapa: 1, preco: 89.9, precoAntes: 115, loja: "Shopee", nota: 4.9, avaliacoes: "12 mil", vendidos: "+30 mil", top: 2, atualizadoEm: Date.now() - 2 * 36e5 },
     o3: { nome: "Cooktop 4 bocas a gás", para: "Cooktop", etapa: 1, preco: 299, precoAntes: 389, loja: "Mercado Livre", nota: 4.7, avaliacoes: "8 mil", vendidos: "+20 mil", top: 3, atualizadoEm: Date.now() - 2 * 36e5 },
-    o4: { nome: "Micro-ondas 30 L com grill", para: "Micro-ondas", etapa: 2, preco: 579, precoAntes: 699, loja: "Amazon", nota: 4.8, avaliacoes: "6 mil", vendidos: "+15 mil", top: 4, atualizadoEm: Date.now() - 2 * 36e5 },
+    o4: { nome: "Micro-ondas 30 L com grill", para: "Micro-ondas", etapa: 2, preco: 579, precoAntes: 629, loja: "Amazon", nota: 4.8, avaliacoes: "6 mil", vendidos: "+15 mil", top: 4, atualizadoEm: Date.now() - 2 * 36e5 },
     o5: { nome: "Jogo de lençol casal 4 peças", para: "Lençóis com elástico", etapa: 1, preco: 119, precoAntes: 159, loja: "Shopee", nota: 4.8, avaliacoes: "9 mil", vendidos: "+25 mil", top: 5, atualizadoEm: Date.now() - 2 * 36e5 },
     o7: { nome: "Geladeira frost free 375 L inox", para: "Geladeira", etapa: 1, preco: 2690, precoAntes: 3290, loja: "Magalu", nota: 4.7, avaliacoes: "3 mil", vendidos: "+5 mil", top: 7, atualizadoEm: Date.now() - 2 * 36e5 },
     o6: { nome: "Kit ferramentas 129 peças com maleta", para: "Kit de ferramentas básico", etapa: 1, preco: 139, precoAntes: 189, loja: "Mercado Livre", nota: 4.8, avaliacoes: "15 mil", vendidos: "+50 mil", top: 6, atualizadoEm: Date.now() - 2 * 36e5 }
@@ -2158,9 +2159,11 @@ function viewRoom(id) {
 function ofertaDoItem(it) {
   if (!it || isDone(it)) return null;
   const o = ofertasDo(it).find(x => x.preco && x.precoAntes > x.preco); if (!o) return null;
-  return { o, off: Math.round((1 - o.preco / o.precoAntes) * 100) };
+  const off = Math.round((1 - o.preco / o.precoAntes) * 100);
+  return { o, off, imperdivel: o.imperdivel != null ? !!o.imperdivel : off >= 15 };
 }
-const etqOferta = (of, txt = "") => of ? `<span class="etq-of">${ic("fogo", 12, 2.4)}${txt}-${of.off}%</span>` : "";
+/* imperdível (15%+): foguinho laranja; desconto menor: etiqueta discreta, só pra saber onde está mais barato */
+const etqOferta = (of, txt = "") => !of ? "" : of.imperdivel ? `<span class="etq-of">${ic("fogo", 12, 2.4)}${txt}-${of.off}%</span>` : `<span class="etq-of leve">-${of.off}%</span>`;
 function ofertasDo(it) { const s = slug(it.nome); return S.ofertas.filter(o => slug(o.para || "") === s).sort((a, b) => (a.preco || 0) - (b.preco || 0)); }
 /* cupom só aparece se tiver a ver com o item (pelo nome ou pelo tópico) */
 const CUPOM_STOP = new Set(["para", "pra", "acima", "todo", "toda", "todos", "loja", "site", "casa", "itens", "produtos", "compras", "linha"]);
@@ -2449,7 +2452,7 @@ function viewBusca() {
 function viewAvisos() {
   const gs = garantias().filter(g => g.dias >= -30);
   const feed = feedAtividade();
-  const ofs = all().map(it => ({ it, of: ofertaDoItem(it) })).filter(x => x.of).sort((a, b) => (a.it.etapa || 9) - (b.it.etapa || 9) || b.of.off - a.of.off);
+  const ofs = all().map(it => ({ it, of: ofertaDoItem(it) })).filter(x => x.of && x.of.imperdivel).sort((a, b) => (a.it.etapa || 9) - (b.it.etapa || 9) || b.of.off - a.of.off);
   const perm = typeof Notification !== "undefined" ? Notification.permission : "unsupported";
   const quer = perm === "granted" && ls.get(`cozily-push-${S.user?.uid}`);
   setTimeout(() => { ls.set(`cozily-avisos-${S.user?.uid}`, Date.now()); gs.filter(g => g.dias >= 0 && g.dias <= 30).forEach(g => ls.set(`cozily-gar-${S.user?.uid}-${g.it.id}-${g.dias <= 7 ? 7 : 30}`, 1)); }, 400);

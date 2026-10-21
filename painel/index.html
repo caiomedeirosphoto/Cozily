@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#F6F2EC">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://*.googleapis.com https://*.gstatic.com https://*.firebaseio.com wss://*.firebaseio.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<title>Painel do Cozily</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Sora:wght@600;700&display=swap">
+<style>
+:root{
+  --bg:#F6F2EC;--card:#FFFFFF;--soft:#ECE5DA;--tile:#EDE5D9;--line:#E6DED2;--line2:#EFE8DE;--line3:#F2ECE3;
+  --ink:#2A2826;--ink2:#4A453F;--muted:#6B665F;--muted2:#77726B;--faint:#8B8680;
+  --g:#2E2B28;--g-ink:#FFFFFF;--hero:#2E2B28;--hero-ink:#FFFFFF;--hero-mut:#CFC6BA;--hero-glass:rgba(255,255,255,.07);
+  --sage:#DDE7D6;--sage-ink:#34503B;--sage-dk:#6E8F72;--rose:#F6E1DD;--rose-ink:#8A3E36;--mist:#DFE6EC;--mist-ink:#3D5466;
+  --orange:#FBE3D0;--orange-ink:#A4480F;--danger:#A2453B;--field:#FFFFFF;--seg-on:#FFFFFF;--tabbar:rgba(255,255,255,.92);--overlay:rgba(42,40,38,.45);
+  --ease:cubic-bezier(.22,1,.36,1);color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141414;--card:#1E1E1E;--soft:#262626;--tile:#2A2A2A;--line:#333333;--line2:#2A2A2A;--line3:#262626;
+  --ink:#F3F0EB;--ink2:#DAD6D0;--muted:#A8A39C;--muted2:#8F8A84;--faint:#7D7974;
+  --g:#EDE5D9;--g-ink:#161616;--hero:#232323;--hero-ink:#F6F2EC;--hero-mut:#A8A39C;--hero-glass:rgba(255,255,255,.05);
+  --sage:#1E2A22;--sage-ink:#A6CFAE;--sage-dk:#74A17C;--rose:#2F1E1D;--rose-ink:#EDB0A6;--mist:#1A2530;--mist-ink:#AFC6DA;
+  --orange:#33200F;--orange-ink:#FFB37A;--danger:#E08A7E;--field:#191919;--seg-on:#383838;--tabbar:rgba(28,28,28,.94);--overlay:rgba(0,0,0,.6);color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#141414;--card:#1E1E1E;--soft:#262626;--tile:#2A2A2A;--line:#333333;--line2:#2A2A2A;--line3:#262626;
+  --ink:#F3F0EB;--ink2:#DAD6D0;--muted:#A8A39C;--muted2:#8F8A84;--faint:#7D7974;
+  --g:#EDE5D9;--g-ink:#161616;--hero:#232323;--hero-ink:#F6F2EC;--hero-mut:#A8A39C;--hero-glass:rgba(255,255,255,.05);
+  --sage:#1E2A22;--sage-ink:#A6CFAE;--sage-dk:#74A17C;--rose:#2F1E1D;--rose-ink:#EDB0A6;--mist:#1A2530;--mist-ink:#AFC6DA;
+  --orange:#33200F;--orange-ink:#FFB37A;--danger:#E08A7E;--field:#191919;--seg-on:#383838;--tabbar:rgba(28,28,28,.94);--overlay:rgba(0,0,0,.6);color-scheme:dark;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Figtree,system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.4;-webkit-font-smoothing:antialiased}
+button,input{font:inherit;color:inherit}button{background:none;border:0;padding:0;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--muted);outline-offset:2px;border-radius:10px}
+h1,h2,h3,p{margin:0}
+.page{max-width:520px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 24px) 20px calc(env(safe-area-inset-bottom,0px) + 110px);display:flex;flex-direction:column;gap:16px;min-height:100vh}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.top small{font-size:14px;color:var(--muted);font-weight:500}
+.top h1,.h1{font-family:Sora,sans-serif;font-size:28px;letter-spacing:-.02em;line-height:1.15}
+.pill{height:32px;padding:0 12px;border-radius:16px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.pill i{width:8px;height:8px;border-radius:50%;background:currentColor}
+.pill.ok{background:var(--sage);color:var(--sage-ink)}.pill.warn{background:var(--rose);color:var(--rose-ink)}.pill.off{background:var(--soft);color:var(--muted)}
+.hero{background:var(--hero);color:var(--hero-ink);border-radius:26px;padding:20px;display:flex;flex-direction:column;gap:12px}
+.hero .lb{font-size:13px;font-weight:600;color:var(--hero-mut)}
+.hero .big{font-family:Sora,sans-serif;font-size:38px;font-weight:700;letter-spacing:-.03em;line-height:1}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.g3>div{background:var(--hero-glass);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.g3 span{font-size:12px;color:var(--hero-mut)}.g3 b{font-size:15px;overflow-wrap:anywhere}
+.card{background:var(--card);border:1px solid var(--line2);border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.card h2{font-size:15px;font-weight:700}
+.kv{display:flex;justify-content:space-between;gap:10px;font-size:14px}.kv span{color:var(--ink2)}
+.tip{border-radius:18px;padding:12px 14px;font-size:14px;line-height:1.45;display:flex;gap:10px;align-items:flex-start}
+.tip svg{flex:none;margin-top:2px}
+.tip.rose{background:var(--rose);color:var(--rose-ink)}.tip.sage{background:var(--sage);color:var(--sage-ink)}.tip.mist{background:var(--mist);color:var(--mist-ink)}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted2);padding:0 4px}
+.list{background:var(--card);border:1px solid var(--line2);border-radius:22px;overflow:hidden;display:flex;flex-direction:column}
+.row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line3);min-height:60px;width:100%;text-align:left}
+.row:last-child{border-bottom:0}
+.thumb{width:44px;height:44px;border-radius:13px;background:var(--tile);flex:none;overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--faint)}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.rt{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.rt b{font-size:14px;line-height:1.3;overflow-wrap:anywhere}
+.rt span{font-size:12px;color:var(--muted2)}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:11px;font-weight:700;padding:2px 7px;border-radius:7px;background:var(--soft);color:var(--ink2);white-space:nowrap}
+.tag.of{background:var(--orange);color:var(--orange-ink)}.tag.imp{background:var(--orange-ink);color:var(--card)}
+.price{font-size:13px;color:var(--muted)}.price b{color:var(--ink)}.price s{color:var(--faint)}
+.btn{min-height:50px;border-radius:16px;padding:0 18px;font-size:16px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;text-decoration:none}
+.btn.primary{background:var(--g);color:var(--g-ink)}.btn.ghost{background:var(--card);border-color:var(--line)}
+.btn.block{width:100%}.btn:disabled{opacity:.55}
+.link{min-height:44px;font-size:15px;font-weight:600;color:var(--muted);display:flex;align-items:center;justify-content:center;width:100%}
+.link.danger{color:var(--danger)}
+.seg{display:flex;background:var(--soft);border-radius:14px;padding:4px;gap:2px}
+.seg button{flex:1;min-height:38px;border-radius:11px;font-size:14px;font-weight:700;color:var(--muted2)}
+.seg button[aria-pressed="true"]{background:var(--seg-on);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.search{display:flex;align-items:center;gap:10px;min-height:46px;padding:0 14px;background:var(--soft);border-radius:16px;color:var(--muted2)}
+.search input{flex:1;min-width:0;border:0;background:transparent;outline:none;font-size:16px;height:46px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13px;font-weight:700;color:var(--muted)}
+.input{width:100%;min-height:52px;border-radius:16px;border:1px solid var(--line);background:var(--field);padding:0 16px;font-size:16px;outline:none}
+.input:focus{border-color:var(--muted)}
+.err{font-size:14px;color:var(--danger);font-weight:600}.err:empty{display:none}
+.ok-msg{font-size:14px;color:var(--sage-ink);font-weight:600}.ok-msg:empty{display:none}
+.switch{width:46px;height:28px;border-radius:14px;background:var(--line);position:relative;flex:none;transition:background .16s}
+.switch i{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .16s var(--ease)}
+.switch[aria-checked="true"]{background:var(--sage-dk)}.switch[aria-checked="true"] i{transform:translateX(18px)}
+.step{display:flex;align-items:center;gap:8px}
+.step button{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card);font-size:20px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.step b{min-width:52px;text-align:center;font-size:16px}
+.login{max-width:420px;margin:0 auto;min-height:100vh;padding:calc(env(safe-area-inset-top,0px) + 56px) 20px 40px;display:flex;flex-direction:column;gap:24px}
+.brand{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px}
+.logo{width:72px;height:72px;border-radius:22px;background:#2E2B28;display:flex;align-items:center;justify-content:center}
+.brand p{font-size:15px;color:var(--muted);max-width:300px;line-height:1.45}
+form{display:flex;flex-direction:column;gap:14px}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--tabbar);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border-top:1px solid var(--line);padding:8px 0 calc(env(safe-area-inset-bottom,0px) + 8px)}
+.tabbar nav{max-width:520px;margin:0 auto;display:flex;justify-content:space-around}
+.tab{min-width:72px;min-height:48px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:600;color:var(--faint)}
+.tab[aria-current="page"]{color:var(--ink);font-weight:700}
+.overlay{position:fixed;inset:0;z-index:50;background:var(--overlay);display:flex;align-items:flex-end;justify-content:center;animation:fade .16s ease both}
+.sheet{width:100%;max-width:560px;max-height:calc(100vh - 24px);overflow-y:auto;background:var(--bg);border-radius:26px 26px 0 0;padding:10px 20px calc(env(safe-area-inset-bottom,0px) + 24px);display:flex;flex-direction:column;gap:14px;animation:up .32s var(--ease) both}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto}
+.sheet-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sheet-h h2{font-family:Sora,sans-serif;font-size:18px;line-height:1.25}
+.x{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--muted);flex:none}
+.empty{text-align:center;color:var(--muted);font-size:14px;padding:28px 12px;line-height:1.5}
+.toast{position:fixed;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 90px);margin:0 auto;width:fit-content;max-width:calc(100% - 32px);z-index:80;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:14px;font-weight:600;animation:up .28s var(--ease) both}
+@keyframes fade{from{opacity:0}}@keyframes up{from{transform:translateY(24px);opacity:0}}
+@media (max-width:360px){.page{padding-left:16px;padding-right:16px}.hero .big{font-size:32px}.g3 b{font-size:13px}}
+</style>
+</head>
+<body>
+<div id="app" aria-live="polite"></div>
+<script type="module">
+/* ============================================================
+   PAINEL DE OFERTAS DO COZILY — só para contas criadas à mão no Firebase.
+   Não tem criar conta nem entrar com Google. Quem pode ver é decidido
+   pelas regras do Firestore (função painelAdmin), não por este arquivo.
+   ============================================================ */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCzFZMZafyL1Yl8bcZs7CK3SmVprt2X5H0",
+  authDomain: "cozily-bae7b.firebaseapp.com",
+  projectId: "cozily-bae7b",
+  storageBucket: "cozily-bae7b.firebasestorage.app",
+  messagingSenderId: "292997163165",
+  appId: "1:292997163165:web:45d8d307a91ef32e154c74"
+};
+const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
+const PADRAO = { descontoMin: 5, imperdivelMin: 15, notaMin: 4.5, avisosPorDia: 1, pausado: false, lojas: { shopee: true, mercadolivre: true, amazon: true } };
+const LOJA_NOME = { shopee: "Shopee", mercadolivre: "Mercado Livre", amazon: "Amazon" };
+
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const money = v => v == null ? "—" : Number(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+const hora = t => t ? new Date(t).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "—";
+const quando = t => {
+  if (!t) return "ainda não rodou";
+  const d = new Date(t), h = new Date(); const ontem = new Date(); ontem.setDate(h.getDate() - 1);
+  const dia = d.toDateString() === h.toDateString() ? "hoje" : d.toDateString() === ontem.toDateString() ? "ontem" : d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+  return `${dia}, ${hora(t)}`;
+};
+const off = o => o.off ?? (o.precoAntes > o.preco ? Math.round((1 - o.preco / o.precoAntes) * 100) : 0);
+const IC = {
+  casa: '<path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/>',
+  fogo: '<path d="M12 3c1 3 4 4.5 4 9a4 4 0 0 1-8 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 0-8z"/>',
+  robo: '<rect x="5" y="8" width="14" height="11" rx="3"/><path d="M12 8V4M9 13h.01M15 13h.01M9.5 16.5h5"/>',
+  busca: '<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/>',
+  x: '<path d="M6 6l12 12M18 6L6 18"/>',
+  alerta: '<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/>',
+  ok: '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/>',
+  img: '<rect x="4" y="5" width="16" height="14" rx="3"/><path d="M4 16l5-5 4 4 2-2 5 5"/>',
+  sair: '<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/>'
+};
+const ic = (n, s = 20, w = 2) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
+const LOGO = `<svg width="40" height="40" viewBox="0 0 64 64" aria-hidden="true"><path d="M44 18a17 17 0 1 0 0 28" fill="none" stroke="#F6F2EC" stroke-width="9" stroke-linecap="round"/><circle cx="46" cy="32" r="5" fill="#E3D4BF"/></svg>`;
+
+/* ---------------- dados: Firebase de verdade ou demonstração ---------------- */
+let store;
+async function firebaseStore() {
+  const V = "10.12.2", B = `https://www.gstatic.com/firebasejs/${V}/`;
+  const [{ initializeApp }, A, F] = await Promise.all([import(B + "firebase-app.js"), import(B + "firebase-auth.js"), import(B + "firebase-firestore.js")]);
+  const app = initializeApp(FIREBASE_CONFIG, "painel");
+  const auth = A.getAuth(app); await A.setPersistence(auth, A.browserLocalPersistence);
+  const fs = F.getFirestore(app);
+  const lista = (snap) => snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  return {
+    onUser: cb => A.onAuthStateChanged(auth, u => cb(u ? { uid: u.uid, email: u.email } : null)),
+    entrar: (e, s) => A.signInWithEmailAndPassword(auth, e, s),
+    esqueci: e => A.sendPasswordResetEmail(auth, e),
+    sair: () => A.signOut(auth),
+    watchDoc: (p, cb, err) => F.onSnapshot(F.doc(fs, p), d => cb(d.exists() ? d.data() : {}), err),
+    watchCol: (p, cb, err) => F.onSnapshot(F.collection(fs, p), s => cb(lista(s)), err),
+    salvarConfig: c => F.setDoc(F.doc(fs, "painel/config"), c, { merge: true }),
+    bloquear: (id, d) => F.setDoc(F.doc(fs, "painelBloqueados/" + id), d),
+    desbloquear: id => F.deleteDoc(F.doc(fs, "painelBloqueados/" + id)),
+    comando: (acao, por) => F.addDoc(F.collection(fs, "painelComandos"), { acao, em: Date.now(), por })
+  };
+}
+function demoStore() {
+  /* só pra prévia: tudo de mentira, guardado no aparelho */
+  const K = "cozily-painel-demo", h = 36e5, agora = Date.now();
+  const ofs = [
+    ["shopee--air-fryer", "Air Fryer 4,2 L antiaderente", "Air fryer", "shopee", 329, 449, 4.8, 3],
+    ["mercadolivre--geladeira", "Geladeira frost free 375 L inox", "Geladeira", "mercadolivre", 2690, 3290, null, 5],
+    ["shopee--toalhas-de-banho", "Kit 4 toalhas de banho fio penteado", "Toalhas de banho", "shopee", 99.9, 109.9, 4.9, 4],
+    ["mercadolivre--cooktop", "Cooktop 4 bocas a gás", "Cooktop", "mercadolivre", 309, 349, null, 2],
+    ["shopee--jogo-de-panelas", "Jogo de panelas 5 peças cerâmica", "Jogo de panelas", "shopee", 189, 279, 4.7, 6],
+    ["mercadolivre--micro-ondas", "Micro-ondas 30 L com grill", "Micro-ondas", "mercadolivre", 599, 649, null, 2]
+  ].map(([id, nome, para, lojaId, preco, precoAntes, nota, listas]) => {
+    const o = { id, nome, para, lojaId, loja: LOJA_NOME[lojaId], produtoId: id.split("--")[1] + "-123", preco, precoAntes, nota, listas, url: "https://exemplo.com", atualizadoEm: agora - 4 * h, testadoEm: agora - .6 * h };
+    o.off = off(o); o.imperdivel = o.off >= 15; return o;
+  });
+  const base = {
+    config: { ...PADRAO },
+    status: {
+      ultimaRodada: { em: agora - 4 * h, origem: "agenda", procurados: 142, novas: 9, noAr: ofs.length, tiradas: 3, avisos: 2, segundos: 312 },
+      ultimaChecagem: { em: agora - .6 * h, testadas: ofs.length, tiradas: 0 },
+      lojas: { shopee: { ok: true, msg: "" }, mercadolivre: { ok: true, msg: "" }, amazon: { ok: true, msg: "Só link, sem preço" } },
+      comissoes: { mes: "2026-10", shopee: 47.3, mercadolivre: null, amazon: null, em: agora - 3 * h },
+      alertas: []
+    },
+    ofertas: ofs,
+    hist: [{ id: "shopee--sofa", nome: "Sofá retrátil 3 lugares", para: "Sofá", lojaId: "shopee", loja: "Shopee", produtoId: "sofa-9", preco: 1490, precoAntes: 1690, off: 12, motivo: "Acabou o desconto ou o item já foi comprado", tiradaEm: agora - 26 * h }],
+    bloq: [{ id: "mercadolivre__capa-77", nome: "Capa protetora para air fryer", loja: "Mercado Livre", em: agora - 50 * h, por: "Caio" }]
+  };
+  let db; try { db = JSON.parse(localStorage.getItem(K)) || base; } catch (e) { db = base; }
+  const subs = new Set(), save = () => { try { localStorage.setItem(K, JSON.stringify(db)); } catch (e) {} subs.forEach(f => f()); };
+  let userCb = null, user = null;
+  try { user = JSON.parse(sessionStorage.getItem(K + "-u")); } catch (e) {}
+  const CONTAS = { "caio@exemplo.com": "Caio", "mirielly@exemplo.com": "Mirielly" };
+  const watch = (get, cb) => { const f = () => cb(get()); subs.add(f); setTimeout(f, 30); return () => subs.delete(f); };
+  return {
+    onUser: cb => { userCb = cb; setTimeout(() => cb(user), 30); },
+    entrar: async (e, s) => {
+      await new Promise(r => setTimeout(r, 350));
+      if (!CONTAS[e.toLowerCase()] || s !== "demonstracao") { const x = new Error(); x.code = "auth/invalid-credential"; throw x; }
+      user = { uid: e, email: e.toLowerCase() }; try { sessionStorage.setItem(K + "-u", JSON.stringify(user)); } catch (x) {} userCb(user);
+    },
+    esqueci: async () => {},
+    sair: async () => { user = null; try { sessionStorage.removeItem(K + "-u"); } catch (x) {} userCb(null); },
+    watchDoc: (p, cb) => watch(() => p === "painel/config" ? db.config : db.status, cb),
+    watchCol: (p, cb) => watch(() => p === "ofertas" ? db.ofertas : p === "painelHist" ? db.hist : db.bloq, cb),
+    salvarConfig: async c => { db.config = { ...db.config, ...c }; save(); },
+    bloquear: async (id, d) => {
+      db.bloq = db.bloq.filter(b => b.id !== id).concat([{ id, ...d }]);
+      const o = db.ofertas.find(x => `${x.lojaId}__${x.produtoId}` === id);
+      if (o) { db.ofertas = db.ofertas.filter(x => x !== o); db.hist.unshift({ ...o, motivo: "Bloqueada no painel", tiradaEm: Date.now() }); }
+      save();
+    },
+    desbloquear: async id => { db.bloq = db.bloq.filter(b => b.id !== id); save(); },
+    comando: async acao => {
+      await new Promise(r => setTimeout(r, 900));
+      if (acao === "rodar") db.status.ultimaRodada = { ...db.status.ultimaRodada, em: Date.now(), origem: "painel" };
+      save();
+    }
+  };
+}
+
+/* ---------------- estado e telas ---------------- */
+const S = { user: null, aba: "inicio", sub: "ar", q: "", config: { ...PADRAO }, status: {}, ofertas: [], hist: [], bloq: [], semAcesso: false, carregou: false };
+let unsubs = [];
+const nomeDe = email => email && email.toLowerCase().startsWith("miri") ? "Miri" : (email || "").startsWith("caio") ? "Caio" : (email || "").split("@")[0];
+
+function render() {
+  const app = $("#app");
+  if (!S.user) { app.innerHTML = viewLogin(); return; }
+  if (S.semAcesso) { app.innerHTML = viewSemAcesso(); return; }
+  const v = S.aba === "ofertas" ? viewOfertas() : S.aba === "robo" ? viewRobo() : viewInicio();
+  app.innerHTML = `<main class="page">${v}</main>${tabbar()}`;
+}
+
+function viewLogin() {
+  return `<main class="login">
+    <div class="brand"><span class="logo">${LOGO}</span><h1 class="h1">Painel do Cozily</h1><p>Ofertas e robô. Só para contas autorizadas.</p></div>
+    <form id="fLogin" novalidate>
+      <div class="field"><label for="lEmail">E-mail</label><input class="input" id="lEmail" type="email" autocomplete="username" inputmode="email" required></div>
+      <div class="field"><label for="lSenha">Senha</label><input class="input" id="lSenha" type="password" autocomplete="current-password" required></div>
+      <p class="err" id="lErr"></p><p class="ok-msg" id="lOk"></p>
+      <button class="btn primary block" id="lBtn" type="submit">Entrar</button>
+      <button class="link" type="button" data-act="esqueci">Esqueci a senha</button>
+    </form>
+    ${DEMO ? `<p class="tip mist">Prévia: entre com caio@exemplo.com e a senha demonstracao.</p>` : ""}
+  </main>`;
+}
+function viewSemAcesso() {
+  return `<main class="login"><div class="brand"><span class="logo">${LOGO}</span><h1 class="h1">Sem acesso</h1>
+    <p>A conta ${esc(S.user.email)} não tem acesso ao painel.</p></div>
+    <button class="btn ghost block" data-act="sair">Sair</button></main>`;
+}
+function tabbar() {
+  const t = (k, icn, l) => `<button class="tab" data-act="aba" data-v="${k}" ${S.aba === k ? 'aria-current="page"' : ""}>${ic(icn, 22)}${l}</button>`;
+  return `<div class="tabbar"><nav aria-label="Seções">${t("inicio", "casa", "Início")}${t("ofertas", "fogo", "Ofertas")}${t("robo", "robo", "Robô")}</nav></div>`;
+}
+function statusPill() {
+  const al = (S.status.alertas || []).length;
+  if (S.config.pausado) return `<span class="pill off"><i></i>Robô pausado</span>`;
+  if (al) return `<span class="pill warn"><i></i>Precisa de você</span>`;
+  return `<span class="pill ok"><i></i>Robô ligado</span>`;
+}
+
+function viewInicio() {
+  const r = S.status.ultimaRodada || {}, c = S.status.comissoes || {}, ch = S.status.ultimaChecagem || {};
+  const al = S.status.alertas || [];
+  const lojaCom = k => c[k] == null ? `<b>—</b>` : `<b>${money(c[k])}</b>`;
+  const top = [...S.ofertas].sort((a, b) => off(b) - off(a)).slice(0, 3);
+  const totalCom = ["shopee", "mercadolivre", "amazon"].reduce((s, k) => s + (c[k] || 0), 0);
+  return `
+    <div class="top"><div><small>painel.cozily.com.br</small><h1>Olá, ${esc(nomeDe(S.user.email))}</h1></div>${statusPill()}</div>
+    <section class="hero" aria-label="Comissões">
+      <span class="lb">Comissões este mês</span>
+      <span class="big">${money(totalCom)}</span>
+      <div class="g3"><div><span>Shopee</span>${lojaCom("shopee")}</div><div><span>Merc. Livre</span>${lojaCom("mercadolivre")}</div><div><span>Amazon</span>${lojaCom("amazon")}</div></div>
+      <span class="lb" style="font-weight:500">"—" = essa loja não manda o relatório pro robô; veja no site de afiliado dela.</span>
+    </section>
+    ${al.length ? al.map(a => `<div class="tip rose">${ic("alerta", 18, 2.2)}<span><b>${esc(LOJA_NOME[a.loja] || a.loja)}:</b> ${esc(textoAlerta(a.msg))}</span></div>`).join("")
+      : `<div class="tip sage">${ic("ok", 18, 2.2)}<span>Tudo rodando sozinho. O painel só pede algo quando uma loja trava.</span></div>`}
+    <section class="card">
+      <h2>Última rodada · ${esc(quando(r.em))}</h2>
+      <div class="kv"><span>Itens procurados</span><b>${r.procurados ?? "—"}</b></div>
+      <div class="kv"><span>Ofertas no ar</span><b>${S.ofertas.length}</b></div>
+      <div class="kv"><span>Novas ou que baixaram</span><b>${r.novas ?? "—"}</b></div>
+      <div class="kv"><span>Tiradas (acabaram)</span><b>${r.tiradas ?? "—"}</b></div>
+      <div class="kv"><span>Avisos enviados</span><b>${r.avisos ?? "—"}</b></div>
+      <div class="kv"><span>Links conferidos</span><b>${esc(quando(ch.em))}</b></div>
+      <button class="btn ghost block" data-act="rodar" ${S.config.pausado ? "disabled" : ""}>${ic("robo", 18)}Rodar agora</button>
+    </section>
+    ${top.length ? `<span class="eyebrow">Maiores descontos no ar</span><div class="list">${top.map(rowOferta).join("")}</div>` : ""}`;
+}
+function textoAlerta(m) {
+  if (/Falta conectar/i.test(m)) return "falta conectar a conta de afiliado.";
+  if (/modelo do link/i.test(m)) return "falta o modelo do link de afiliado.";
+  if (/40[13]/.test(m)) return "a loja recusou o acesso. O código de afiliado pode ter vencido.";
+  return m;
+}
+function rowOferta(o, i) {
+  const p = off(o);
+  return `<button class="row" data-act="abrir" data-id="${esc(o.id)}" data-src="${S.sub}">
+    <span class="thumb">${o.img ? `<img src="${esc(o.img)}" alt="" loading="lazy">` : ic("img", 20, 1.6)}</span>
+    <span class="rt"><b>${esc(o.nome)}</b>
+      <span class="price">${o.precoAntes ? `<s>${money(o.precoAntes)}</s> por ` : ""}<b>${money(o.preco)}</b></span>
+      <span class="tags">${p ? `<span class="tag ${o.imperdivel || p >= S.config.imperdivelMin ? "imp" : "of"}">${o.imperdivel || p >= S.config.imperdivelMin ? "Imperdível · " : ""}-${p}%</span>` : ""}<span class="tag">${esc(o.loja || LOJA_NOME[o.lojaId] || "")}</span>${o.listas ? `<span class="tag">em ${o.listas} ${o.listas === 1 ? "lista" : "listas"}</span>` : ""}</span>
+    </span></button>`;
+}
+
+function viewOfertas() {
+  const q = S.q.trim().toLowerCase(), f = l => q ? l.filter(o => `${o.nome} ${o.para || ""} ${o.loja || ""}`.toLowerCase().includes(q)) : l;
+  const ar = f([...S.ofertas].sort((a, b) => off(b) - off(a)));
+  const tiradas = f([...S.hist].sort((a, b) => (b.tiradaEm || 0) - (a.tiradaEm || 0)));
+  const bloq = f([...S.bloq].sort((a, b) => (b.em || 0) - (a.em || 0)));
+  const seg = (k, l) => `<button data-act="sub" data-v="${k}" aria-pressed="${S.sub === k}">${l}</button>`;
+  let corpo;
+  if (S.sub === "ar") corpo = ar.length ? `<div class="list">${ar.map(rowOferta).join("")}</div>` : `<p class="empty">Nenhuma oferta no ar${q ? " com esse nome" : ""}. O robô publica todo dia às 6h.</p>`;
+  else if (S.sub === "tiradas") corpo = tiradas.length ? `<div class="list">${tiradas.map(o => `<button class="row" data-act="abrir" data-id="${esc(o.id)}" data-src="tiradas"><span class="thumb">${ic("img", 20, 1.6)}</span><span class="rt"><b>${esc(o.nome)}</b><span>${esc(o.motivo || "")} · ${esc(quando(o.tiradaEm))}</span></span></button>`).join("")}</div>` : `<p class="empty">Nada foi tirado nos últimos 30 dias.</p>`;
+  else corpo = bloq.length ? `<div class="list">${bloq.map(b => `<div class="row"><span class="rt"><b>${esc(b.nome)}</b><span>${esc(b.loja || "")} · bloqueado por ${esc(b.por || "—")} · ${esc(quando(b.em))}</span></span><button class="btn ghost" style="min-height:40px;font-size:14px;padding:0 12px" data-act="desbloquear" data-id="${esc(b.id)}">Liberar</button></div>`).join("")}</div>` : `<p class="empty">Nenhum produto bloqueado.</p>`;
+  return `
+    <div class="top"><h1>Ofertas</h1></div>
+    <div class="seg" role="group" aria-label="Mostrar">${seg("ar", `No ar · ${S.ofertas.length}`)}${seg("tiradas", "Tiradas")}${seg("bloq", "Bloqueadas")}</div>
+    <label class="search">${ic("busca", 18)}<input id="qBusca" type="search" placeholder="Buscar produto ou loja" value="${esc(S.q)}" aria-label="Buscar"></label>
+    ${corpo}
+    ${S.sub === "ar" ? `<p class="tip mist">Tudo aqui entra e sai sozinho. Não gostou de um produto? Toque nele e escolha "Bloquear". O robô não publica mais ele.</p>` : ""}`;
+}
+
+function viewRobo() {
+  const c = S.config, L = S.status.lojas || {};
+  const loja = k => {
+    const st = L[k] || {}, on = c.lojas?.[k] !== false;
+    const msg = !on ? "Desligada" : k === "amazon" ? "Só link, sem preço (até a Amazon liberar)" : st.ok === false ? textoAlerta(st.msg || "Com problema") : st.ok ? "Conectada e funcionando" : "Esperando a primeira rodada";
+    const cor = !on ? "var(--muted2)" : st.ok === false ? "var(--danger)" : k === "amazon" ? "var(--orange-ink)" : "var(--sage-ink)";
+    return `<div class="row"><span class="rt"><b style="font-size:15px">${LOJA_NOME[k]}</b><span style="color:${cor};font-weight:600">${esc(msg)}</span></span>
+      <button class="switch" role="switch" aria-checked="${on}" aria-label="Ligar ${LOJA_NOME[k]}" data-act="loja" data-v="${k}"><i></i></button></div>`;
+  };
+  const step = (k, label, sufixo, passo, min, max, dica) => `<div class="row" style="flex-wrap:wrap">
+      <span class="rt"><b style="font-size:15px">${label}</b>${dica ? `<span>${dica}</span>` : ""}</span>
+      <span class="step"><button data-act="menos" data-k="${k}" data-p="${passo}" data-min="${min}" aria-label="Diminuir">−</button><b>${String(c[k]).replace(".", ",")}${sufixo}</b><button data-act="mais" data-k="${k}" data-p="${passo}" data-max="${max}" aria-label="Aumentar">+</button></span></div>`;
+  return `
+    <div class="top"><h1>Robô</h1>${statusPill()}</div>
+    <span class="eyebrow">Lojas</span>
+    <div class="list">${loja("shopee")}${loja("mercadolivre")}${loja("amazon")}</div>
+    <span class="eyebrow">Regras</span>
+    <div class="list">
+      ${step("descontoMin", "Mostrar oferta a partir de", "%", 1, 1, 50, "Aparece discreta no item")}
+      ${step("imperdivelMin", "Oferta imperdível", "%", 1, 5, 80, "Destaque e aviso no celular")}
+      ${step("notaMin", "Nota mínima do produto", "", .1, 3, 5, "Quando a loja informa a nota")}
+      ${step("avisosPorDia", "Avisos por casa", "/dia", 1, 0, 3, "0 = nenhum aviso")}
+    </div>
+    <span class="eyebrow">Agenda</span>
+    <div class="card">
+      <div class="kv"><span>Rodada completa</span><b>Todo dia, 6h</b></div>
+      <div class="kv"><span>Conferir links</span><b>De hora em hora</b></div>
+      <div class="kv"><span>Comissões</span><b>Todo dia, 7h</b></div>
+      <div class="row" style="padding:6px 0 0;border:0;min-height:0"><span class="rt"><b style="font-size:15px">Pausar o robô</b><span>As ofertas no ar ficam como estão</span></span><button class="switch" role="switch" aria-checked="${!!c.pausado}" aria-label="Pausar o robô" data-act="pausar"><i></i></button></div>
+    </div>
+    <span class="eyebrow">Quem acessa</span>
+    <div class="card"><b style="font-size:15px">Caio e Miri</b><span style="font-size:13px;color:var(--muted2)">Contas criadas à mão no Firebase. Não dá pra criar conta por aqui.</span></div>
+    <p class="tip sage">Os códigos de afiliado ficam guardados no servidor do Firebase. Nem o app nem este painel mostram os códigos.</p>
+    <button class="link danger" data-act="sair">${ic("sair", 18)}&nbsp;Sair (${esc(S.user.email)})</button>`;
+}
+
+/* ---------------- folha de detalhe da oferta ---------------- */
+function abrirOferta(id, src) {
+  const o = (src === "tiradas" ? S.hist : S.ofertas).find(x => x.id === id); if (!o) return;
+  const p = off(o), bid = `${o.lojaId}__${o.produtoId}`, ja = S.bloq.some(b => b.id === bid);
+  const ov = document.createElement("div"); ov.className = "overlay";
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="shT">
+    <span class="grab" aria-hidden="true"></span>
+    <div class="sheet-h"><h2 id="shT">${esc(o.nome)}</h2><button class="x" data-x aria-label="Fechar">${ic("x", 20)}</button></div>
+    <div class="tags">${p ? `<span class="tag ${p >= S.config.imperdivelMin ? "imp" : "of"}">${p >= S.config.imperdivelMin ? "Imperdível · " : ""}-${p}%</span>` : ""}<span class="tag">${esc(o.loja || "")}</span></div>
+    <div class="card">
+      <div class="kv"><span>Preço</span><b>${money(o.preco)}</b></div>
+      ${o.precoAntes ? `<div class="kv"><span>Antes</span><b>${money(o.precoAntes)}</b></div>` : ""}
+      <div class="kv"><span>Para o item</span><b>${esc(o.para || "—")}</b></div>
+      <div class="kv"><span>Em quantas listas</span><b>${o.listas ?? "—"}</b></div>
+      ${o.nota != null ? `<div class="kv"><span>Nota</span><b>${String(o.nota).replace(".", ",")}</b></div>` : ""}
+      <div class="kv"><span>${src === "tiradas" ? "Tirada" : "Link conferido"}</span><b>${esc(quando(src === "tiradas" ? o.tiradaEm : o.testadoEm))}</b></div>
+      ${o.motivo ? `<div class="kv"><span>Motivo</span><b style="text-align:right">${esc(o.motivo)}</b></div>` : ""}
+    </div>
+    ${o.url ? `<a class="btn primary block" href="${esc(o.url)}" target="_blank" rel="noopener noreferrer">Abrir na loja</a>` : ""}
+    ${ja ? `<button class="btn ghost block" data-bl="0">Liberar este produto</button>` : `<button class="link danger" data-bl="1">Bloquear este produto</button>`}
+  </div>`;
+  const fechar = () => ov.remove();
+  ov.addEventListener("click", async e => {
+    if (e.target === ov || e.target.closest("[data-x]")) return fechar();
+    const b = e.target.closest("[data-bl]"); if (!b) return;
+    b.disabled = true;
+    try {
+      if (b.dataset.bl === "1") { await store.bloquear(bid, { nome: o.nome, loja: o.loja || "", em: Date.now(), por: nomeDe(S.user.email) }); toast("Bloqueado. Sai do app na próxima rodada."); }
+      else { await store.desbloquear(bid); toast("Liberado"); }
+      fechar();
+    } catch (x) { b.disabled = false; toast("Não deu certo. Tente de novo."); }
+  });
+  document.addEventListener("keydown", function k(e) { if (e.key === "Escape") { fechar(); document.removeEventListener("keydown", k); } });
+  document.body.appendChild(ov); $(".x", ov).focus();
+}
+function toast(t) { document.querySelectorAll(".toast").forEach(x => x.remove()); const d = document.createElement("div"); d.className = "toast"; d.setAttribute("role", "status"); d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 2600); }
+
+/* ---------------- ações ---------------- */
+let salvarT = null, salvarAgora = async () => {};
+function mudarConfig(patch) {
+  S.config = { ...S.config, ...patch };
+  if (S.config.imperdivelMin < S.config.descontoMin) S.config.imperdivelMin = S.config.descontoMin;
+  render();
+  clearTimeout(salvarT);
+  const por = nomeDe(S.user && S.user.email);
+  salvarAgora = () => store.salvarConfig({ descontoMin: S.config.descontoMin, imperdivelMin: S.config.imperdivelMin, notaMin: S.config.notaMin, avisosPorDia: S.config.avisosPorDia, lojas: S.config.lojas, pausado: !!S.config.pausado, atualizadoEm: Date.now(), por })
+    .then(() => toast("Salvo")).catch(() => toast("Não salvou. Confira a internet."));
+  salvarT = setTimeout(() => { salvarT = null; salvarAgora(); }, 600);
+}
+document.addEventListener("click", async e => {
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  const a = b.dataset.act;
+  if (a === "aba") { S.aba = b.dataset.v; render(); scrollTo(0, 0); }
+  else if (a === "sub") { S.sub = b.dataset.v; render(); }
+  else if (a === "abrir") abrirOferta(b.dataset.id, b.dataset.src);
+  else if (a === "desbloquear") { b.disabled = true; try { await store.desbloquear(b.dataset.id); toast("Liberado"); } catch (x) { b.disabled = false; toast("Não deu certo"); } }
+  else if (a === "loja") mudarConfig({ lojas: { ...S.config.lojas, [b.dataset.v]: !(S.config.lojas?.[b.dataset.v] !== false) } });
+  else if (a === "pausar") mudarConfig({ pausado: !S.config.pausado });
+  else if (a === "mais" || a === "menos") {
+    const k = b.dataset.k, p = +b.dataset.p, v = Math.round(((S.config[k] ?? PADRAO[k]) + (a === "mais" ? p : -p)) * 10) / 10;
+    mudarConfig({ [k]: a === "mais" ? Math.min(+b.dataset.max, v) : Math.max(+b.dataset.min, v) });
+  }
+  else if (a === "rodar") {
+    b.disabled = true; b.textContent = "Rodando…";
+    try { await store.comando("rodar", nomeDe(S.user.email)); toast("O robô começou. Leva uns minutos."); } catch (x) { toast("Não deu certo"); }
+    setTimeout(render, 1500);
+  }
+  else if (a === "sair") { if (salvarT) { clearTimeout(salvarT); salvarT = null; await salvarAgora(); } await store.sair(); }
+  else if (a === "esqueci") {
+    const em = $("#lEmail").value.trim(), err = $("#lErr"), ok = $("#lOk"); err.textContent = ""; ok.textContent = "";
+    if (!em) { err.textContent = "Digite o e-mail primeiro."; return; }
+    try { await store.esqueci(em); } catch (x) {}
+    ok.textContent = "Se esse e-mail tiver acesso, chega um link pra trocar a senha.";
+  }
+});
+document.addEventListener("input", e => {
+  if (e.target.id === "qBusca") { S.q = e.target.value; const pos = e.target.selectionStart; render(); const i = $("#qBusca"); if (i) { i.focus(); i.setSelectionRange(pos, pos); } }
+});
+document.addEventListener("submit", async e => {
+  if (e.target.id !== "fLogin") return;
+  e.preventDefault();
+  const em = $("#lEmail").value.trim(), se = $("#lSenha").value, err = $("#lErr"), btn = $("#lBtn");
+  err.textContent = "";
+  if (!em || !se) { err.textContent = "Preencha o e-mail e a senha."; return; }
+  btn.disabled = true; btn.textContent = "Entrando…";
+  try { await store.entrar(em, se); }
+  catch (x) {
+    btn.disabled = false; btn.textContent = "Entrar";
+    err.textContent = /too-many/.test(x.code || "") ? "Muitas tentativas. Espere uns minutos." : /network/.test(x.code || "") ? "Sem internet." : "E-mail ou senha não conferem.";
+  }
+});
+
+/* ---------------- início ---------------- */
+function ouvir() {
+  unsubs.forEach(u => u && u()); unsubs = [];
+  const negado = () => { S.semAcesso = true; render(); };
+  unsubs.push(store.watchDoc("painel/config", d => { S.config = { ...PADRAO, ...d, lojas: { ...PADRAO.lojas, ...(d.lojas || {}) } }; render(); }, negado));
+  unsubs.push(store.watchDoc("painel/status", d => { S.status = d || {}; render(); }, negado));
+  unsubs.push(store.watchCol("ofertas", l => { S.ofertas = l; render(); }));
+  unsubs.push(store.watchCol("painelHist", l => { S.hist = l; render(); }, negado));
+  unsubs.push(store.watchCol("painelBloqueados", l => { S.bloq = l; render(); }, negado));
+}
+(async () => {
+  try { store = DEMO ? demoStore() : await firebaseStore(); }
+  catch (e) { $("#app").innerHTML = `<main class="login"><p class="empty">Não deu pra carregar. Confira a internet e abra de novo.</p></main>`; return; }
+  store.onUser(u => {
+    S.user = u; S.semAcesso = false;
+    if (u) ouvir(); else { unsubs.forEach(x => x && x()); unsubs = []; S.aba = "inicio"; }
+    render();
+  });
+})();
+</script>
+</body>
+</html>

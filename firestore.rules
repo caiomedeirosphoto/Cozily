@@ -131,8 +131,36 @@ service cloud.firestore {
       allow update: if false;
     }
 
-    // Ofertas e cupons: o app só lê (quem escreve é o robô do painel, mais pra frente).
+    // Ofertas e cupons: o app só lê. Quem escreve é o robô (servidor), que não passa por estas regras.
     match /ofertas/{id} { allow read: if signedIn(); allow write: if false; }
     match /cupons/{id} { allow read: if signedIn(); allow write: if false; }
+
+    // ---------- Painel de ofertas (painel.cozily.com.br) ----------
+    // Só as duas contas criadas à mão no Firebase entram. Troque pelos códigos (UID) das contas,
+    // que aparecem em Authentication → Usuários, na coluna "UID do usuário".
+    function painelAdmin() {
+      return signedIn() && request.auth.uid in ['UID_DO_CAIO', 'UID_DA_MIRI'];
+    }
+    match /painel/{doc} {
+      allow read: if painelAdmin();
+      // o painel só muda as regras do robô; o status quem grava é o robô
+      allow write: if painelAdmin() && doc == 'config'
+        && request.resource.data.keys().hasOnly(['descontoMin', 'imperdivelMin', 'notaMin', 'avisosPorDia', 'lojas', 'pausado', 'atualizadoEm', 'por'])
+        && request.resource.data.get('descontoMin', 5) is number
+        && request.resource.data.get('imperdivelMin', 15) is number
+        && request.resource.data.get('notaMin', 4.5) is number;
+    }
+    match /painelHist/{id} { allow read: if painelAdmin(); allow write: if false; }
+    match /painelBloqueados/{id} {
+      allow read, delete: if painelAdmin();
+      allow create, update: if painelAdmin() && request.resource.data.keys().hasOnly(['nome', 'loja', 'em', 'por']);
+    }
+    match /painelComandos/{id} {
+      allow read: if painelAdmin();
+      allow create: if painelAdmin() && request.resource.data.keys().hasOnly(['acao', 'em', 'por'])
+        && request.resource.data.acao in ['rodar', 'checar', 'comissoes'];
+      allow update, delete: if false;
+    }
+    match /precos/{id} { allow read, write: if false; }
   }
 }
