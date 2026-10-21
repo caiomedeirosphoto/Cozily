@@ -65,7 +65,7 @@ Versão **2026.10.19-4 liberada no app** (`main`) em 19/10/2026, com o OK do Cai
 - Quem entra grava em `chegadas` o nome exato que entrou (`parte`). Ao sair, `nomesSem` tira só esse nome. Casas antigas sem `parte`: tira pelo nome inteiro ou primeiro nome, mas nunca o primeiro da saudação nem o nome de quem fica (antes, uma conta "Caio Medeiros" apagava o "Caio" também).
 
 ## PRÓXIMA TAREFA
-**Painel de ofertas automático** (21/10): storyboard em https://claude.ai/artifact/SP2NWUCebeLdNoHSoUXBfk, esperando o OK do Caio. Painel em `ofertas.cozily.com.br`, só Caio e Mirielly (login Google). Tem que ser 100% automático (robô no plano Blaze: rodada diária 6h, checagem de hora em hora, comissões diárias, avisos máx. 1/dia por pessoa). Depende do domínio + Firebase Hosting; depois o repositório vira privado.
+**Painel de ofertas automático** (21/10): storyboard em https://claude.ai/artifact/SP2NWUCebeLdNoHSoUXBfk, esperando o OK do Caio. Painel em `painel.cozily.com.br`, só Caio e Mirielly (login Google). Tem que ser 100% automático (oferta aparece no item a partir de 5% de desconto; "imperdível" com destaque e aviso a partir de 15%; robô no plano Blaze: rodada diária 6h, checagem de hora em hora, comissões diárias, avisos máx. 1/dia por pessoa). Depende do domínio + Firebase Hosting; depois o repositório vira privado.
 
 Antes: Regras da atividade já coladas pelo Caio (20/10). A Mirielly já entrou na casa (aparece em Quem mora junto). Botão de convite agora verde: "Criar convite do WhatsApp".
 
