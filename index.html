@@ -489,6 +489,30 @@ input[type=date].input,input[type=month].input{min-width:0;display:flex;align-it
 .pres-todos .n{font-size:13px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--tile);color:var(--ink2)}
 .offline{pointer-events:none;white-space:nowrap;position:fixed;left:16px;right:16px;margin:0 auto;width:fit-content;top:calc(var(--top) + 8px);z-index:90;display:flex;align-items:center;gap:8px;max-width:calc(100% - 32px);padding:8px 14px;border-radius:999px;background:var(--ink);color:var(--bg);font-size:13px;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,.2);animation:toastInTop var(--t-toast) var(--ease) both}
 .offline.out{animation:toastOutTop var(--t-fast) var(--ease-in) both}
+.plano-bar{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:8px 12px 8px 8px;border-radius:16px;background:var(--honey);color:var(--honey-ink);font-size:14px;text-align:left}
+.plano-bar b{color:var(--ink)}
+.plano-bar .pb-ic{width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.55);display:flex;align-items:center;justify-content:center;flex:none}
+.plano-bar .pb-go{display:flex;align-items:center;gap:2px;font-weight:700;white-space:nowrap}
+.plano-fim{background:var(--rose);color:var(--rose-ink);border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.plano-fim b{font-family:Sora,sans-serif;font-size:17px;color:var(--ink)}
+.plano-fim p{margin:0;font-size:14px;line-height:1.45}
+.plano-fim .btn{margin-top:4px}
+.plano-bar .pb-sub{display:block;font-size:12px;font-weight:600;color:var(--honey-ink);opacity:.9}
+.plano-promo{display:flex;gap:8px;align-items:flex-start;background:var(--orange);color:var(--orange-ink);border-radius:14px;padding:10px 12px;font-size:13px;line-height:1.45}
+.plano-promo svg{flex:none;margin-top:2px}.plano-promo b{color:var(--ink)}
+.pp-de{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--faint)}
+.pp-off{font-size:12px;font-weight:700;padding:2px 7px;border-radius:7px;background:var(--orange);color:var(--orange-ink)}
+.plano-txt{margin:0;font-size:15px;line-height:1.5;color:var(--ink2)}
+.plano-card{gap:14px}
+.plano-lista{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.plano-lista li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.plano-lista svg{flex:none;margin-top:3px;color:var(--sage-dk)}
+.plano-preco{display:flex;flex-direction:column;gap:2px;border-top:1px solid var(--line3);padding-top:12px}
+.plano-preco b{font-family:Sora,sans-serif;font-size:28px;letter-spacing:-.02em}
+.plano-preco span{font-size:13px;color:var(--muted)}
+.plano-demo{display:flex;flex-direction:column;border-top:1px dashed var(--line);padding-top:6px}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .plano-bar .pb-ic{background:rgba(255,255,255,.08)}}
+:root[data-theme="dark"] .plano-bar .pb-ic{background:rgba(255,255,255,.08)}
 .aj-sec{margin:10px 2px -6px;font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted2)}
 .aj-sec:first-child{margin-top:0}
 .aj-rodape{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 8px;font-size:13px;color:var(--faint);padding-top:4px}
@@ -841,9 +865,16 @@ const ENTREGA_PADRAO = "2028-12";
 const NOMES_PADRAO = "Caio e Mirielly";
 const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
+/* teste grátis e venda: 7 dias pra conta nova; depois só ver até liberar o acesso (pagamento na Kiwify).
+   A casa do Caio e da Mirielly (nosso-ap) é grátis pra sempre. */
+const TESTE_DIAS = 7;
+/* preço: promoção de verdade enquanto o teste grátis está valendo; depois volta pro preço cheio */
+const PRECO_CHEIO = 49.90, PRECO_PROMO = 39.90;
+const KIWIFY_CHECKOUT = "";               // checkout da Kiwify com o preço cheio (fica vazio até a venda abrir)
+const KIWIFY_PROMO = "";                  // checkout da Kiwify com o preço promocional (oferta/cupom da Kiwify)
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.21-2";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.23-1";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -1091,6 +1122,7 @@ const LOJAS = {
 /* ---------------- ícones ---------------- */
 const IC = {
   bag: '<path d="M5 8h14l-1 12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   gift: '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/>',
   pot: '<path d="M4 11h16v6a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3z"/><path d="M2 11h2M20 11h2M9 8c0-1.2 1-1.6 1-2.8M13 8c0-1.2 1-1.6 1-2.8"/>',
   bed: '<path d="M3 5v14M3 14h18M21 19v-6a3 3 0 0 0-3-3h-7v4"/><circle cx="7" cy="11" r="2"/>',
@@ -1433,7 +1465,12 @@ function makeDemoStore() {
     async putLista(slugId, data) { const l = (db.listas[slugId] = db.listas[slugId] || { data: {}, reservas: {} }); l.data = { ...l.data, ...data }; persist(); },
     async delLista(slugId) { delete db.listas[slugId]; persist(); },
     async reservar(slugId, itemId, nome) { const l = db.listas[slugId]; if (!l) throw new Error("lista"); if (l.reservas[itemId]) throw { code: "permission-denied" }; l.reservas[itemId] = { nome, em: Date.now() }; persist(); },
-    async liberar(slugId, itemId) { const l = db.listas[slugId]; if (l) { delete l.reservas[itemId]; persist(); } }
+    async liberar(slugId, itemId) { const l = db.listas[slugId]; if (l) { delete l.reservas[itemId]; persist(); } },
+    async iniciarTeste(uidX) { db.testes = db.testes || {}; if (!db.testes[uidX]) { db.testes[uidX] = { em: Date.now() }; persist(); } },
+    watchAcesso(id, cb) { return listen(() => cb({ pago: !!(db.acesso || {})[id]?.pago, desde: (db.testes || {})[id]?.em || null })); },
+    /* só na prévia: pra ver o fim do teste e a liberação sem esperar */
+    demoAcabarTeste(id) { db.testes = db.testes || {}; db.testes[id] = { em: Date.now() - (TESTE_DIAS + 1) * 864e5 }; persist(); },
+    demoPagar(id) { db.acesso = db.acesso || {}; db.acesso[id] = { pago: true, em: Date.now() }; persist(); }
   };
 }
 
@@ -1483,6 +1520,20 @@ async function makeFirebaseStore() {
     setPassword: s => A.updatePassword(auth.currentUser, s),
     isLink: href => A.isSignInWithEmailLink(auth, href),
     completeLink: (email, href) => A.signInWithEmailLink(auth, email.trim(), href),
+    /* começa o teste grátis da conta (uma vez só: as regras não deixam mudar nem apagar) */
+    async iniciarTeste(uidX) {
+      const ref = F.doc(db, "testes", uidX);
+      const d = await F.getDoc(ref).catch(() => null);
+      if (d && d.exists()) return;
+      await F.setDoc(ref, { em: Date.now() });
+    },
+    watchAcesso(id, cb) {
+      let pago = false, desde = null, aOk = false, tOk = false;
+      const fim = () => { if (aOk && tOk) cb({ pago, desde }); };
+      const a = F.onSnapshot(F.doc(db, "acesso", id), d => { pago = !!(d.exists() && d.data().pago); aOk = true; fim(); }, () => { aOk = true; fim(); });
+      const t = F.onSnapshot(F.doc(db, "testes", id), d => { desde = d.exists() ? d.data().em || null : null; tOk = true; fim(); }, () => { tOk = true; fim(); });
+      return () => { a(); t(); };
+    },
     async resolveCasa(user) {
       if (LEGACY[user.email]) return LEGACY[user.email];
       try { const c = await F.getDoc(F.doc(db, "convites", user.email)); if (c.exists() && c.data().casaId) return c.data().casaId; } catch {}
@@ -1576,7 +1627,7 @@ async function makeFirebaseStore() {
    =================================================================== */
 const S = {
   store: null, user: undefined, items: new Map(), settings: {}, loaded: false,
-  movs: [], compras: [], mercado: new Map(), ofertas: [], cupons: [], reservas: [], atividade: [], listaPub: null,
+  movs: [], compras: [], mercado: new Map(), ofertas: [], cupons: [], reservas: [], atividade: [], listaPub: null, acesso: null,
   route: null, scroll: {},
   roomTopic: {}, roomFilter: {}, stage: 1, q: "", qFilter: "all", mFilter: "all", mMonth: null, achTab: "top", presFilter: "on",
   photos: {}, pending: new Set(), guest: null
@@ -1601,6 +1652,82 @@ const guiaKey = () => `guia_${S.user?.uid || "x"}`;
 /* registro de erros: o app guarda o que quebrou (sem dados da casa) pra dar pra consertar */
 const ADMIN_EMAIL = "caiodanielmedeiros1597@gmail.com";
 const CONTATO_EMAIL = "caiodanielmedeiros1597@gmail.com";
+/* ---------------- teste grátis e acesso ---------------- */
+const gratisSempre = () => S.casaId === "nosso-ap";
+function acessoInfo() {
+  if (gratisSempre()) return { tipo: "gratis" };
+  const a = S.acesso;
+  if (!a || !a.desde) return a && a.pago ? { tipo: "pago" } : { tipo: "carregando" };
+  if (a.pago) return { tipo: "pago" };
+  const fim = a.desde + TESTE_DIAS * 864e5, dias = Math.ceil((fim - Date.now()) / 864e5);
+  return dias > 0 ? { tipo: "teste", dias, fim } : { tipo: "acabou", fim };
+}
+const bloqueado = () => !!(S.user && S.loaded) && acessoInfo().tipo === "acabou";
+const dataCurta = t => new Date(t).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+function planoHtml() {
+  const a = acessoInfo();
+  if (a.tipo === "teste") return `<button class="plano-bar" data-act="plano"><span class="pb-ic">${ic("gift", 16, 2.2)}</span><span class="grow"><b>Teste grátis</b> · ${a.dias === 1 ? "último dia" : `faltam ${a.dias} dias`}<small class="pb-sub">${DESCONTO_PROMO}% off até o teste acabar</small></span><span class="pb-go">${reais(PRECO_PROMO)}${ic("chev", 14, 2.4)}</span></button>`;
+  if (a.tipo === "acabou") return `<section class="plano-fim" aria-label="Teste grátis">
+      <b>Seu teste grátis acabou</b>
+      <p>Tudo o que vocês anotaram continua aqui. Pra voltar a anotar e marcar as compras, é só liberar o acesso.</p>
+      <button class="btn primary block" data-act="plano">Liberar acesso · ${reais(PRECO_CHEIO)}</button>
+    </section>`;
+  return "";
+}
+const reais = v => "R$ " + v.toFixed(2).replace(".", ",");
+const DESCONTO_PROMO = Math.round((1 - PRECO_PROMO / PRECO_CHEIO) * 100);
+const temPromo = () => acessoInfo().tipo === "teste";
+const PRECO_TXT_AGORA = () => reais(temPromo() ? PRECO_PROMO : PRECO_CHEIO);
+function linkCheckout() {
+  const base = temPromo() && KIWIFY_PROMO ? KIWIFY_PROMO : KIWIFY_CHECKOUT;
+  if (!base) return "";
+  const u = new URL(base);
+  if (S.user?.email) u.searchParams.set("email", S.user.email);
+  if (meuNome()) u.searchParams.set("name", meuNome());
+  return u.toString();
+}
+function openPlano() {
+  const a = acessoInfo(), link = linkCheckout();
+  const topo = a.tipo === "pago" ? `<div class="status done"><span class="st"><b>Acesso liberado</b><span>Obrigado por usar o Cozily!</span></span></div>`
+    : a.tipo === "acabou" ? `<p class="plano-txt">Seu teste grátis acabou em <b>${dataCurta(a.fim)}</b>. Nada foi apagado: vocês continuam vendo tudo, só não dá pra mudar até liberar.</p>`
+    : a.tipo === "teste" ? `<p class="plano-txt">Seu teste grátis vai até <b>${dataCurta(a.fim)}</b>. Depois disso, a lista fica só pra ver até liberar o acesso.</p>` : "";
+  const itens = ["Todos os cômodos e itens, com fotos", "Caixinha e finanças da casa", "Lista do mercado do mês", "Lista de presentes pros convidados", "Ofertas do que falta"];
+  openSheet("Liberar o Cozily", `
+    ${topo}
+    ${a.tipo !== "pago" ? `<div class="card plano-card">
+      <ul class="plano-lista">${itens.map(t => `<li>${ic("check", 15, 2.6)}<span>${t}</span></li>`).join("")}</ul>
+      ${temPromo() ? `<div class="plano-promo">${ic("clock", 15, 2.2)}<span><b>Preço de lançamento só até ${dataCurta(a.fim)}</b>${a.dias === 1 ? " (hoje é o último dia)" : `, faltam ${a.dias} dias`}. Depois volta pra ${reais(PRECO_CHEIO)}.</span></div>` : ""}
+      <div class="plano-preco">${temPromo() ? `<span class="pp-de"><s>${reais(PRECO_CHEIO)}</s><span class="pp-off">-${DESCONTO_PROMO}%</span></span>` : ""}<b>${PRECO_TXT_AGORA()}</b><span>Pagamento pela Kiwify. O acesso libera sozinho em até 1 minuto.</span></div>
+      ${link ? `<a class="btn primary block lg" href="${esc(link)}" target="_blank" rel="noopener">${temPromo() ? `Garantir por ${reais(PRECO_PROMO)}` : "Liberar acesso"}</a>` : `<button class="btn primary block lg" disabled>Pagamento abre em breve</button>`}
+      <p class="small muted center" style="margin:0">Use o mesmo e-mail da sua conta: <b>${esc(S.user?.email || "")}</b></p>
+    </div>
+    ${S.casaId !== S.user?.uid ? `<p class="small muted center" style="margin:0">Pode ser você ou quem criou a casa. Vale pra todo mundo que mora junto.</p>` : ""}` : ""}
+    ${DEMO ? `<div class="plano-demo"><button class="link-btn" data-demo="acabar">Simular fim do teste (só na prévia)</button><button class="link-btn" data-demo="pagar">Simular pagamento (só na prévia)</button></div>` : ""}`,
+  { cancelLabel: "Fechar", onMount(ov, close) {
+      ov.addEventListener("click", e => {
+        const d = e.target.closest("[data-demo]"); if (!d) return;
+        if (d.dataset.demo === "acabar") S.store.demoAcabarTeste(S.casaId); else S.store.demoPagar(S.casaId);
+        close();
+      });
+  } });
+}
+/* fim do teste: o que muda alguma coisa abre a tela de liberar (ver e navegar continua livre) */
+const SO_COM_ACESSO = new Set(["toggle", "unmark", "qtd", "anotar", "edit", "delete", "restore", "rooms", "guardar", "mov-edit", "meta", "orc", "lancar", "m-addq", "compra-edit", "m-new", "m-toggle", "m-edit", "m-qty", "m-rm", "lista-criar", "lista-cfg", "lista-item", "pres-todos", "lista-liberar", "add-sug"]);
+document.addEventListener("click", e => {
+  if (!bloqueado()) return;
+  const el = e.target.closest("[data-act]"); if (!el || !SO_COM_ACESSO.has(el.dataset.act)) return;
+  e.preventDefault(); e.stopImmediatePropagation(); openPlano();
+}, true);
+document.addEventListener("submit", e => {
+  if (!bloqueado() || e.target.id !== "mAdd") return;
+  e.preventDefault(); e.stopImmediatePropagation(); openPlano();
+}, true);
+let acessoAntes = "";
+function avisaAcesso() {
+  const t = acessoInfo().tipo;
+  if (acessoAntes && acessoAntes !== "pago" && t === "pago") toast("Acesso liberado! Pode anotar à vontade.", null, null, 3400, { ok: true, title: "Tudo certo" });
+  acessoAntes = t;
+}
 const ehAdmin = () => !DEMO ? S.user?.email === ADMIN_EMAIL : S.user?.email === "caio@exemplo.com";
 let errosEnviados = 0;
 const errosVistos = new Set();
@@ -2051,6 +2178,7 @@ function viewHome() {
       </div>
     </div>
     ${DEMO ? `<span class="demo">Prévia · os dados ficam só neste aparelho</span>` : ""}
+    ${planoHtml()}
     <section class="hero" aria-label="Progresso da casa">
       <span class="chip-glass">${ic("key", 14, 2)}${esc(chavesTxt())}</span>
       <a class="anel-row" href="#/ordem" data-act="stage-go" data-v="1">
@@ -3539,6 +3667,7 @@ function openSettings() {
     </div>
     <h3 class="aj-sec">Sua conta</h3>
     <div class="items">
+      ${!gratisSempre() ? row("data-go=plano", "gift", "Plano", ({ teste: "Teste grátis", acabou: "Teste acabou", pago: "Acesso liberado" })[acessoInfo().tipo] || "") : ""}
       ${row("data-go=nome", "edit", "Seu nome", esc(meuNome() || "Ainda sem nome"))}
       ${row("data-go=senha", "key", "Senha", "Criar ou trocar")}
       ${row("data-go=dados", "dl", "Baixar meus dados", "Cópia de tudo, num arquivo")}
@@ -3568,6 +3697,7 @@ function openSettings() {
         setTimeout(() => {
           if (k === "juntos") openJuntos(); else if (k === "rooms") openRoomsEditor(); else if (k === "lista") go("#/presentes");
           else if (k === "avisos") go("#/avisos"); else if (k === "trash") openTrash(); else if (k === "senha") openSenha();
+          else if (k === "plano") openPlano();
           else if (k === "nome") openNome(); else if (k === "privacidade") openPrivacidade(); else if (k === "excluir") openExcluirConta(); else if (k === "erros") openErros();
           else if (k === "instalar") { S.post = ["instalar"]; S.postManual = true; rerender(); window.scrollTo(0, 0); }
         }, 300);
@@ -3732,7 +3862,7 @@ function openRoomsEditor() {
 
 /* ---------------- AÇÕES ---------------- */
 function write(p, msg = "Não deu pra salvar. Confere a internet?") {
-  Promise.resolve(p).catch(err => { console.error(err); logErro(err, "salvar"); toast(err?.code === "permission-denied" ? "Sem permissão pra salvar. Confere as regras do Firestore." : msg); });
+  Promise.resolve(p).catch(err => { console.error(err); if (err?.code === "permission-denied" && bloqueado()) { openPlano(); return; } logErro(err, "salvar"); toast(err?.code === "permission-denied" ? "Sem permissão pra salvar. Confere as regras do Firestore." : msg); });
 }
 function toggleItem(id) {
   const it = S.items.get(id); if (!it) return;
@@ -4280,6 +4410,7 @@ document.addEventListener("click", e => {
   else if (a === "delete") deleteItem(id);
   else if (a === "restore") restoreItem(id);
   else if (a === "settings") openSettings();
+  else if (a === "plano") openPlano();
   else if (a === "rooms") openRoomsEditor();
   else if (a === "filter") { S.roomFilter[el.dataset.room] = el.dataset.v; trocaSuave(); }
   else if (a === "topic") { S.roomTopic[el.dataset.room] = el.dataset.v; trocaSuave(); }
@@ -4703,7 +4834,9 @@ async function handleAuth(user) {
       if (run !== authRun) return;
       const casa = await S.store.resolveCasa(user);
       if (run !== authRun) return;   // outro login chegou no meio: esse aqui para
-      S.casaId = casa;
+      S.casaId = casa; S.acesso = null; acessoAntes = "";
+      if (casa === user.uid) S.store.iniciarTeste(user.uid).catch(err => logErro(err, "teste"));
+      if (casa !== "nosso-ap") unsubs.push(S.store.watchAcesso(casa, a => { S.acesso = a; avisaAcesso(); onData(); }));
       applyRooms();
       let gotItems = false, gotSettings = false;
       const ready = () => { if (gotItems && gotSettings && !S.loaded) { S.loaded = true; saindoDaCasa = 0; render("enter-fade"); } onData(); };

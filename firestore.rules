@@ -38,17 +38,27 @@ service cloud.firestore {
         && request.resource.data.data.matches('^data:image/(jpeg|png|webp);base64,.*');
     }
 
+    // Teste grátis de 7 dias: depois disso a casa fica só pra ver até o acesso ser liberado (pagamento).
+    // A casa original (nosso-ap) é grátis pra sempre. "acesso" quem grava é o servidor (pagamento da Kiwify).
+    function liberada(casaId) {
+      let a = /databases/$(database)/documents/acesso/$(casaId);
+      let t = /databases/$(database)/documents/testes/$(casaId);
+      return casaId == 'nosso-ap'
+        || (exists(a) && get(a).data.get('pago', false) == true)
+        || (exists(t) && request.time.toMillis() < get(t).data.em + 7 * 86400000);
+    }
+    // Pode ver e apagar sempre; criar e mudar só com a casa liberada.
     match /casas/{casaId} {
       allow read, write: if isMember(casaId);
-      match /itens/{id} { allow read, write: if isMember(casaId); }
-      match /movs/{id} { allow read, write: if isMember(casaId); }
-      match /compras/{id} { allow read, write: if isMember(casaId); }
-      match /mercado/{id} { allow read, write: if isMember(casaId); }
+      match /itens/{id} { allow read, delete: if isMember(casaId); allow create, update: if isMember(casaId) && liberada(casaId); }
+      match /movs/{id} { allow read, delete: if isMember(casaId); allow create, update: if isMember(casaId) && liberada(casaId); }
+      match /compras/{id} { allow read, delete: if isMember(casaId); allow create, update: if isMember(casaId) && liberada(casaId); }
+      match /mercado/{id} { allow read, delete: if isMember(casaId); allow create, update: if isMember(casaId) && liberada(casaId); }
       // Atividade da casa ("Mirielly marcou Geladeira como comprado"): quem é da casa lê e apaga;
       // cada um só grava em nome do próprio e-mail, e ninguém edita o que já foi gravado.
       match /atividade/{id} {
         allow read, delete: if isMember(casaId);
-        allow create: if isMember(casaId)
+        allow create: if isMember(casaId) && liberada(casaId)
           && request.resource.data.keys().hasOnly(['acao', 'quem', 'email', 'em', 'alvo', 'itemId', 'valor', 'extra'])
           && request.resource.data.acao is string && request.resource.data.acao.size() <= 20
           && request.resource.data.quem is string && request.resource.data.quem.size() <= 60
@@ -62,9 +72,24 @@ service cloud.firestore {
       }
       match /fotos/{id} {
         allow read, delete: if isMember(casaId);
-        allow create, update: if isMember(casaId) && fotoOk();
+        allow create, update: if isMember(casaId) && liberada(casaId) && fotoOk();
       }
     }
+
+    // Início do teste grátis: cada conta grava uma vez, com a hora de agora. Ninguém muda nem apaga.
+    match /testes/{uid} {
+      allow get: if signedIn() && (request.auth.uid == uid || isMember(uid));
+      allow create: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['em'])
+        && request.resource.data.em is int
+        && request.resource.data.em > request.time.toMillis() - 600000
+        && request.resource.data.em < request.time.toMillis() + 600000;
+      allow update, delete: if false;
+    }
+    // Acesso liberado (pago): só o servidor grava, quem é da casa lê.
+    match /acesso/{casaId} { allow get: if isMember(casaId); allow write: if false; }
+    // Pagamento de quem ainda não criou conta: só o servidor mexe.
+    match /pagamentos/{email} { allow read, write: if false; }
 
     // Convites: quem é da casa convida; o convidado (com e-mail confirmado) lê o próprio convite.
     // Ninguém consegue trocar um convite que já existe pra apontar pra outra casa.

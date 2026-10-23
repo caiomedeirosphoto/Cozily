@@ -185,4 +185,28 @@ exports.comandoDoPainel = onDocumentCreated({ document: "painelComandos/{id}", s
   } catch (e) { await ev.data.ref.update({ erro: String(e.message).slice(0, 200) }); }
 });
 
+/* ---------- pagamento (Kiwify) ---------- */
+const { onRequest } = require("firebase-functions/v2/https");
+const pagamento = require("./pagamento");
+const KIWIFY_TOKEN = defineSecret("KIWIFY_TOKEN");
+exports.kiwify = onRequest({ secrets: [KIWIFY_TOKEN], cors: false, maxInstances: 2 }, async (req, res) => {
+  if (req.method !== "POST") { res.status(405).send("Só POST"); return; }
+  const bruto = req.rawBody ? req.rawBody.toString("utf8") : JSON.stringify(req.body || {});
+  if (!pagamento.assinaturaOk(bruto, req.query.signature, KIWIFY_TOKEN.value())) { logger.warn("kiwify: assinatura inválida"); res.status(401).send("assinatura"); return; }
+  const p = req.body || {}, acao = pagamento.acaoDoPedido(p), email = pagamento.emailDoPedido(p);
+  if (!acao || !email) { res.status(200).send("ignorado"); return; }
+  try {
+    const r = await pagamento.aplicar(db, admin, email, acao, p.order_id);
+    logger.info("kiwify", { acao, casas: r.casas.length });
+    res.status(200).send("ok");
+  } catch (e) { logger.error("kiwify", e); res.status(500).send("erro"); }   // a Kiwify tenta de novo
+});
+/* Conta nova de quem já tinha pago: libera na hora. */
+const functionsV1 = require("firebase-functions/v1");
+exports.contaNova = functionsV1.region("southamerica-east1").auth.user().onCreate(async user => {
+  const email = (user.email || "").toLowerCase(); if (!email) return;
+  const pg = await db.doc(`pagamentos/${email}`).get();
+  if (pg.exists && pg.data().pago) await db.doc(`acesso/${user.uid}`).set({ ...pg.data(), em: Date.now() }, { merge: true });
+});
+
 exports._interno = { rodada, checagem, comissoes };
