@@ -876,7 +876,7 @@ const KIWIFY_CHECKOUT = "";               // checkout da Kiwify com o preço che
 const KIWIFY_PROMO = "";                  // checkout da Kiwify com o preço promocional (oferta/cupom da Kiwify)
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.23-2";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.23-3";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -1208,6 +1208,13 @@ function applyTema(t = getTema()) {
   else r.removeAttribute("data-theme");
   const dark = t === "escuro" || (t === "auto" && mqDark?.matches);
   document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.setAttribute("content", dark ? "#141414" : "#F6F2EC"));
+  if (document.querySelector(".overlay:not(.closing)")) barraTopo(true);
+}
+/* barra de cima do celular: escurece junto com o fundo quando abre uma janela (antes piscava uma faixa escura) */
+function barraTopo(escura) {
+  const dark = getComputedStyle(document.documentElement).colorScheme.includes("dark");
+  const cor = escura ? (dark ? "#080808" : "#9A9793") : (dark ? "#141414" : "#F6F2EC");
+  document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.setAttribute("content", cor));
 }
 function setTema(t) {
   try { localStorage.setItem(TEMA_KEY, t); } catch (e) {}
@@ -2799,10 +2806,12 @@ function openSheet(title, bodyHtml, { saveLabel, cancelLabel = "Cancelar", onSav
   </div>`;
   document.body.appendChild(ov);
   document.body.style.overflow = "hidden";
+  barraTopo(true);
   const sheet = $(".sheet", ov);
   const close = () => {
     if (ov.classList.contains("closing")) return;
     ov.classList.add("closing");
+    if (!document.querySelector(".overlay:not(.closing)")) barraTopo(false);
     setTimeout(() => {
       ov.remove(); if (!document.querySelector(".overlay")) document.body.style.overflow = "";
       onClose && onClose();
