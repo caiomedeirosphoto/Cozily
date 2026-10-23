@@ -78,6 +78,10 @@ Versão **2026.10.19-4 liberada no app** (`main`) em 19/10/2026, com o OK do Cai
 - Servidor (`functions/`, Blaze): `kiwify` (webhook, assinatura HMAC-SHA1 com segredo KIWIFY_TOKEN; pago libera, reembolso/chargeback tira; libera `acesso/{uid}` e a casa do convite; guarda `pagamentos/{email}`) e `contaNova` (quem pagou antes de criar conta). Testes: `functions/test/pagamento.test.js`, `.dev/tests/tteste.py`.
 - Regras novas (testes/acesso/pagamentos + liberada + painel) entregues ao Caio em 23/10 pra colar.
 
+## Liberado no app em 23/10/2026: versão 2026.10.23-3 (`dev` e `main` iguais)
+- Pente fino: tokens `--muted2`/`--faint` mais legíveis (claro e escuro), alvos de toque maiores ("editar" orçamento, "Ver todas", "Onde comprar"), lista de presentes em 320 px (`.g-th` menor), `.offer .off` sem quebrar. Teste de varredura `.dev/tests/taudit.py` (todas as telas e folhas; prints em `.dev/t4/audit`).
+- `barraTopo()`: a cor da barra do celular (meta theme-color) escurece junto com as folhas e volta ao fechar (antes piscava uma faixa escura no iPhone).
+
 ## PRÓXIMA TAREFA
 Esperar o domínio cozily.com.br. Antes: Regras da atividade já coladas pelo Caio (20/10). A Mirielly já entrou na casa.
 
