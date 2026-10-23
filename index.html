@@ -899,9 +899,10 @@ const PRECO_CHEIO = 49.90, PRECO_PROMO = 39.90;
 const CAKTO_CHECKOUT = "";                // checkout da Cakto com o preço cheio (fica vazio até a venda abrir)
 const CAKTO_PROMO = "";                   // checkout da Cakto com o preço promocional (oferta da Cakto)
 const SUPORTE_EMAIL = "appcozily@gmail.com";
+const PAINEL_UIDS = ["z3IAlPqEItOlAn1V8st5nMcxBa72", "2YuTaUgsPCXrUscgAZh9uWsnTYa2"];   // contas criadas à mão, só para o painel
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.23-4";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.23-5";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -4894,6 +4895,11 @@ async function handleAuth(user) {
     if (S.needVerify) {
       if (S.linkMode) { S.linkMode = false; history.replaceState(null, "", location.pathname + location.hash); }
       S.route = parseRoute(); render("enter-fade"); return;
+    }
+    if (user && PAINEL_UIDS.includes(user.uid)) {
+      /* contas do painel são só do painel: não entram no app como conta comum */
+      await S.store.logout().catch(() => {});
+      S.authMode = "entrar"; S.authAviso = "Essa conta é só do painel. Para usar o app, entre com a sua conta normal do Cozily."; render("enter-fade"); return;
     }
     if (user) {
       if (S.pendingName && !user.nome) { user.nome = S.pendingName; S.store.setName(S.pendingName).catch(() => {}); }

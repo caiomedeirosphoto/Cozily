@@ -165,7 +165,7 @@ service cloud.firestore {
     // Só as duas contas criadas à mão no Firebase entram. Troque pelos códigos (UID) das contas,
     // que aparecem em Authentication → Usuários, na coluna "UID do usuário".
     function painelAdmin() {
-      return signedIn() && request.auth.uid in ['UID_DO_CAIO', 'UID_DA_MIRI'];
+      return signedIn() && request.auth.uid in ['z3IAlPqEItOlAn1V8st5nMcxBa72', '2YuTaUgsPCXrUscgAZh9uWsnTYa2'];
     }
     match /painel/{doc} {
       allow read: if painelAdmin();
