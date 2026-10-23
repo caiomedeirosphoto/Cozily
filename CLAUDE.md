@@ -70,13 +70,13 @@ Versão **2026.10.19-4 liberada no app** (`main`) em 19/10/2026, com o OK do Cai
 - **Robô** (`functions/`, Cloud Functions, região southamerica-east1, precisa do Blaze): `rodadaDiaria` 6h, `checagemHoraria`, `comissoesDiarias` 7h, `comandoDoPainel` (doc em `painelComandos`). Regras puras em `functions/core.js` (testes: `cd functions && npm test`). Lojas em `functions/lojas/`: Shopee (Open API de afiliados, segredos SHOPEE_APP_ID/SHOPEE_SECRET, link já vem com comissão, tem relatório de comissões); Mercado Livre (API de busca com ML_CLIENT_ID/ML_CLIENT_SECRET; link de afiliado por modelo ML_LINK_AFILIADO "{url}…", A CONFIRMAR se o programa permite; sem relatório); Amazon só link até liberar a PA-API. Coleções: `painel/config`, `painel/status`, `painelHist` (30 dias), `painelBloqueados/{loja}__{produtoId}`, `painelComandos`, `precos` (30 dias por produto). Avisos FCM para `casas/{id}/push/{token}` (o app ainda NÃO registra aparelho: fazer junto com a mudança de domínio, com regra própria) e contador `avisoOferta` na casa.
 - **Ordem para ligar**: domínio → Firebase Hosting (app + painel) → Blaze → segredos (`firebase functions:secrets:set`) → deploy das functions → Caio cria as 2 contas e passa os UIDs → regras novas coladas → repositório privado.
 
-## Na `dev` (23/10/2026), esperando o OK: teste grátis de 7 dias (app 2026.10.23-1)
+## Liberado no app em 23/10/2026: teste grátis de 7 dias (app 2026.10.23-1, `dev` e `main` iguais; inclui o 2026.10.21-2)
 - Conta nova grava `testes/{uid}` {em} uma vez (regra: só criar, hora de agora ±10 min; nunca muda/apaga). `acessoInfo()`: gratis (nosso-ap) / pago (`acesso/{casaId}.pago`, só servidor grava) / teste (dias) / acabou. Quem mora junto segue o status da casa.
 - Acabou = só ver: cliques de mudança (`SO_COM_ACESSO`) e o form do mercado abrem `openPlano()`; `write()` com permission-denied também. Regras: `liberada(casaId)` em create/update de itens, movs, compras, mercado, atividade, fotos (ler e apagar continuam).
 - Preço: R$ 39,90 promocional (-20% de R$ 49,90) SÓ enquanto o teste vale (prazo real = fim do teste); depois R$ 49,90. Constantes `PRECO_CHEIO`, `PRECO_PROMO`, `KIWIFY_PROMO` (link com preço promo), `KIWIFY_CHECKOUT` (cheio) — vazios até a venda abrir ("Pagamento abre em breve"). Link leva `?email=&name=`.
 - Início: barra "Teste grátis · faltam N dias · 20% off até o teste acabar · R$ 39,90"; fim: cartão rosa "Seu teste grátis acabou". Ajustes → Plano. Prévia tem "Simular fim do teste/pagamento".
 - Servidor (`functions/`, Blaze): `kiwify` (webhook, assinatura HMAC-SHA1 com segredo KIWIFY_TOKEN; pago libera, reembolso/chargeback tira; libera `acesso/{uid}` e a casa do convite; guarda `pagamentos/{email}`) e `contaNova` (quem pagou antes de criar conta). Testes: `functions/test/pagamento.test.js`, `.dev/tests/tteste.py`.
-- Regras novas (testes/acesso/pagamentos + liberada) só podem ser coladas DEPOIS de subir o app.
+- Regras novas (testes/acesso/pagamentos + liberada + painel) entregues ao Caio em 23/10 pra colar.
 
 ## PRÓXIMA TAREFA
 Esperar o domínio cozily.com.br. Antes: Regras da atividade já coladas pelo Caio (20/10). A Mirielly já entrou na casa.
