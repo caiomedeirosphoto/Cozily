@@ -185,28 +185,28 @@ exports.comandoDoPainel = onDocumentCreated({ document: "painelComandos/{id}", s
   } catch (e) { await ev.data.ref.update({ erro: String(e.message).slice(0, 200) }); }
 });
 
-/* ---------- pagamento (Kiwify) ---------- */
+/* ---------- pagamento (Cakto) ---------- */
 const { onRequest } = require("firebase-functions/v2/https");
 const pagamento = require("./pagamento");
-const KIWIFY_TOKEN = defineSecret("KIWIFY_TOKEN");
-exports.kiwify = onRequest({ secrets: [KIWIFY_TOKEN], cors: false, maxInstances: 2 }, async (req, res) => {
+const CAKTO_SECRET = defineSecret("CAKTO_SECRET");
+exports.cakto = onRequest({ secrets: [CAKTO_SECRET], cors: false, maxInstances: 2 }, async (req, res) => {
   if (req.method !== "POST") { res.status(405).send("Só POST"); return; }
-  const bruto = req.rawBody ? req.rawBody.toString("utf8") : JSON.stringify(req.body || {});
-  if (!pagamento.assinaturaOk(bruto, req.query.signature, KIWIFY_TOKEN.value())) { logger.warn("kiwify: assinatura inválida"); res.status(401).send("assinatura"); return; }
-  const p = req.body || {}, acao = pagamento.acaoDoPedido(p), email = pagamento.emailDoPedido(p);
-  if (!acao || !email) { res.status(200).send("ignorado"); return; }
+  const p = req.body || {};
+  if (!pagamento.chaveOk(pagamento.chaveDoAviso(p, req.headers), CAKTO_SECRET.value())) { logger.warn("cakto: chave inválida"); res.status(401).send("chave"); return; }
+  const acao = pagamento.acaoDoPedido(p), email = pagamento.emailDoPedido(p);
+  if (!acao || !email) { logger.info("cakto: ignorado", { evento: p.event || p.type || "" }); res.status(200).send("ignorado"); return; }
   try {
-    const r = await pagamento.aplicar(db, admin, email, acao, p.order_id);
-    logger.info("kiwify", { acao, casas: r.casas.length });
+    const r = await pagamento.aplicar(db, admin, email, acao, pagamento.idDoPedido(p));
+    logger.info("cakto", { acao, casas: r.casas.length });
     res.status(200).send("ok");
-  } catch (e) { logger.error("kiwify", e); res.status(500).send("erro"); }   // a Kiwify tenta de novo
+  } catch (e) { logger.error("cakto", e); res.status(500).send("erro"); }   // a Cakto tenta de novo
 });
 /* Conta nova de quem já tinha pago: libera na hora. */
 const functionsV1 = require("firebase-functions/v1");
 exports.contaNova = functionsV1.region("southamerica-east1").auth.user().onCreate(async user => {
   const email = (user.email || "").toLowerCase(); if (!email) return;
   const pg = await db.doc(`pagamentos/${email}`).get();
-  if (pg.exists && pg.data().pago) await db.doc(`acesso/${user.uid}`).set({ ...pg.data(), em: Date.now() }, { merge: true });
+  if (pg.exists && pg.data().pago && (!pg.data().ate || pg.data().ate > Date.now())) await db.doc(`acesso/${user.uid}`).set({ ...pg.data(), em: Date.now() }, { merge: true });
 });
 
 exports._interno = { rodada, checagem, comissoes };

@@ -511,6 +511,30 @@ input[type=date].input,input[type=month].input{min-width:0;display:flex;align-it
 .plano-preco b{font-family:Sora,sans-serif;font-size:28px;letter-spacing:-.02em}
 .plano-preco span{font-size:13px;color:var(--muted)}
 .plano-demo{display:flex;flex-direction:column;border-top:1px dashed var(--line);padding-top:6px}
+.pp-ano{color:var(--ink);font-weight:700}
+.plano-card[hidden]{display:none}
+.pc-passos li p{margin:0;flex:1}
+.pc-passos li b{color:var(--ink)}
+.email-box{display:flex;flex-direction:column;gap:2px;background:var(--honey);color:var(--honey-ink);border:1.5px dashed var(--honey-bar);border-radius:14px;padding:10px 14px;min-width:0}
+.email-box .eb-lbl{font-size:12px;font-weight:600;opacity:.9}
+.email-box .eb-mail{font-size:16px;color:var(--ink);word-break:break-all;line-height:1.3}
+.plano-confirma{align-items:stretch;text-align:left}
+.plano-confirma .pc-ic{width:44px;height:44px;border-radius:14px;background:var(--honey);color:var(--honey-ink);display:flex;align-items:center;justify-content:center;align-self:center}
+.plano-confirma .pc-tit{font-family:Sora,sans-serif;font-size:18px;text-align:center;letter-spacing:-.01em}
+.pc-passos{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.pc-passos li{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.45;color:var(--ink2)}
+.pc-passos li>span{width:22px;height:22px;border-radius:50%;background:var(--ink);color:var(--bg);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;margin-top:1px}
+.plano-ajuda{border:1px solid var(--line3);border-radius:16px;background:var(--card)}
+.plano-ajuda summary{list-style:none;display:flex;align-items:center;gap:8px;min-height:48px;padding:0 14px;font-size:14px;font-weight:600;color:var(--ink2);cursor:pointer}
+.plano-ajuda summary::-webkit-details-marker{display:none}
+.plano-ajuda summary span{flex:1}
+.plano-ajuda summary>svg:last-child{transition:transform var(--t-fast,.15s)}
+.plano-ajuda[open] summary>svg:last-child{transform:rotate(90deg)}
+.plano-ajuda .pa-corpo{display:flex;flex-direction:column;gap:10px;padding:0 14px 14px;font-size:14px;line-height:1.45;color:var(--ink2)}
+.plano-ajuda .pa-corpo p{margin:0}
+.plano-ajuda .btn{display:flex;align-items:center;justify-content:center;gap:8px}
+.plano-fim .link-btn{align-self:center;color:var(--rose-ink);font-weight:700}
+.compra-tip b{color:var(--ink)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .plano-bar .pb-ic{background:rgba(255,255,255,.08)}}
 :root[data-theme="dark"] .plano-bar .pb-ic{background:rgba(255,255,255,.08)}
 .aj-sec{margin:10px 2px -6px;font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted2)}
@@ -867,16 +891,17 @@ const ENTREGA_PADRAO = "2028-12";
 const NOMES_PADRAO = "Caio e Mirielly";
 const CASA_PADRAO = "Nosso AP";
 /* tags de afiliado (ficam vazias até as contas estarem prontas; os botões continuam levando à busca da loja) */
-/* teste grátis e venda: 7 dias pra conta nova; depois só ver até liberar o acesso (pagamento na Kiwify).
+/* teste grátis e venda: 7 dias pra conta nova; depois só ver até liberar o acesso (pagamento na Cakto, vale 1 ano).
    A casa do Caio e da Mirielly (nosso-ap) é grátis pra sempre. */
 const TESTE_DIAS = 7;
 /* preço: promoção de verdade enquanto o teste grátis está valendo; depois volta pro preço cheio */
 const PRECO_CHEIO = 49.90, PRECO_PROMO = 39.90;
-const KIWIFY_CHECKOUT = "";               // checkout da Kiwify com o preço cheio (fica vazio até a venda abrir)
-const KIWIFY_PROMO = "";                  // checkout da Kiwify com o preço promocional (oferta/cupom da Kiwify)
+const CAKTO_CHECKOUT = "";                // checkout da Cakto com o preço cheio (fica vazio até a venda abrir)
+const CAKTO_PROMO = "";                   // checkout da Cakto com o preço promocional (oferta da Cakto)
+const SUPORTE_EMAIL = "appcozily@gmail.com";
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.23-3";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.23-4";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -1476,10 +1501,11 @@ function makeDemoStore() {
     async reservar(slugId, itemId, nome) { const l = db.listas[slugId]; if (!l) throw new Error("lista"); if (l.reservas[itemId]) throw { code: "permission-denied" }; l.reservas[itemId] = { nome, em: Date.now() }; persist(); },
     async liberar(slugId, itemId) { const l = db.listas[slugId]; if (l) { delete l.reservas[itemId]; persist(); } },
     async iniciarTeste(uidX) { db.testes = db.testes || {}; if (!db.testes[uidX]) { db.testes[uidX] = { em: Date.now() }; persist(); } },
-    watchAcesso(id, cb) { return listen(() => cb({ pago: !!(db.acesso || {})[id]?.pago, desde: (db.testes || {})[id]?.em || null })); },
+    watchAcesso(id, cb) { return listen(() => cb({ pago: !!(db.acesso || {})[id]?.pago, ate: (db.acesso || {})[id]?.ate || null, desde: (db.testes || {})[id]?.em || null })); },
     /* só na prévia: pra ver o fim do teste e a liberação sem esperar */
     demoAcabarTeste(id) { db.testes = db.testes || {}; db.testes[id] = { em: Date.now() - (TESTE_DIAS + 1) * 864e5 }; persist(); },
-    demoPagar(id) { db.acesso = db.acesso || {}; db.acesso[id] = { pago: true, em: Date.now() }; persist(); }
+    demoPagar(id) { db.acesso = db.acesso || {}; db.acesso[id] = { pago: true, em: Date.now(), ate: Date.now() + 365 * 864e5 }; persist(); },
+    demoVencer(id) { db.acesso = db.acesso || {}; db.acesso[id] = { pago: true, em: Date.now() - 366 * 864e5, ate: Date.now() - 864e5 }; db.testes = db.testes || {}; db.testes[id] = { em: Date.now() - 400 * 864e5 }; persist(); }
   };
 }
 
@@ -1537,9 +1563,9 @@ async function makeFirebaseStore() {
       await F.setDoc(ref, { em: Date.now() });
     },
     watchAcesso(id, cb) {
-      let pago = false, desde = null, aOk = false, tOk = false;
-      const fim = () => { if (aOk && tOk) cb({ pago, desde }); };
-      const a = F.onSnapshot(F.doc(db, "acesso", id), d => { pago = !!(d.exists() && d.data().pago); aOk = true; fim(); }, () => { aOk = true; fim(); });
+      let pago = false, ate = null, desde = null, aOk = false, tOk = false;
+      const fim = () => { if (aOk && tOk) cb({ pago, ate, desde }); };
+      const a = F.onSnapshot(F.doc(db, "acesso", id), d => { pago = !!(d.exists() && d.data().pago); ate = (d.exists() && d.data().ate) || null; aOk = true; fim(); }, () => { aOk = true; fim(); });
       const t = F.onSnapshot(F.doc(db, "testes", id), d => { desde = d.exists() ? d.data().em || null : null; tOk = true; fim(); }, () => { tOk = true; fim(); });
       return () => { a(); t(); };
     },
@@ -1666,20 +1692,22 @@ const gratisSempre = () => S.casaId === "nosso-ap";
 function acessoInfo() {
   if (gratisSempre()) return { tipo: "gratis" };
   const a = S.acesso;
-  if (!a || !a.desde) return a && a.pago ? { tipo: "pago" } : { tipo: "carregando" };
-  if (a.pago) return { tipo: "pago" };
+  if (a && a.pago) return !a.ate || a.ate > Date.now() ? { tipo: "pago", ate: a.ate || null } : { tipo: "acabou", venceu: true, fim: a.ate };
+  if (!a || !a.desde) return { tipo: "carregando" };
   const fim = a.desde + TESTE_DIAS * 864e5, dias = Math.ceil((fim - Date.now()) / 864e5);
   return dias > 0 ? { tipo: "teste", dias, fim } : { tipo: "acabou", fim };
 }
 const bloqueado = () => !!(S.user && S.loaded) && acessoInfo().tipo === "acabou";
 const dataCurta = t => new Date(t).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+const dataLonga = t => new Date(t).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
 function planoHtml() {
   const a = acessoInfo();
   if (a.tipo === "teste") return `<button class="plano-bar" data-act="plano"><span class="pb-ic">${ic("gift", 16, 2.2)}</span><span class="grow"><b>Teste grátis</b> · ${a.dias === 1 ? "último dia" : `faltam ${a.dias} dias`}<small class="pb-sub">${DESCONTO_PROMO}% off até o teste acabar</small></span><span class="pb-go">${reais(PRECO_PROMO)}${ic("chev", 14, 2.4)}</span></button>`;
-  if (a.tipo === "acabou") return `<section class="plano-fim" aria-label="Teste grátis">
-      <b>Seu teste grátis acabou</b>
-      <p>Tudo o que vocês anotaram continua aqui. Pra voltar a anotar e marcar as compras, é só liberar o acesso.</p>
-      <button class="btn primary block" data-act="plano">Liberar acesso · ${reais(PRECO_CHEIO)}</button>
+  if (a.tipo === "acabou") return `<section class="plano-fim" aria-label="${a.venceu ? "Acesso" : "Teste grátis"}">
+      <b>${a.venceu ? "Seu ano de acesso acabou" : "Seu teste grátis acabou"}</b>
+      <p>Tudo o que vocês anotaram continua aqui. Pra voltar a anotar e marcar as compras, é só ${a.venceu ? "renovar" : "liberar"} o acesso.</p>
+      <button class="btn primary block" data-act="plano">${a.venceu ? "Renovar" : "Liberar acesso"} · ${reais(PRECO_CHEIO)}</button>
+      <button class="link-btn" data-act="plano">Já comprei e não liberou</button>
     </section>`;
   return "";
 }
@@ -1688,34 +1716,68 @@ const DESCONTO_PROMO = Math.round((1 - PRECO_PROMO / PRECO_CHEIO) * 100);
 const temPromo = () => acessoInfo().tipo === "teste";
 const PRECO_TXT_AGORA = () => reais(temPromo() ? PRECO_PROMO : PRECO_CHEIO);
 function linkCheckout() {
-  const base = temPromo() && KIWIFY_PROMO ? KIWIFY_PROMO : KIWIFY_CHECKOUT;
+  const base = (temPromo() && CAKTO_PROMO ? CAKTO_PROMO : CAKTO_CHECKOUT) || (DEMO ? "https://pay.cakto.com.br/exemplo-cozily" : "");
   if (!base) return "";
   const u = new URL(base);
   if (S.user?.email) u.searchParams.set("email", S.user.email);
   if (meuNome()) u.searchParams.set("name", meuNome());
   return u.toString();
 }
+/* bloco "use este e-mail": aparece antes de ir pro pagamento e na ajuda */
+const emailBox = (txt) => `<div class="email-box"><span class="eb-lbl">${txt}</span><b class="eb-mail">${esc(S.user?.email || "")}</b></div>`;
+function ajudaPagamentoHtml() {
+  return `<details class="plano-ajuda">
+      <summary>${ic("info", 16, 2.2)}<span>Já comprei e o acesso não liberou</span>${ic("chev", 14, 2.4)}</summary>
+      <div class="pa-corpo">
+        <p>O acesso libera sozinho em até 1 minuto, pelo <b>e-mail usado na compra</b>. Esta conta é:</p>
+        ${emailBox("Sua conta")}
+        <p>Se você comprou com <b>outro e-mail</b>, manda pra gente o e-mail da compra que a gente libera rapidinho:</p>
+        <a class="btn ghost block" href="mailto:${SUPORTE_EMAIL}?subject=${encodeURIComponent("Liberar meu acesso ao Cozily")}&body=${encodeURIComponent(`Conta no app: ${S.user?.email || ""}\nE-mail usado na compra: `)}">${ic("mail", 16, 2.2)} ${SUPORTE_EMAIL}</a>
+      </div>
+    </details>`;
+}
 function openPlano() {
-  const a = acessoInfo(), link = linkCheckout();
-  const topo = a.tipo === "pago" ? `<div class="status done"><span class="st"><b>Acesso liberado</b><span>Obrigado por usar o Cozily!</span></span></div>`
+  const a = acessoInfo(), link = linkCheckout(), renovar = !!a.venceu;
+  const topo = a.tipo === "pago" ? `<div class="status done"><span class="st"><b>Acesso liberado</b><span>${a.ate ? `Vale até ${dataLonga(a.ate)}. ` : ""}Obrigado por usar o Cozily!</span></span></div>`
+    : renovar ? `<p class="plano-txt">Seu ano de acesso terminou em <b>${dataLonga(a.fim)}</b>. Nada foi apagado: vocês continuam vendo tudo, só não dá pra mudar até renovar.</p>`
     : a.tipo === "acabou" ? `<p class="plano-txt">Seu teste grátis acabou em <b>${dataCurta(a.fim)}</b>. Nada foi apagado: vocês continuam vendo tudo, só não dá pra mudar até liberar.</p>`
     : a.tipo === "teste" ? `<p class="plano-txt">Seu teste grátis vai até <b>${dataCurta(a.fim)}</b>. Depois disso, a lista fica só pra ver até liberar o acesso.</p>` : "";
   const itens = ["Todos os cômodos e itens, com fotos", "Caixinha e finanças da casa", "Lista do mercado do mês", "Lista de presentes pros convidados", "Ofertas do que falta"];
-  openSheet("Liberar o Cozily", `
+  const btnTxt = temPromo() ? `Garantir por ${reais(PRECO_PROMO)}` : renovar ? "Renovar por 1 ano" : "Liberar acesso";
+  openSheet(renovar ? "Renovar o Cozily" : "Liberar o Cozily", `
     ${topo}
-    ${a.tipo !== "pago" ? `<div class="card plano-card">
+    ${a.tipo !== "pago" ? `<div class="card plano-card" id="planoPasso1">
       <ul class="plano-lista">${itens.map(t => `<li>${ic("check", 15, 2.6)}<span>${t}</span></li>`).join("")}</ul>
       ${temPromo() ? `<div class="plano-promo">${ic("clock", 15, 2.2)}<span><b>Preço de lançamento só até ${dataCurta(a.fim)}</b>${a.dias === 1 ? " (hoje é o último dia)" : `, faltam ${a.dias} dias`}. Depois volta pra ${reais(PRECO_CHEIO)}.</span></div>` : ""}
-      <div class="plano-preco">${temPromo() ? `<span class="pp-de"><s>${reais(PRECO_CHEIO)}</s><span class="pp-off">-${DESCONTO_PROMO}%</span></span>` : ""}<b>${PRECO_TXT_AGORA()}</b><span>Pagamento pela Kiwify. O acesso libera sozinho em até 1 minuto.</span></div>
-      ${link ? `<a class="btn primary block lg" href="${esc(link)}" target="_blank" rel="noopener">${temPromo() ? `Garantir por ${reais(PRECO_PROMO)}` : "Liberar acesso"}</a>` : `<button class="btn primary block lg" disabled>Pagamento abre em breve</button>`}
-      <p class="small muted center" style="margin:0">Use o mesmo e-mail da sua conta: <b>${esc(S.user?.email || "")}</b></p>
+      <div class="plano-preco">${temPromo() ? `<span class="pp-de"><s>${reais(PRECO_CHEIO)}</s><span class="pp-off">-${DESCONTO_PROMO}%</span></span>` : ""}<b>${PRECO_TXT_AGORA()}</b><span><strong class="pp-ano">Acesso de 1 ano</strong>, pagamento único pela Cakto (Pix ou cartão). Libera sozinho em até 1 minuto.</span></div>
+      ${link ? `<button class="btn primary block lg" type="button" data-plano="passo2">${btnTxt}</button>` : `<button class="btn primary block lg" disabled>Pagamento abre em breve</button>`}
+      <p class="small muted center" style="margin:0">Na compra, use o e-mail<br><b style="color:var(--ink);overflow-wrap:anywhere">${esc(S.user?.email || "")}</b></p>
     </div>
-    ${S.casaId !== S.user?.uid ? `<p class="small muted center" style="margin:0">Pode ser você ou quem criou a casa. Vale pra todo mundo que mora junto.</p>` : ""}` : ""}
-    ${DEMO ? `<div class="plano-demo"><button class="link-btn" data-demo="acabar">Simular fim do teste (só na prévia)</button><button class="link-btn" data-demo="pagar">Simular pagamento (só na prévia)</button></div>` : ""}`,
+    <div class="card plano-card plano-confirma" id="planoPasso2" hidden>
+      <div class="pc-ic">${ic("mail", 22, 2.2)}</div>
+      <b class="pc-tit">Use este e-mail no pagamento</b>
+      ${emailBox("O e-mail da sua conta")}
+      <ul class="pc-passos">
+        <li><span>1</span><p>No pagamento, confira se o e-mail é <b>exatamente</b> este (ele já vai preenchido).</p></li>
+        <li><span>2</span><p>Pague com Pix ou cartão.</p></li>
+        <li><span>3</span><p>Volte pro app: o acesso libera sozinho, com tudo o que você já anotou.</p></li>
+      </ul>
+      ${link ? `<a class="btn primary block lg" href="${esc(link)}" target="_blank" rel="noopener">Ir para o pagamento</a>` : ""}
+      <button class="link-btn" type="button" data-plano="voltar">Voltar</button>
+    </div>
+    ${S.casaId !== S.user?.uid ? `<p class="small muted center" style="margin:0">Pode ser você ou quem criou a casa. Vale pra todo mundo que mora junto.</p>` : ""}
+    ${ajudaPagamentoHtml()}` : ""}
+    ${DEMO ? `<div class="plano-demo"><button class="link-btn" data-demo="acabar">Simular fim do teste (só na prévia)</button><button class="link-btn" data-demo="pagar">Simular pagamento (só na prévia)</button><button class="link-btn" data-demo="vencer">Simular fim do ano de acesso (só na prévia)</button></div>` : ""}`,
   { cancelLabel: "Fechar", onMount(ov, close) {
       ov.addEventListener("click", e => {
+        const pl = e.target.closest("[data-plano]");
+        if (pl) {
+          const p1 = ov.querySelector("#planoPasso1"), p2 = ov.querySelector("#planoPasso2"), ir = pl.dataset.plano === "passo2";
+          if (p1 && p2) { p1.hidden = ir; p2.hidden = !ir; (ir ? p2 : p1).scrollIntoView({ block: "nearest", behavior: "smooth" }); }
+          return;
+        }
         const d = e.target.closest("[data-demo]"); if (!d) return;
-        if (d.dataset.demo === "acabar") S.store.demoAcabarTeste(S.casaId); else S.store.demoPagar(S.casaId);
+        if (d.dataset.demo === "acabar") S.store.demoAcabarTeste(S.casaId); else if (d.dataset.demo === "vencer") S.store.demoVencer(S.casaId); else S.store.demoPagar(S.casaId);
         close();
       });
   } });
@@ -3678,7 +3740,7 @@ function openSettings() {
     </div>
     <h3 class="aj-sec">Sua conta</h3>
     <div class="items">
-      ${!gratisSempre() ? row("data-go=plano", "gift", "Plano", ({ teste: "Teste grátis", acabou: "Teste acabou", pago: "Acesso liberado" })[acessoInfo().tipo] || "") : ""}
+      ${!gratisSempre() ? row("data-go=plano", "gift", "Plano", (acessoInfo().venceu ? "Acesso vencido" : ({ teste: "Teste grátis", acabou: "Teste acabou", pago: "Acesso liberado" })[acessoInfo().tipo]) || "") : ""}
       ${row("data-go=nome", "edit", "Seu nome", esc(meuNome() || "Ainda sem nome"))}
       ${row("data-go=senha", "key", "Senha", "Criar ou trocar")}
       ${row("data-go=dados", "dl", "Baixar meus dados", "Cópia de tudo, num arquivo")}
@@ -4063,6 +4125,7 @@ function viewLogin() {
     ${brand}
     ${S.codigoAviso ? `<div class="tip honey" role="alert">${ic("info", 18, 2)}<p>${S.codigoAviso}</p></div>` : ""}
     ${S.authAviso ? `<div class="tip mist" role="status">${ic("info", 18, 2)}<p>${S.authAviso}</p></div>` : ""}
+    ${!cv && criar ? `<div class="tip honey compra-tip">${ic("gift", 18, 2)}<p><b>Já comprou o Cozily?</b> Crie a conta com o <b>mesmo e-mail da compra</b>. Assim o acesso já vem liberado. Se for entrar com o Google, escolha a conta Google desse e-mail.</p></div>` : ""}
     <form id="loginForm" novalidate>
       ${segHtml("authSeg", [["entrar", "Entrar"], ["criar", "Criar conta"]], criar ? "criar" : "entrar").replace(/<button /g, '<button data-act="authmode" ')}
       ${DEMO ? `<span class="demo">${criar ? "Prévia · crie uma conta de teste" : "Prévia · a lista de vocês é caio@exemplo.com"}</span>` : ""}
@@ -4076,7 +4139,7 @@ function viewLogin() {
       <button class="btn primary block lg" type="submit" id="lBtn">${criar ? "Criar conta" : "Entrar"}</button>
       ${criar ? "" : `<button class="link-btn" type="button" data-act="reset">Esqueci minha senha</button>`}
     </form>
-    <p class="small muted center" style="margin:auto 0 0;line-height:1.5">${cv ? (criar ? "Já tem conta no Cozily? Toca em <b>Entrar</b> lá em cima." : "Ainda não tem conta? Toca em <b>Criar conta</b> lá em cima.") : "Cada um entra com o próprio e-mail. Quem mora junto chega pelo convite."}</p>
+    <p class="small muted center" style="margin:auto 0 0;line-height:1.5">${cv ? (criar ? "Já tem conta no Cozily? Toca em <b>Entrar</b> lá em cima." : "Ainda não tem conta? Toca em <b>Criar conta</b> lá em cima.") : (criar ? "Cada um entra com o próprio e-mail. Quem mora junto chega pelo convite." : `Comprou e é a primeira vez? Toca em <b>Criar conta</b> e use o e-mail da compra.`)}</p>
   </div>`;
 }
 /* chegou pelo link do convite já com a conta aberta: confirma antes de trocar de casa */

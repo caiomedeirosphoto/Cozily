@@ -39,12 +39,13 @@ service cloud.firestore {
     }
 
     // Teste grátis de 7 dias: depois disso a casa fica só pra ver até o acesso ser liberado (pagamento).
-    // A casa original (nosso-ap) é grátis pra sempre. "acesso" quem grava é o servidor (pagamento da Kiwify).
+    // A casa original (nosso-ap) é grátis pra sempre. "acesso" quem grava é o servidor (pagamento da Cakto, vale 1 ano: campo "ate").
     function liberada(casaId) {
       let a = /databases/$(database)/documents/acesso/$(casaId);
       let t = /databases/$(database)/documents/testes/$(casaId);
       return casaId == 'nosso-ap'
-        || (exists(a) && get(a).data.get('pago', false) == true)
+        || (exists(a) && get(a).data.get('pago', false) == true
+            && request.time.toMillis() < get(a).data.get('ate', 9999999999999))
         || (exists(t) && request.time.toMillis() < get(t).data.em + 7 * 86400000);
     }
     // Pode ver e apagar sempre; criar e mudar só com a casa liberada.

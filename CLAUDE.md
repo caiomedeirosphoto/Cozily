@@ -82,6 +82,13 @@ Versão **2026.10.19-4 liberada no app** (`main`) em 19/10/2026, com o OK do Cai
 - Pente fino: tokens `--muted2`/`--faint` mais legíveis (claro e escuro), alvos de toque maiores ("editar" orçamento, "Ver todas", "Onde comprar"), lista de presentes em 320 px (`.g-th` menor), `.offer .off` sem quebrar. Teste de varredura `.dev/tests/taudit.py` (todas as telas e folhas; prints em `.dev/t4/audit`).
 - `barraTopo()`: a cor da barra do celular (meta theme-color) escurece junto com as folhas e volta ao fechar (antes piscava uma faixa escura no iPhone).
 
+## Na `dev` (23/10/2026): venda pela Cakto + avisos de e-mail (app 2026.10.23-4) — esperando o OK do Caio
+- **Kiwify saiu, entrou a Cakto.** Constantes `CAKTO_CHECKOUT`/`CAKTO_PROMO` (vazias até a venda abrir; na prévia usa um link de exemplo). Link leva `?email=&name=`. Suporte: `SUPORTE_EMAIL` = appcozily@gmail.com.
+- **1 ano de acesso**: `acesso/{casa}` e `pagamentos/{email}` ganham `ate`. `acessoInfo()`: pago no prazo = "pago" (com `ate`); vencido = `{tipo:"acabou", venceu:true}` ("Seu ano de acesso acabou" / "Renovar"). Regras: `liberada()` confere `ate`. Prévia: "Simular fim do ano de acesso" (`demoVencer`).
+- **Avisos de e-mail**: login em Criar conta mostra "Já comprou? use o mesmo e-mail da compra (no Google, a conta desse e-mail)"; em Entrar, rodapé "Comprou e é a primeira vez? Criar conta". Liberar: passo 1 (preço + lembrete do e-mail) → passo 2 "Use este e-mail no pagamento" (caixa com o e-mail, 3 passos, Ir para o pagamento). Ajuda "Já comprei e o acesso não liberou" (mostra o e-mail da conta e mailto pro suporte já preenchido). Cartão de fim tem "Já comprei e não liberou".
+- **Servidor**: function `cakto` (substitui `kiwify`), segredo `CAKTO_SECRET` (chave secreta do webhook da Cakto, vem no corpo `secret` ou em cabeçalho). Eventos: purchase_approved libera (+1 ano, somando se ainda valia; aviso repetido do mesmo pedido não soma), refund/chargeback tiram. **A CONFIRMAR com o print da tela de webhooks da Cakto** (nomes de campo/eventos). `contaNova` só libera se `ate` ainda vale. Testes: `functions/test/pagamento.test.js`, `.dev/tests/tteste.py`.
+- Na Cakto (Caio): canal de entrega por e-mail com o link do app; checkout com confirmação de e-mail ligada.
+
 ## PRÓXIMA TAREFA
 Esperar o domínio cozily.com.br. Antes: Regras da atividade já coladas pelo Caio (20/10). A Mirielly já entrou na casa.
 
