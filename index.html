@@ -26,7 +26,7 @@
 :root{
   --bg:#F6F2EC; --card:#FFFFFF; --soft:#ECE5DA; --tile:#EDE5D9; --tile2:#E6E4E1; --chipbg:#F3EEE6;
   --line:#E6DED2; --line2:#EFE8DE; --line3:#F2ECE3;
-  --ink:#2A2826; --ink2:#4A453F; --muted:#6B665F; --muted2:#77726B; --faint:#8B8680; --taupe:#9C8B78; --ring-off:#D9D0C3;
+  --ink:#2A2826; --ink2:#4A453F; --muted:#6B665F; --muted2:#6E6963; --faint:#7E7973; --taupe:#9C8B78; --ring-off:#D9D0C3;
   --g:#2E2B28; --g-ink:#FFFFFF;
   --hero:#2E2B28; --hero-ink:#FFFFFF; --hero-mut:#CFC6BA; --hero-chip:#E9DFD1; --hero-bar:#E3D4BF; --hero-glass:rgba(255,255,255,.07); --hero-track:rgba(255,255,255,.14); --hero-bd:transparent;
   --sage:#DDE7D6; --sage-ink:#34503B; --sage-dk:#6E8F72; --sage-bd:#C5D3BD;
@@ -46,7 +46,7 @@
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
     --bg:#141414; --card:#1E1E1E; --soft:#262626; --tile:#2A2A2A; --tile2:#262626; --chipbg:#262626;
     --line:#333333; --line2:#2A2A2A; --line3:#262626;
-    --ink:#F3F0EB; --ink2:#DAD6D0; --muted:#A8A39C; --muted2:#8F8A84; --faint:#7D7974; --taupe:#C9B79F; --ring-off:#4A4A4A;
+    --ink:#F3F0EB; --ink2:#DAD6D0; --muted:#A8A39C; --muted2:#9C978F; --faint:#8C8781; --taupe:#C9B79F; --ring-off:#4A4A4A;
     --g:#EDE5D9; --g-ink:#161616;
     --hero:#232323; --hero-ink:#F6F2EC; --hero-mut:#A8A39C; --hero-chip:#E3D4BF; --hero-bar:#E3D4BF; --hero-glass:rgba(255,255,255,.05); --hero-track:rgba(255,255,255,.1); --hero-bd:#2E2E2E;
     --sage:#1E2A22; --sage-ink:#A6CFAE; --sage-dk:#74A17C; --sage-bd:#2B3A30;
@@ -64,7 +64,7 @@
 :root[data-theme="dark"]{
     --bg:#141414; --card:#1E1E1E; --soft:#262626; --tile:#2A2A2A; --tile2:#262626; --chipbg:#262626;
     --line:#333333; --line2:#2A2A2A; --line3:#262626;
-    --ink:#F3F0EB; --ink2:#DAD6D0; --muted:#A8A39C; --muted2:#8F8A84; --faint:#7D7974; --taupe:#C9B79F; --ring-off:#4A4A4A;
+    --ink:#F3F0EB; --ink2:#DAD6D0; --muted:#A8A39C; --muted2:#9C978F; --faint:#8C8781; --taupe:#C9B79F; --ring-off:#4A4A4A;
     --g:#EDE5D9; --g-ink:#161616;
     --hero:#232323; --hero-ink:#F6F2EC; --hero-mut:#A8A39C; --hero-chip:#E3D4BF; --hero-bar:#E3D4BF; --hero-glass:rgba(255,255,255,.05); --hero-track:rgba(255,255,255,.1); --hero-bd:#2E2E2E;
     --sage:#1E2A22; --sage-ink:#A6CFAE; --sage-dk:#74A17C; --sage-bd:#2B3A30;
@@ -190,10 +190,10 @@ h1,h2,h3{margin:0}
 .tile{width:40px;height:40px;border-radius:13px;background:var(--tile);color:var(--ink2);display:flex;align-items:center;justify-content:center;flex:none}
 .tile.alt{background:var(--tile2)}
 .tile.lg{width:58px;height:58px;border-radius:18px}
-.search{display:flex;align-items:center;gap:10px;min-height:48px;padding:0 16px;background:var(--soft);border-radius:16px;color:var(--muted2);font-size:16px}
+.search{display:flex;align-items:center;gap:10px;min-height:48px;padding:0 16px;background:var(--soft);border-radius:16px;color:var(--muted);font-size:16px}
 a.search span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .search input{flex:1;min-width:0;border:0;background:transparent;outline:none;font-size:16px;color:var(--ink);height:48px}
-.search input::placeholder{color:var(--muted2)}
+.search input::placeholder{color:var(--muted)}
 .search input::-webkit-search-cancel-button{display:none}
 
 /* segmentado e chips */
@@ -329,7 +329,7 @@ a.search span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-widt
 .offer s{color:var(--faint)}
 .offer .rate{display:block;font-size:12px;color:var(--ink2)}
 .offer .rate svg{vertical-align:-2px;color:#B08A5A}
-.offer .off{font-size:11px;font-weight:700;color:var(--orange-ink);background:var(--orange);padding:2px 7px;border-radius:7px}
+.offer .off{white-space:nowrap;font-size:11px;font-weight:700;color:var(--orange-ink);background:var(--orange);padding:2px 7px;border-radius:7px}
 .ach-t{display:flex;align-items:center;gap:2px}.ach-t span{display:flex;color:var(--orange-hot);transform:translateY(-2px)}
 .ach-hero{background:var(--orange);color:var(--orange-ink);border-radius:24px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
 .ach-n{display:flex;flex-direction:column;gap:1px}
@@ -515,7 +515,7 @@ input[type=date].input,input[type=month].input{min-width:0;display:flex;align-it
 :root[data-theme="dark"] .plano-bar .pb-ic{background:rgba(255,255,255,.08)}
 .aj-sec{margin:10px 2px -6px;font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted2)}
 .aj-sec:first-child{margin-top:0}
-.aj-rodape{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 8px;font-size:13px;color:var(--faint);padding-top:4px}
+.aj-rodape{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 8px;font-size:13px;color:var(--muted2);padding-top:4px}
 .aj-rodape button{min-height:36px;padding:0 4px;color:var(--muted2);font-weight:600}
 .aj-rodape .ver{flex-basis:100%;text-align:center;font-size:12px}
 .save.danger-txt{color:var(--danger)}
@@ -621,10 +621,12 @@ a.item.ativ:active{opacity:.75}
 .guest{max-width:520px;margin:0 auto;padding:calc(var(--top) + 24px) 20px calc(var(--bottom) + 30px);display:flex;flex-direction:column;gap:16px;min-height:100vh}
 .gitem{background:var(--card);border:1px solid var(--line2);border-radius:20px;padding:12px;display:flex;flex-direction:column;gap:10px}
 .gitem.taken{opacity:.6}
+.gitem .g-th{width:56px;height:56px;border-radius:14px}
+@media (max-width:360px){.gitem .gr{gap:10px}.gitem .g-th{width:40px;height:40px;border-radius:12px}.gitem .btn.sm{padding:0 10px;font-size:13px}.gitem .pill.lg{padding:4px 8px}}
 .gitem .gr{display:flex;gap:12px;align-items:center}
 .gitem .gb{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
 .gitem .gb b{font-size:15px}.gitem .gb span{font-size:12px;color:var(--muted2)}
-.gitem .wl{align-self:flex-start;padding:4px 0;font-size:12px;font-weight:700;color:var(--ink2);text-decoration:underline}
+.gitem .wl{align-self:flex-start;text-align:left;min-height:32px;padding:6px 0;font-size:12px;font-weight:700;color:var(--ink2);text-decoration:underline}
 
 /* toast */
 .toast{position:fixed;left:16px;right:16px;bottom:calc(var(--bottom) + 16px);max-width:488px;margin:0 auto;z-index:80;background:var(--ink);color:var(--bg);border-radius:16px;padding:10px 8px 10px 16px;min-height:52px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.25);overflow:hidden;animation:toastIn var(--t-toast) var(--ease) both}
@@ -874,7 +876,7 @@ const KIWIFY_CHECKOUT = "";               // checkout da Kiwify com o preço che
 const KIWIFY_PROMO = "";                  // checkout da Kiwify com o preço promocional (oferta/cupom da Kiwify)
 const AFILIADO = { amazon: "", mercadolivre: "", shopee: "", magalu: "" };
 
-const APP_VERSION = "2026.10.23-1";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
+const APP_VERSION = "2026.10.23-2";     // muda a cada lançamento: o app compara com o publicado e se atualiza sozinho
 const DEMO = !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.startsWith("COLE");
 const DEMO_PRELOAD = false;               // só a prévia liga isso: cria uma conta de exemplo com a lista
 if (DEMO && DEMO_PRELOAD) LEGACY["caio@exemplo.com"] = "nosso-ap";
@@ -2537,7 +2539,7 @@ function viewMercadoGastos() {
   return `<main class="page no-tabs">
     <div class="topbar">${backBtn("#/mercado")}<span></span></div>
     <div class="hello"><small>Mercado</small><h1>Gasto com alimentação</h1></div>
-    <span class="small muted" style="margin-top:-8px">Orçamento: ${orc ? money0(orc) + "/mês" : "ainda sem valor"} · <button data-act="orc" style="font-weight:700;color:var(--ink);text-decoration:underline">editar</button>. Esse gasto é separado da caixinha da casa.</span>
+    <span class="small muted" style="margin-top:-8px">Orçamento: ${orc ? money0(orc) + "/mês" : "ainda sem valor"} · <button data-act="orc" style="font-weight:700;color:var(--ink);text-decoration:underline;padding:8px 4px;margin:-8px -4px">editar</button>. Esse gasto é separado da caixinha da casa.</span>
     <button class="btn primary block lg" data-act="lancar">${ic("plus", 20, 2.2)} Lançar compra</button>
     <section class="card">
       <div class="row" style="justify-content:space-between"><h2>Últimos 6 meses</h2>${orc ? `<span class="legend"><span><i style="background:transparent;border-top:2px dashed var(--taupe);border-radius:0;height:0;width:14px"></i>orçamento</span></span>` : ""}</div>
@@ -2600,7 +2602,7 @@ function viewAvisos() {
     }).join("")}</div>
     <p class="small muted" style="margin:-4px 4px 0">A gente te avisa 30 e 7 dias antes de acabar, pra dar tempo de testar tudo com calma.</p>`
     : `<div class="card"><span class="small muted">Quando marcarem algo como comprado, coloquem até quando vai a garantia. Aí a gente lembra vocês antes de acabar.</span></div>`}
-    ${ofs.length ? `<div class="grp-h"><h3>Ofertas do que falta</h3><a href="#/achadinhos" style="font-size:12px;font-weight:700;color:var(--muted)">Ver todas</a></div>
+    ${ofs.length ? `<div class="grp-h"><h3>Ofertas do que falta</h3><a href="#/achadinhos" style="font-size:12px;font-weight:700;color:var(--muted);display:inline-flex;align-items:center;min-height:36px;padding:0 4px">Ver todas</a></div>
     <div class="items">${ofs.slice(0, 4).map(({ it, of }) => `<a class="item" href="#/i/${encodeURIComponent(it.id)}"><span class="tile" style="background:var(--orange);color:var(--orange-ink)">${ic("fogo", 19, 2)}</span><span class="item-txt grow"><span class="item-name">${esc(it.nome)} com ${of.off}% de desconto</span><span class="meta">${money0(of.o.precoAntes)} por ${money0(of.o.preco)}${of.o.loja ? " · " + esc(of.o.loja) : ""}</span></span>${ic("chev", 16, 2)}</a>`).join("")}</div>` : ""}
     <div class="grp-h"><h3>Atividade da casa</h3>${feed.length > 8 ? `<a href="#/atividade" style="font-size:12px;font-weight:700;color:var(--muted)">Ver tudo</a>` : ""}</div>
     ${feed.length ? `<div class="items">${feed.slice(0, 8).map(ativRowHtml).join("")}</div>`
@@ -2769,7 +2771,7 @@ function viewGuest(s) {
       ${(d.itens || []).map(it => {
         const r = res.get(it.id), mine = meus.includes(it.id), open = G.open === it.id && !r;
         return `<div class="gitem ${r && !mine ? "taken" : ""}">
-          <div class="gr"><span class="thumb" style="width:56px;height:56px;border-radius:14px">${ic("gift", 22, 1.6)}</span>
+          <div class="gr"><span class="thumb g-th">${ic("gift", 22, 1.6)}</span>
             <span class="gb"><b>${esc(it.nome)}</b><span>${esc(it.sub || "")}</span>${!r ? `<button class="wl" data-act="g-lojas" data-id="${esc(it.id)}" aria-expanded="${open}">${open ? "Fechar lojas" : "Onde comprar"}</button>` : ""}</span>
             ${r ? (mine ? `<span class="pill lav lg">Você compra</span>` : `<span class="pill lg" style="background:var(--chipbg);color:var(--muted2)">Reservado</span>`) : `<button class="btn primary sm" data-act="g-pick" data-id="${esc(it.id)}">Eu compro!</button>`}
           </div>
